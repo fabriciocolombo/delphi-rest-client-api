@@ -6,12 +6,9 @@ DONE
 Requirements
 	* Support HTTPS
 	* Result should supports Xml
-	* Must provide support to Delphi 7
-	* Transparent serialization/desserialization in delphi side. 
 	* Support marshaller plugins for custom formats
 	* URIBuilder to construct with support to:
 		-	Addressable with QueryParams: servername/controllername/actionname?par1&par2
 		- Addressable with URI params: servername/controllername/actionname/par1/par2
-	* Can also use anonymous methods to register callback of requests
-	* Integrable into Rest DataSnap
+	* Can also use anonymous methods to register callback of requests	
 	* Support DBXJson to delphi 2010 and up.
