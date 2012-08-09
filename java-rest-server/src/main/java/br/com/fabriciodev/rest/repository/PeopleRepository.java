@@ -16,7 +16,7 @@ public class PeopleRepository {
 	private void initData() {
 		peoples.add(new Person(1, "John Doe", "john@hotmail.com"));
 		peoples.add(new Person(2, "Mike Myers", "myers@hotmail.com"));
-		peoples.add(new Person(3, "Joseph Climber", "climber@hotmail.com"));
+		peoples.add(new Person(3, "José Climber", "climber@hotmail.com"));
 		peoples.add(new Person(4, "Mikaela Romanova", "romanova@hotmail.com"));
 	}
 

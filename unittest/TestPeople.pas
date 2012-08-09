@@ -107,7 +107,7 @@ procedure TTestPeople.GetPerson;
 begin
   CheckPerson('John Doe', 'john@hotmail.com', 1);
   CheckPerson('Mike Myers', 'myers@hotmail.com', 2);
-  CheckPerson('Joseph Climber', 'climber@hotmail.com', 3);
+  CheckPerson('José Climber', 'climber@hotmail.com', 3);
   CheckPerson('Mikaela Romanova', 'romanova@hotmail.com', 4);
 end;
 

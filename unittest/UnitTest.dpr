@@ -11,8 +11,10 @@ program UnitTest;
 }
 
 {$IFDEF CONSOLE_TESTRUNNER}
-{$APPTYPE CONSOLE}
+  {$APPTYPE CONSOLE}
 {$ENDIF}
+
+{$I DelphiRest.inc}
 
 uses
   Forms,
@@ -22,8 +24,10 @@ uses
   TestHelloWorld in 'TestHelloWorld.pas',
   TestPeople in 'TestPeople.pas',
   BaseTestRest in 'BaseTestRest.pas',
-  TestHeader in 'TestHeader.pas',
-  TestDBXJson in 'TestDBXJson.pas';
+  {$IFDEF USE_GENERICS}
+  TestDBXJson in 'TestDBXJson.pas',
+  {$ENDIF}
+  TestHeader in 'TestHeader.pas';
 
 {$R *.RES}
 

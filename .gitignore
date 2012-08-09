@@ -1,1 +1,6 @@
 java-rest-server/target
+unittest/Debug
+unittest/UnitTest.res
+unittest/UnitTest.dsk
+unittest/UnitTest.dof
+packages/XE2/DelphiXE2_RestApi.res

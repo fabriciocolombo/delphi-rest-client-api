@@ -4,8 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-{$IFDEF USE_GENERICS}
-uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils;
+uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections;
 
 type
   TPerson = class(TObject)
@@ -25,13 +24,12 @@ type
     procedure EchoJsonObjectWithPost;
     procedure EchoJsonObjectWithPut;
     procedure GetJsonObject;
+    procedure GetJsonList;
     procedure DeleteJsonObject;
   end;
-{$ENDIF}
 
 implementation
 
-{$IFDEF USE_GENERICS}
 { TTestDbxJson }
 
 procedure TTestDbxJson.EchoJsonObjectWithPut;
@@ -52,6 +50,29 @@ begin
     end;
   finally
     vReqJson.Free;
+  end;
+end;
+
+procedure TTestDbxJson.GetJsonList;
+var
+  vResponse: TList<TPerson>;
+  vPerson: TPerson;
+begin
+  vResponse := RestClient.Resource(CONTEXT_PATH + 'persons')
+                          .Accept(RestUtils.MediaType_Json)
+                          .GetAsList<TPerson>();
+  try
+    CheckNotNull(vResponse);
+    CheckEquals(4, vResponse.Count);
+
+    for vPerson in vResponse do
+    begin
+      CheckTrue(vPerson.id > 0);
+      CheckNotEqualsString('', vPerson.name);
+      CheckNotEqualsString('', vPerson.email);
+    end;
+  finally
+    vResponse.Free;
   end;
 end;
 
@@ -146,7 +167,4 @@ end;
 initialization
   TTestDbxJson.RegisterTest;
 
-{$ENDIF}
-
-  
 end.

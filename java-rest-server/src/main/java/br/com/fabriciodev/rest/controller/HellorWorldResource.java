@@ -28,7 +28,7 @@ public class HellorWorldResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public HelloWorld sayHello() {
-		return HelloWorld.create("Ol√° Mundo!");
+		return HelloWorld.create("Ol· Mundo!");
 	}
 
 	@GET

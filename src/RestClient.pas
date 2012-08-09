@@ -7,6 +7,9 @@ interface
 uses Classes, SysUtils, Windows, IdHTTP,
      SuperObject,
      RestUtils,
+     {$IFDEF USE_GENERICS}
+     Generics.Collections, Rtti
+     {$ENDIF}
      Contnrs;
 
 const
@@ -87,6 +90,7 @@ type
     {$IFDEF USE_GENERICS}
     function Post<T>(Entity: TObject): T;overload;
     function Get<T>(classType: TClass): T;overload;
+    function GetAsList<T>(): TList<T>;
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
 
@@ -100,6 +104,8 @@ type
 
     {$IFDEF USE_GENERICS}
     class function UnMarshal<T>(ClassType: TClass; text: String): T;
+    class function UnMarshalList<T>(text: String): TList<T>;overload;
+    class function UnMarshalList<T>(obj: ISuperObject): TList<T>;overload;
     {$ENDIF}
   end;
 
@@ -236,6 +242,15 @@ begin
   Result := FAcceptTypes;
 end;
 
+function TResource.GetAsList<T>: TList<T>;
+var
+  vResponse: string;
+begin
+  vResponse := Self.Get;
+
+  Result := TJsonUtil.UnMarshalList<T>(vResponse);
+end;
+
 function TResource.GetContent: TStream;
 begin
   Result := FContent;
@@ -348,6 +363,40 @@ begin
   ctx := TSuperRttiContext.Create;
   try
     Result := ctx.AsType<T>(SuperObject.SO(text));
+  finally
+    ctx.Free;
+  end;
+end;
+
+class function TJsonUtil.UnMarshalList<T>(text: String): TList<T>;
+begin
+  Result := Self.UnMarshalList<T>(SuperObject.SO(text));
+end;
+
+class function TJsonUtil.UnMarshalList<T>(obj: ISuperObject): TList<T>;
+var
+  ctx: TSuperRttiContext;
+  ret: TValue;
+  vArray: TSuperArray;
+  i: Integer;
+begin
+  ctx := TSuperRttiContext.Create;
+  try
+    Result := TList<T>.Create;
+
+    if obj.IsType(stArray) then
+    begin
+      vArray := obj.AsArray;
+
+      for i := 0 to vArray.Length-1 do
+      begin
+        Result.Add(ctx.AsType<T>(vArray.O[i]));
+      end;
+    end
+    else
+    begin
+      Result.Add(ctx.AsType<T>(obj));
+    end;
   finally
     ctx.Free;
   end;
