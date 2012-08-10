@@ -8,7 +8,7 @@ uses Classes, SysUtils, Windows, IdHTTP,
      SuperObject,
      RestUtils,
      {$IFDEF USE_GENERICS}
-     Generics.Collections, Rtti
+     Generics.Collections, Rtti,
      {$ENDIF}
      Contnrs;
 
@@ -89,7 +89,7 @@ type
 
     {$IFDEF USE_GENERICS}
     function Post<T>(Entity: TObject): T;overload;
-    function Get<T>(classType: TClass): T;overload;
+    function Get<T>(): T;overload;
     function GetAsList<T>(): TList<T>;
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
@@ -103,7 +103,7 @@ type
     class function Marshal(entity: TObject): string;
 
     {$IFDEF USE_GENERICS}
-    class function UnMarshal<T>(ClassType: TClass; text: String): T;
+    class function UnMarshal<T>(text: String): T;
     class function UnMarshalList<T>(text: String): TList<T>;overload;
     class function UnMarshalList<T>(obj: ISuperObject): TList<T>;overload;
     {$ENDIF}
@@ -119,7 +119,6 @@ constructor TRestClient.Create;
 begin
   FIdHttp := TIdHTTP.Create(nil);
   FIdHttp.HandleRedirects := True;
-//  FIdHttp.OnRedirect := OnRedirect;
 
   FResources := TObjectList.Create;
 end;
@@ -230,8 +229,6 @@ begin
   inherited;
 end;
 
-{.$ENDIF}
-
 function TResource.Get: string;
 begin
   Result := FRestClient.DoRequest(METHOD_GET, Self);
@@ -240,15 +237,6 @@ end;
 function TResource.GetAcceptTypes: string;
 begin
   Result := FAcceptTypes;
-end;
-
-function TResource.GetAsList<T>: TList<T>;
-var
-  vResponse: string;
-begin
-  vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshalList<T>(vResponse);
 end;
 
 function TResource.GetContent: TStream;
@@ -287,13 +275,22 @@ begin
 end;
 
 {$IFDEF USE_GENERICS}
-function TResource.Get<T>(classType: TClass): T;
+function TResource.Get<T>(): T;
 var
   vResponse: string;
 begin
   vResponse := Self.Get;
-  
-  Result := TJsonUtil.UnMarshal<T>(classType, vResponse);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+
+function TResource.GetAsList<T>: TList<T>;
+var
+  vResponse: string;
+begin
+  vResponse := Self.Get;
+
+  Result := TJsonUtil.UnMarshalList<T>(vResponse);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
@@ -301,10 +298,10 @@ var
   vResponse: string;
 begin
   SetContent(Entity);
-  
+
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(Entity.ClassType, vResponse);
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -315,7 +312,7 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(Entity.ClassType, vResponse);
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 {$ENDIF}
 
@@ -356,7 +353,7 @@ begin
 end;
 
 {$IFDEF USE_GENERICS}
-class function TJsonUtil.UnMarshal<T>(ClassType: TClass; text: String): T;
+class function TJsonUtil.UnMarshal<T>(text: String): T;
 var
   ctx: TSuperRttiContext;
 begin

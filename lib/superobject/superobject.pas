@@ -7055,6 +7055,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
   var
     f: TRttiField;
     v: TValue;
+    vArray: TSuperArray;
+    i: Integer;
   begin
     case ObjectGetType(obj) of
       stObject:
@@ -7071,6 +7073,28 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
                 f.SetValue(Value.AsObject, v) else
                 Exit;
             end;
+        end;
+      stArray:
+        begin
+          Result := True;
+          if Value.Kind <> tkClass then
+            Value := GetTypeData(TypeInfo).ClassType.Create;
+
+          vArray := obj.AsArray;
+
+          for I := 0 to vArray.Length-1 do
+          begin
+
+            for f in Context.GetType(Value.AsObject.ClassType).GetFields do
+              if f.FieldType <> nil then
+              begin
+                v := TValue.Empty;
+                Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
+                if Result then
+                  f.SetValue(Value.AsObject, v) else
+                  Exit;
+              end;
+          end;
         end;
       stNull:
         begin

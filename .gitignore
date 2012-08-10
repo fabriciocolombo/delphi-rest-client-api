@@ -3,4 +3,5 @@ unittest/Debug
 unittest/UnitTest.res
 unittest/UnitTest.dsk
 unittest/UnitTest.dof
+packages/D7/D7_RestApi.dsk
 packages/XE2/DelphiXE2_RestApi.res

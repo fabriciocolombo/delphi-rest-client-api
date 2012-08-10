@@ -8,12 +8,12 @@ uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections;
 
 type
   TPerson = class(TObject)
-  private
+  public
     (* Reflect the java object field names, case-sensitive *)
     id: Integer;
     name: String;
     email: String;
-  public
+
     class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
   end;
 
@@ -82,7 +82,7 @@ var
 begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'json/person')
                           .Accept(RestUtils.MediaType_Json)
-                          .Get<TPerson>(TPerson);
+                          .Get<TPerson>();
   try
     CheckEquals(123, vResponse.Id);
     CheckEqualsString('Fabricio', vResponse.Name);
@@ -102,7 +102,7 @@ begin
   try
     vAsJson := TJsonUtil.Marshal(vPerson);
 
-    vResponse := TJsonUtil.UnMarshal<TPerson>(TPerson, vAsJson);
+    vResponse := TJsonUtil.UnMarshal<TPerson>(vAsJson);
     try
       CheckEquals(vPerson.Id, vResponse.Id);
       CheckEqualsString(vPerson.Name, vResponse.Name);
