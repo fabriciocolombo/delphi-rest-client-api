@@ -27,7 +27,8 @@ uses
   {$IFDEF USE_GENERICS}
   TestDBXJson in 'TestDBXJson.pas',
   {$ENDIF}
-  TestHeader in 'TestHeader.pas';
+  TestHeader in 'TestHeader.pas',
+  TestResponseHandler in 'TestResponseHandler.pas';
 
 {$R *.RES}
 

@@ -18,6 +18,12 @@ const
 type
   TRequestMethod = (METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE);
 
+  {$IFDEF DELPHI_2009_UP}
+  TRestResponseHandler = reference to procedure(ResponseContent: TStream);
+  {$ELSE}
+  TRestResponseHandler = procedure    (ResponseContent: TStream) of object;
+  {$ENDIF}
+
   TResource = class;
 
   TRestClient = class
@@ -27,7 +33,7 @@ type
 
     function GetResponseCode: Integer;
 
-    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource): WideString;
+    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): WideString;
   public
     constructor Create;
     destructor Destroy; override;
@@ -87,10 +93,14 @@ type
     function Put(Content: TStream): String;overload;
     procedure Delete();overload;
 
+    procedure Get(AHandler: TRestResponseHandler);overload;
+    procedure Post(Content: TStream; AHandler: TRestResponseHandler);overload;
+    procedure Put(Content: TStream; AHandler: TRestResponseHandler);overload;
+
     {$IFDEF USE_GENERICS}
-    function Post<T>(Entity: TObject): T;overload;
     function Get<T>(): T;overload;
     function GetAsList<T>(): TList<T>;
+    function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
 
@@ -130,7 +140,7 @@ begin
   inherited;
 end;
 
-function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource): WideString;
+function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): WideString;
 var
   vResponse: TStringStream;
   vUrl: String;
@@ -153,11 +163,18 @@ begin
       METHOD_DELETE: FIdHttp.Delete(vUrl);
     end;
 
-    {$IFDEF UNICODE}
-      Result :=  UTF8ToWideString(RawByteString(vResponse.DataString));
-    {$ELSE}
-      Result :=  UTF8Decode(vResponse.DataString);
-    {$ENDIF}
+    if Assigned(AHandler) then
+    begin
+      AHandler(vResponse);
+    end
+    else
+    begin
+      {$IFDEF UNICODE}
+        Result :=  UTF8ToWideString(RawByteString(vResponse.DataString));
+      {$ELSE}
+        Result :=  UTF8Decode(vResponse.DataString);
+      {$ENDIF}
+    end;
   finally
     vResponse.Free;
   end;
@@ -182,6 +199,11 @@ function TResource.Accept(AcceptType: String): TResource;
 begin
   FAcceptTypes := FAcceptTypes + IfThen(FAcceptTypes <> EmptyStr,',') + AcceptType;
   Result := Self;
+end;
+
+procedure TResource.Get(AHandler: TRestResponseHandler);
+begin
+  FRestClient.DoRequest(METHOD_GET, Self, AHandler);
 end;
 
 function TResource.GetAcceptedLanguages: string;
@@ -339,6 +361,22 @@ begin
   FContent.CopyFrom(Content, Content.Size);
 
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
+end;
+
+procedure TResource.Post(Content: TStream; AHandler: TRestResponseHandler);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequest(METHOD_POST, Self, AHandler);
+end;
+
+procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandler);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequest(METHOD_PUT, Self, AHandler);
 end;
 
 { TJsonUtil }
