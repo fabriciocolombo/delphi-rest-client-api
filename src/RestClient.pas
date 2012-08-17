@@ -19,10 +19,9 @@ type
   TRequestMethod = (METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE);
 
   {$IFDEF DELPHI_2009_UP}
-  TRestResponseHandler = reference to procedure(ResponseContent: TStream);
-  {$ELSE}
-  TRestResponseHandler = procedure    (ResponseContent: TStream) of object;
+  TRestResponseHandlerFunc = reference to procedure(ResponseContent: TStream);
   {$ENDIF}
+  TRestResponseHandler = procedure (ResponseContent: TStream) of object;
 
   TResource = class;
 
@@ -31,9 +30,14 @@ type
     FIdHttp: TIdHTTP;
     FResources: TObjectList;
 
-    function GetResponseCode: Integer;
+    {$IFDEF DELPHI_2009_UP}
+    FTempHandler: TRestResponseHandlerFunc;
+    procedure DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
+    procedure HandleAnonymousMethod(ResponseContent: TStream);
+    {$ENDIF}
+    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): WideString;overload;
 
-    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): WideString;
+    function GetResponseCode: Integer;
   public
     constructor Create;
     destructor Destroy; override;
@@ -96,6 +100,12 @@ type
     procedure Get(AHandler: TRestResponseHandler);overload;
     procedure Post(Content: TStream; AHandler: TRestResponseHandler);overload;
     procedure Put(Content: TStream; AHandler: TRestResponseHandler);overload;
+
+    {$IFDEF DELPHI_2009_UP}
+    procedure Get(AHandler: TRestResponseHandlerFunc);overload;
+    procedure Post(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
+    procedure Put(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
+    {$ENDIF}
 
     {$IFDEF USE_GENERICS}
     function Get<T>(): T;overload;
@@ -178,8 +188,22 @@ begin
   finally
     vResponse.Free;
   end;
-
 end;
+
+{$IFDEF DELPHI_2009_UP}
+procedure TRestClient.DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
+begin
+  FTempHandler := AHandler;
+
+  DoRequest(Method, ResourceRequest, HandleAnonymousMethod);
+end;
+
+procedure TRestClient.HandleAnonymousMethod(ResponseContent: TStream);
+begin
+  FTempHandler(ResponseContent);
+  FTempHandler := nil;
+end;
+{$ENDIF}
 
 function TRestClient.GetResponseCode: Integer;
 begin
@@ -205,6 +229,45 @@ procedure TResource.Get(AHandler: TRestResponseHandler);
 begin
   FRestClient.DoRequest(METHOD_GET, Self, AHandler);
 end;
+
+procedure TResource.Post(Content: TStream; AHandler: TRestResponseHandler);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequest(METHOD_POST, Self, AHandler);
+end;
+
+procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandler);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequest(METHOD_PUT, Self, AHandler);
+end;
+
+{$IFDEF DELPHI_2009_UP}
+procedure TResource.Get(AHandler: TRestResponseHandlerFunc);
+begin
+  FRestClient.DoRequestFunc(METHOD_GET, Self, AHandler);
+end;
+
+procedure TResource.Post(Content: TStream; AHandler: TRestResponseHandlerFunc);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequestFunc(METHOD_POST, Self, AHandler);
+end;
+
+procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandlerFunc);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequestFunc(METHOD_PUT, Self, AHandler );
+end;
+{$ENDIF}
 
 function TResource.GetAcceptedLanguages: string;
 begin
@@ -361,22 +424,6 @@ begin
   FContent.CopyFrom(Content, Content.Size);
 
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
-end;
-
-procedure TResource.Post(Content: TStream; AHandler: TRestResponseHandler);
-begin
-  Content.Position := 0;
-  FContent.CopyFrom(Content, Content.Size);
-
-  FRestClient.DoRequest(METHOD_POST, Self, AHandler);
-end;
-
-procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandler);
-begin
-  Content.Position := 0;
-  FContent.CopyFrom(Content, Content.Size);
-
-  FRestClient.DoRequest(METHOD_PUT, Self, AHandler);
 end;
 
 { TJsonUtil }
