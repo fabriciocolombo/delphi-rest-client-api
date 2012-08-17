@@ -4,7 +4,8 @@ interface
 
 {$I DelphiRest.inc}
 
-uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections;
+uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections,
+     RestJsonUtils;
 
 type
   TPerson = class(TObject)

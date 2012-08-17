@@ -87,6 +87,9 @@
 			<DCCReference Include="..\..\src\RestUtils.pas"/>
 			<DCCReference Include="..\..\lib\superobject\superobject.pas"/>
 			<DCCReference Include="..\..\lib\superobject\superxmlparser.pas"/>
+			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
+			<DCCReference Include="..\..\src\RestJsonGenerics.pas"/>
+			<DCCReference Include="..\..\src\RestJsonOldRTTI.pas"/>
 			<None Include="..\..\src\DelphiRest.ini"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

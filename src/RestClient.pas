@@ -118,20 +118,9 @@ type
     procedure Delete(Entity: TObject);overload;
   end;
 
-  TJsonUtil = class
-  public
-    class function Marshal(entity: TObject): string;
-
-    {$IFDEF USE_GENERICS}
-    class function UnMarshal<T>(text: String): T;
-    class function UnMarshalList<T>(text: String): TList<T>;overload;
-    class function UnMarshalList<T>(obj: ISuperObject): TList<T>;overload;
-    {$ENDIF}
-  end;
-
 implementation
 
-uses StrUtils, Math;
+uses StrUtils, Math, RestJsonUtils;
 
 { TRestClient }
 
@@ -425,64 +414,5 @@ begin
 
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
 end;
-
-{ TJsonUtil }
-
-class function TJsonUtil.Marshal(entity: TObject): string;
-begin
-  {$IFDEF USE_GENERICS}
-    Result := entity.ToJson().AsJSon();
-  {$ELSE}
-    Result := entity.className;
-  {$ENDIF}
-end;
-
-{$IFDEF USE_GENERICS}
-class function TJsonUtil.UnMarshal<T>(text: String): T;
-var
-  ctx: TSuperRttiContext;
-begin
-  ctx := TSuperRttiContext.Create;
-  try
-    Result := ctx.AsType<T>(SuperObject.SO(text));
-  finally
-    ctx.Free;
-  end;
-end;
-
-class function TJsonUtil.UnMarshalList<T>(text: String): TList<T>;
-begin
-  Result := Self.UnMarshalList<T>(SuperObject.SO(text));
-end;
-
-class function TJsonUtil.UnMarshalList<T>(obj: ISuperObject): TList<T>;
-var
-  ctx: TSuperRttiContext;
-  ret: TValue;
-  vArray: TSuperArray;
-  i: Integer;
-begin
-  ctx := TSuperRttiContext.Create;
-  try
-    Result := TList<T>.Create;
-
-    if obj.IsType(stArray) then
-    begin
-      vArray := obj.AsArray;
-
-      for i := 0 to vArray.Length-1 do
-      begin
-        Result.Add(ctx.AsType<T>(vArray.O[i]));
-      end;
-    end
-    else
-    begin
-      Result.Add(ctx.AsType<T>(obj));
-    end;
-  finally
-    ctx.Free;
-  end;
-end;
-{$ENDIF}
 
 end.

@@ -39,6 +39,9 @@ contains
   RestClient in '..\..\src\RestClient.pas',
   RestUtils in '..\..\src\RestUtils.pas',
   superobject in '..\..\lib\superobject\superobject.pas',
-  superxmlparser in '..\..\lib\superobject\superxmlparser.pas';
+  superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
+  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas';
 
 end.
