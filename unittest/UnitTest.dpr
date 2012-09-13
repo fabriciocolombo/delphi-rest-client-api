@@ -28,7 +28,10 @@ uses
   TestDBXJson in 'TestDBXJson.pas',
   {$ENDIF}
   TestHeader in 'TestHeader.pas',
-  TestResponseHandler in 'TestResponseHandler.pas';
+  TestResponseHandler in 'TestResponseHandler.pas',
+  TestDataSetHandler in 'TestDataSetHandler.pas',
+  Person in 'Person.pas',
+  JsonToDataSetConverter in '..\src\JsonToDataSetConverter.pas';
 
 {$R *.RES}
 

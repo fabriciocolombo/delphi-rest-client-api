@@ -5,19 +5,9 @@ interface
 {$I DelphiRest.inc}
 
 uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections,
-     RestJsonUtils;
+     RestJsonUtils, Person;
 
 type
-  TPerson = class(TObject)
-  public
-    (* Reflect the java object field names, case-sensitive *)
-    id: Integer;
-    name: String;
-    email: String;
-
-    class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
-  end;
-
   TTestDbxJson = class(TBaseTestRest)
   private
   published
@@ -153,16 +143,6 @@ begin
   finally
     vReqJson.Free;
   end;
-end;
-
-{ TPerson }
-
-class function TPerson.NewFrom(Id: Integer; Name, EMail: String): TPerson;
-begin
-  Result := TPerson.Create;
-  Result.Id := Id;
-  Result.Name := Name;
-  Result.EMail := EMail;
 end;
 
 initialization

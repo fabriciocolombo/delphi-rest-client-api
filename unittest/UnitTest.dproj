@@ -80,8 +80,10 @@
 			<DCCReference Include="TestPeople.pas"/>
 			<DCCReference Include="BaseTestRest.pas"/>
 			<DCCReference Include="TestHeader.pas"/>
-			<DCCReference Include="TestDBXJson.pas"/>
 			<DCCReference Include="TestResponseHandler.pas"/>
+			<DCCReference Include="TestDataSetHandler.pas"/>
+			<DCCReference Include="Person.pas"/>
+			<DCCReference Include="..\src\JsonToDataSetConverter.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
