@@ -26,7 +26,7 @@ implementation
 
 { TTestDataSetHandler }
 
-uses JsonToDataSetConverter;
+uses JsonToDataSetConverter, DataSetUtils;
 
 procedure TTestDataSetHandler.JsonToDataSet;
 var
@@ -125,38 +125,22 @@ begin
 end;
 
 procedure TTestDataSetHandler.SetUp;
-
-  function CreateField(DataSet: TDataSet; FieldType: TFieldType; const FieldName: string = '';ASize: Integer=0): TField;
-  begin
-    Result:= DefaultFieldClasses[FieldType].Create(DataSet);
-    Result.FieldName:= FieldName;
-    if Result.FieldName = '' then
-      Result.FieldName:= 'Field' + IntToStr(DataSet.FieldCount +1);
-    Result.FieldKind := fkData;
-    Result.DataSet:= DataSet;
-    Result.Name:= DataSet.Name + Result.FieldName;
-    Result.Size := ASize;
-
-    if (FieldType = ftString) and (ASize <= 0) then
-      raise Exception.CreateFmt('Size não definido para o campo "%s".',[FieldName]);
-  end;
-
 var
   vAddress: TDataSetField;
 begin
   inherited;
   FDataSet := TClientDataSet.Create(nil);
 
-  CreateField(FDataSet, ftInteger, 'id');
-  CreateField(FDataSet, ftString, 'name', 60);
-  CreateField(FDataSet, ftFloat, 'value');
-  CreateField(FDataSet, ftBoolean, 'active');
-  CreateField(FDataSet, ftDateTime, 'createDate');
+  TDataSetUtils.CreateField(FDataSet, ftInteger, 'id');
+  TDataSetUtils.CreateField(FDataSet, ftString, 'name', 60);
+  TDataSetUtils.CreateField(FDataSet, ftFloat, 'value');
+  TDataSetUtils.CreateField(FDataSet, ftBoolean, 'active');
+  TDataSetUtils.CreateField(FDataSet, ftDateTime, 'createDate');
 
-  vAddress := TDataSetField(CreateField(FDataSet, ftDataSet, 'addresses'));
+  vAddress := TDataSetUtils.CreateDataSetField(FDataSet, 'addresses');
 
-  CreateField(vAddress.NestedDataSet, ftInteger, 'id');
-  CreateField(vAddress.NestedDataSet, ftString, 'address', 60);
+  TDataSetUtils.CreateField(vAddress.NestedDataSet, ftInteger, 'id');
+  TDataSetUtils.CreateField(vAddress.NestedDataSet, ftString, 'address', 60);
 
   FDataSet.CreateDataSet;
 end;

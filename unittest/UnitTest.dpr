@@ -31,7 +31,7 @@ uses
   TestResponseHandler in 'TestResponseHandler.pas',
   TestDataSetHandler in 'TestDataSetHandler.pas',
   Person in 'Person.pas',
-  JsonToDataSetConverter in '..\src\JsonToDataSetConverter.pas';
+  DataSetUtils in '..\src\DataSetUtils.pas';
 
 {$R *.RES}
 

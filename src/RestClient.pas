@@ -10,7 +10,7 @@ uses Classes, SysUtils, Windows, IdHTTP,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
      {$ENDIF}
-     Contnrs;
+     Contnrs, DB;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -114,13 +114,15 @@ type
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
 
+    procedure GetAsDataSet(ADataSet: TDataSet);
+
     //Delete has no support content
     procedure Delete(Entity: TObject);overload;
   end;
 
 implementation
 
-uses StrUtils, Math, RestJsonUtils;
+uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter;
 
 { TRestClient }
 
@@ -311,6 +313,15 @@ end;
 function TResource.GetAcceptTypes: string;
 begin
   Result := FAcceptTypes;
+end;
+
+procedure TResource.GetAsDataSet(ADataSet: TDataSet);
+var
+  vJson: string;
+begin
+  vJson := Self.Get;
+
+  TJsonToDataSetConverter.UnMarshalToDataSet(ADataSet, vJson);
 end;
 
 function TResource.GetContent: TStream;

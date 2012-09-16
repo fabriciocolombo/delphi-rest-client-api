@@ -2,7 +2,7 @@ unit TestPeople;
 
 interface
 
-uses BaseTestRest, Classes, IdHttp;
+uses BaseTestRest, Classes, IdHttp, DBClient, Db;
 
 type
   TTestPeople = class(TBaseTestRest)
@@ -22,11 +22,12 @@ type
     procedure UpdatePerson;
     procedure RemovePerson;
     procedure PersonNotFound;
+    procedure GetAsDataSet;
   end;
 
 implementation
 
-uses RestUtils, StrUtils, SysUtils, Math;
+uses RestUtils, StrUtils, SysUtils, Math, DataSetUtils;
 
 { TTestPeople }
 
@@ -101,6 +102,33 @@ begin
   List.Clear;
 
   ExtractStrings([','], [' '], PChar(Response), List);
+end;
+
+procedure TTestPeople.GetAsDataSet;
+const
+  ExpectedPeoples = '[{"id":1,"name":"John Doe","email":"john@hotmail.com"},'+
+                    '{"id":2,"name":"Mike Myers","email":"myers@hotmail.com"},'+
+                    '{"id":3,"name":"Joseph Climber","email":"climber@hotmail.com"},'+
+                    '{"id":4,"name":"Mikaela Romanova","email":"romanova@hotmail.com"}]';
+var
+  vDataSet: TClientDataSet;
+begin
+  vDataSet := TClientDataSet.Create(nil);
+  try
+    TDataSetUtils.CreateField(vDataSet, ftInteger, 'id');
+    TDataSetUtils.CreateField(vDataSet, ftString, 'name', 100);
+    TDataSetUtils.CreateField(vDataSet, ftString, 'email', 100);
+    vDataSet.CreateDataSet;
+
+    RestClient.Resource(CONTEXT_PATH + 'persons')
+              .Accept(RestUtils.MediaType_Json)
+              .GetAsDataSet(vDataSet);
+
+    CheckFalse(vDataSet.IsEmpty);
+    CheckEquals(4, vDataSet.RecordCount);
+  finally
+    vDataSet.Free;
+  end;
 end;
 
 procedure TTestPeople.GetPerson;
