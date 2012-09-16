@@ -167,12 +167,13 @@ procedure TTestDataSetHandler.JsonSomeTypesToDataSet;
 var
   vJson: string;
   vDate: TDateTime;
-  vIsoDate: string;
+  vStringDate: string;
 begin
   vDate := EncodeDateTime(2012, 9, 16, 13, 48, 20, 0);
-  vIsoDate := SuperObject.DelphiDateTimeToISO8601Date(vDate);
 
-  vJson := '{"id":123,"name":"Fabricio Colombo","value" : 123.45, "active" : true, "createDate" : "' + vIsoDate + '"}';
+  vStringDate := StringReplace(FloatToStr(vDate), ',', '.', []);
+
+  vJson := '{"id":123,"name":"Fabricio Colombo","value" : 123.45, "active" : true, "createDate" : "' + vStringDate + '"}';
 
   CheckEquals(0, FDataSet.RecordCount);
   TJsonToDataSetConverter.UnMarshalToDataSet(FDataSet, vJson);

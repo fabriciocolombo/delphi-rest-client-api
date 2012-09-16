@@ -1,6 +1,7 @@
 package br.com.fabriciodev.rest.repository;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import br.com.fabriciodev.rest.domain.Person;
@@ -14,10 +15,10 @@ public class PeopleRepository {
 	}
 
 	private void initData() {
-		peoples.add(new Person(1, "John Doe", "john@hotmail.com"));
-		peoples.add(new Person(2, "Mike Myers", "myers@hotmail.com"));
-		peoples.add(new Person(3, "José Climber", "climber@hotmail.com"));
-		peoples.add(new Person(4, "Mikaela Romanova", "romanova@hotmail.com"));
+		peoples.add(new Person(1, "John Doe", "john@hotmail.com", Calendar.getInstance().getTime()));
+		peoples.add(new Person(2, "Mike Myers", "myers@hotmail.com", Calendar.getInstance().getTime()));
+		peoples.add(new Person(3, "José Climber", "climber@hotmail.com", Calendar.getInstance().getTime()));
+		peoples.add(new Person(4, "Mikaela Romanova", "romanova@hotmail.com", Calendar.getInstance().getTime()));
 	}
 
 	public List<Person> findAll() {

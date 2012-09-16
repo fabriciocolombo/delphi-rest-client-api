@@ -9,6 +9,7 @@ type
     id: Integer;
     name: String;
     email: String;
+    createDate: TDateTime;
 
     class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
   end;

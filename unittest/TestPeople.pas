@@ -85,8 +85,6 @@ begin
   try
     ExtractPerson(Response, vList);
 
-    CheckEquals(3, vList.Count, 'Attributes count');
-
     if (Id > 0) then
     begin
       CheckEqualsString(Format('"id":%d',[Id]), vList[0], 'Id invalid');

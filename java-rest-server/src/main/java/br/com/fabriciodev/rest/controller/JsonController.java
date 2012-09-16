@@ -1,5 +1,7 @@
 package br.com.fabriciodev.rest.controller;
 
+import java.util.Calendar;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -14,8 +16,9 @@ import br.com.fabriciodev.rest.domain.Person;
 
 @Path("/json/")
 public class JsonController {
-	
-	private static Person PERSON = new Person(123, "Fabricio", "fabricio.colombo.mva@gmail.com"); 
+
+	private static Person PERSON = new Person(123, "Fabricio", "fabricio.colombo.mva@gmail.com", Calendar.getInstance()
+			.getTime());
 
 	@POST
 	@Path("person")
@@ -39,13 +42,13 @@ public class JsonController {
 	public Response getPerson() {
 		return Response.ok(PERSON).build();
 	}
-	
+
 	@DELETE
 	@Path("person")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void removePerson(){
-		//assert(person != null);
-		
+	public void removePerson() {
+		// assert(person != null);
+
 		Response.noContent().build();
 	}
 

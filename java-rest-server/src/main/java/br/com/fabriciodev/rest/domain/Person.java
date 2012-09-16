@@ -1,19 +1,23 @@
 package br.com.fabriciodev.rest.domain;
 
+import java.util.Date;
+
 public class Person {
 
 	private Integer id;
 	private String name;
 	private String email;
-	
+	private Date createDate;
+
 	public Person() {
 	}
 
-	public Person(Integer id, String name, String email) {
+	public Person(Integer id, String name, String email, Date createDate) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
+		this.createDate = createDate;
 	}
 
 	public Integer getId() {
@@ -38,6 +42,14 @@ public class Person {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
 	}
 
 	@Override

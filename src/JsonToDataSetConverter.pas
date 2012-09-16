@@ -125,12 +125,7 @@ begin
     ftSmallint, ftInteger, ftWord, ftLargeint: AField.AsInteger := AValue.AsInteger;
     ftFloat, ftCurrency, ftBCD, ftFMTBcd: AField.AsFloat := AValue.AsDouble;
     ftBoolean: AField.AsBoolean := AValue.AsBoolean;
-    ftDate, ftTime, ftDateTime, ftTimeStamp:  begin
-                                                if SuperObject.ISO8601DateToDelphiDateTime(AValue.AsString, vDate) then
-                                                begin
-                                                  AField.AsDateTime := vDate;
-                                                end;
-                                              end;
+    ftDate, ftTime, ftDateTime, ftTimeStamp: AField.AsDateTime := AValue.AsDouble;
     ftDataSet:  begin
                   vNestedDataSet := TDataSetField(AField).NestedDataSet;
 
