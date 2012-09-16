@@ -9,14 +9,24 @@ type
   private
     class procedure AppendRecord(ADataSet: TDataSet; AObject: ISuperObject);
     class procedure SetFieldValue(AField: TField; AValue: ISuperObject);
+
+    class procedure ExtractFields(ADataSet: TDataSet; AObject: ISuperObject);
+
+    class function SuperTypeToFieldType(ASuperType: TSuperType): TFieldType;
+    class function SuperTypeToFieldSize(ASuperType: TSuperType): Integer;
   public
     class procedure UnMarshalToDataSet(ADataSet: TDataSet; AJson: string);overload;
     class procedure UnMarshalToDataSet(ADataSet: TDataSet; AObject: ISuperObject);overload;
+
+    class function CreateDataSetMetadata(AJson: string): TClientDataSet; overload;
+    class function CreateDataSetMetadata(AObject: ISuperObject): TClientDataSet; overload;
   end;
 
 implementation
 
 { TJsonToDataSetConverter }
+
+uses DataSetUtils;
 
 class procedure TJsonToDataSetConverter.AppendRecord(ADataSet: TDataSet;AObject: ISuperObject);
 var
@@ -44,6 +54,66 @@ begin
   ADataSet.Post;
 end;
 
+class function TJsonToDataSetConverter.CreateDataSetMetadata(AJson: string): TClientDataSet;
+var
+  AObject: ISuperObject;
+begin
+  AObject := SuperObject.SO(AJson);
+
+  Result := CreateDataSetMetadata(AObject);
+end;
+
+class function TJsonToDataSetConverter.CreateDataSetMetadata(AObject: ISuperObject): TClientDataSet;
+var
+  vArray: TSuperArray;
+begin
+  Result := TClientDataSet.Create(nil);
+
+  if AObject.IsType(stArray) then
+  begin
+    vArray := AObject.AsArray;
+
+    ExtractFields(Result, vArray.O[0]);
+  end
+  else
+  begin
+    ExtractFields(Result, AObject);
+  end;
+
+  Result.CreateDataSet;
+end;
+
+class procedure TJsonToDataSetConverter.ExtractFields(ADataSet: TDataSet;AObject: ISuperObject);
+var
+  vIterator: TSuperObjectIter;
+  vNestedField: TDataSetField;
+  vArray: TSuperArray;
+begin
+  if SuperObject.ObjectFindFirst(AObject, vIterator) then
+  begin
+    try
+      repeat
+        if (vIterator.val.IsType(stArray)) then
+        begin
+          vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+
+          vArray := vIterator.val.AsArray;
+          if (vArray.Length > 0) then
+          begin
+            ExtractFields(vNestedField.NestedDataSet, vArray[0]);
+          end;
+        end
+        else
+        begin
+          TDataSetUtils.CreateField(ADataSet, SuperTypeToFieldType(vIterator.val.DataType), vIterator.key, SuperTypeToFieldSize(vIterator.val.DataType));
+        end;
+      until not SuperObject.ObjectFindNext(vIterator);
+    finally
+      SuperObject.ObjectFindClose(vIterator);
+    end;
+  end;
+end;
+
 class procedure TJsonToDataSetConverter.SetFieldValue(AField: TField;AValue: ISuperObject);
 var
   vFieldName: string;
@@ -68,6 +138,31 @@ begin
                 end;
   else
     AField.AsString := AValue.AsString;
+  end;
+end;
+
+class function TJsonToDataSetConverter.SuperTypeToFieldSize(ASuperType: TSuperType): Integer;
+begin
+  Result := 0;
+
+  if (ASuperType = stString) then
+  begin
+    Result := 255;
+  end;
+end;
+
+class function TJsonToDataSetConverter.SuperTypeToFieldType(ASuperType: TSuperType): TFieldType;
+begin
+  case ASuperType of
+    stBoolean: Result := ftBoolean;
+    stDouble: Result := ftFloat;
+    stCurrency: Result := ftCurrency;
+    stInt: Result := ftInteger;
+    stObject: Result := ftDataSet;
+    stArray: Result := ftDataSet;
+    stString: Result := ftString;
+  else
+    Result := ftUnknown;
   end;
 end;
 

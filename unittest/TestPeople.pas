@@ -23,6 +23,7 @@ type
     procedure RemovePerson;
     procedure PersonNotFound;
     procedure GetAsDataSet;
+    procedure GetAsDynamicDataSet;
   end;
 
 implementation
@@ -124,6 +125,27 @@ begin
               .Accept(RestUtils.MediaType_Json)
               .GetAsDataSet(vDataSet);
 
+    CheckFalse(vDataSet.IsEmpty);
+    CheckEquals(4, vDataSet.RecordCount);
+  finally
+    vDataSet.Free;
+  end;
+end;
+
+procedure TTestPeople.GetAsDynamicDataSet;
+const
+  ExpectedPeoples = '[{"id":1,"name":"John Doe","email":"john@hotmail.com"},'+
+                    '{"id":2,"name":"Mike Myers","email":"myers@hotmail.com"},'+
+                    '{"id":3,"name":"Joseph Climber","email":"climber@hotmail.com"},'+
+                    '{"id":4,"name":"Mikaela Romanova","email":"romanova@hotmail.com"}]';
+var
+  vDataSet: TDataSet;
+begin
+  vDataSet := RestClient.Resource(CONTEXT_PATH + 'persons')
+                        .Accept(RestUtils.MediaType_Json)
+                        .GetAsDataSet();
+
+  try
     CheckFalse(vDataSet.IsEmpty);
     CheckEquals(4, vDataSet.RecordCount);
   finally

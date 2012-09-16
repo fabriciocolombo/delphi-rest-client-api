@@ -20,6 +20,8 @@ type
     procedure JsonToDataSetTwoRecords;
     procedure JsonSomeTypesToDataSet;
     procedure JsonToDataSetWithNestedDataSet;
+    procedure JsonToDynamicDataSet;
+    procedure JsonToDynamicDataSetWithNestedDataSet;
   end;
 
 implementation
@@ -100,6 +102,65 @@ begin
 
   CheckEquals(2, vAddresses.FieldByName('id').AsInteger);
   CheckEqualsString('street two', vAddresses.FieldByName('address').AsString);
+end;
+
+procedure TTestDataSetHandler.JsonToDynamicDataSet;
+var
+  vJson: string;
+  vDataSet: TClientDataSet;
+begin
+  vJson := '{"id":123,"name":"Fabricio Colombo"}';
+
+  vDataSet := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
+
+  CheckNotNull(vDataSet);
+  CheckTrue(vDataSet.Active);
+  CheckEquals(2, vDataSet.FieldCount);
+  CheckEquals('id', vDataSet.Fields[0].FieldName);
+  CheckEquals('name', vDataSet.Fields[1].FieldName);
+end;
+
+procedure TTestDataSetHandler.JsonToDynamicDataSetWithNestedDataSet;
+var
+  vJson: string;
+  vDataSet: TClientDataSet;
+  vAddresses: TDataSet;
+begin
+  vJson := '{' +
+           '   "id": 123,' +
+           '   "name": "Fabricio Colombo",' +
+           '   "addresses": [' +
+           '       {' +
+           '           "id": 1,' +
+           '           "address": "street one"' +
+           '       },' +
+           '       {' +
+           '           "id": 2,' +
+           '           "address": "street two"' +
+           '       }' +
+           '   ]' +
+           '}';
+
+  vDataSet := TClientDataSet.Create(nil);
+  try
+    vDataSet := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
+
+    CheckNotNull(vDataSet);
+    CheckTrue(vDataSet.Active);
+    CheckEquals(3, vDataSet.FieldCount);
+    CheckNotNull(vDataSet.FindField('id'));
+    CheckNotNull(vDataSet.FindField('name'));
+    CheckNotNull(vDataSet.FindField('addresses'));
+
+    vAddresses := TDataSetField(FDataSet.FieldByName('addresses')).NestedDataSet;
+
+    CheckTrue(vAddresses.Active);
+
+    CheckEquals('id', vAddresses.Fields[0].FieldName);
+    CheckEquals('address', vAddresses.Fields[1].FieldName);
+  finally
+    vDataSet.Free;
+  end;
 end;
 
 procedure TTestDataSetHandler.JsonSomeTypesToDataSet;

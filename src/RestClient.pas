@@ -114,7 +114,8 @@ type
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
 
-    procedure GetAsDataSet(ADataSet: TDataSet);
+    procedure GetAsDataSet(ADataSet: TDataSet);overload;
+    function GetAsDataSet(): TDataSet;overload;
 
     //Delete has no support content
     procedure Delete(Entity: TObject);overload;
@@ -313,6 +314,17 @@ end;
 function TResource.GetAcceptTypes: string;
 begin
   Result := FAcceptTypes;
+end;
+
+function TResource.GetAsDataSet: TDataSet;
+var
+  vJson: ISuperObject;
+begin
+  vJson := SuperObject.SO(Get);
+
+  Result := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
+
+  TJsonToDataSetConverter.UnMarshalToDataSet(Result, vJson);
 end;
 
 procedure TResource.GetAsDataSet(ADataSet: TDataSet);
