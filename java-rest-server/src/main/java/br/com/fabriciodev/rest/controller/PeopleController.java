@@ -14,16 +14,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
-
-import com.sun.jersey.api.NotFoundException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.uri.UriBuilderImpl;
 
 import br.com.fabriciodev.rest.domain.Person;
 import br.com.fabriciodev.rest.repository.PeopleRepository;
+
+import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.api.uri.UriBuilderImpl;
 
 @Path("/")
 @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })

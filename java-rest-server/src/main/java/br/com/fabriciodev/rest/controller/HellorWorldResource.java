@@ -1,7 +1,6 @@
 package br.com.fabriciodev.rest.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -15,10 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-
-import com.sun.jersey.api.client.WebResource;
 
 import br.com.fabriciodev.rest.domain.HelloWorld;
 
@@ -28,7 +24,7 @@ public class HellorWorldResource {
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public HelloWorld sayHello() {
-		return HelloWorld.create("Ol· Mundo!");
+		return HelloWorld.create("Ol√° Mundo!");
 	}
 
 	@GET
