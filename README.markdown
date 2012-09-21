@@ -30,17 +30,23 @@ Samples
         begin
           vLista := RestClient.Resource('http://localhost:8080/java-rest-server/rest/persons')
                             .Accept(RestUtils.MediaType_Json)
-                            .GetAsList<TPerson>(TPerson);
+                            .GetAsList<TPerson>();
 
  - **GET ONE**
 
-	    vPerson := RestClient.Resource('http://localhost:8080/java-rest-server/rest/person/1')
+        var
+          vPerson : TPerson;
+        begin
+          vPerson := RestClient.Resource('http://localhost:8080/java-rest-server/rest/person/1')
 		                     .Accept(RestUtils.MediaType_Json)
-		                     .Get<TPerson>(TPerson);
+		                     .Get<TPerson>();
 
  - **POST**
 
-          vPerson := TPerson.NewFrom(123, 'Fabricio', 'fabricio.colombo.mva@gmail.com');
+        var
+          vPerson : TPerson;
+        begin
+          vPerson := TPerson.NewFrom(123, 'Fabricio', 'fabricio.colombo.mva@gmail.com');          
           RestClient.Resource('http://localhost:8080/java-rest-server/rest/person')
                     .Accept(RestUtils.MediaType_Json)
                     .ContentType(RestUtils.MediaType_Json)
@@ -48,6 +54,9 @@ Samples
 		
  - **PUT**
 
+        var
+          vPerson : TPerson;
+        begin
           vPerson := //Load person
           vPerson.Email := 'new@email.com';
           RestClient.Resource('http://localhost:8080/java-rest-server/rest/person')
@@ -57,12 +66,52 @@ Samples
 
  - **DELETE**
 
+        var
+          vPerson : TPerson;
+        begin
           vPerson := //Load person
           RestClient.Resource('http://localhost:8080/java-rest-server/rest/person')
                     .Accept(RestUtils.MediaType_Json)
                     .ContentType(RestUtils.MediaType_Json)
                     .Delete(vPerson);
-									 
+			
+ - **GET AS DATASET**
+
+  The fields need be predefined.
+
+        var
+          vDataSet: TClientDataSet;
+        begin
+          vDataSet := TClientDataSet.Create(nil);
+          try
+            TDataSetUtils.CreateField(vDataSet, ftInteger, 'id');
+            TDataSetUtils.CreateField(vDataSet, ftString, 'name', 100);
+            TDataSetUtils.CreateField(vDataSet, ftString, 'email', 100);
+            vDataSet.CreateDataSet;
+
+           RestClient.Resource(CONTEXT_PATH + 'persons')
+                      .Accept(RestUtils.MediaType_Json)
+                      .GetAsDataSet(vDataSet);
+          finally
+            vDataSet.Free;
+          end;
+		
+ - **GET AS DYNAMIC DATASET**
+
+  The fields are created dynamically according to the returned content.
+
+        var
+          vDataSet: TDataSet;
+        begin
+          vDataSet := RestClient.Resource(CONTEXT_PATH + 'persons')
+                                .Accept(RestUtils.MediaType_Json)
+                                .GetAsDataSet();        
+          try
+            //Do something
+          finally
+            vDataSet.Free;
+          end;
+				 
 Java Rest Server
 ----------------
 	
