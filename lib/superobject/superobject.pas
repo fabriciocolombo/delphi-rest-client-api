@@ -246,6 +246,7 @@ type
     function GetValues: ISuperObject;
     function GetNames: ISuperObject;
     function Find(const k: SOString; var value: ISuperObject): Boolean;
+    function Exists(const k: SOString): Boolean;
   end;
 
   TSuperAvlIterator = class
@@ -597,6 +598,7 @@ type
     function call(const path: SOString; const param: ISuperObject = nil): ISuperObject; overload;
     function call(const path, param: SOString): ISuperObject; overload;
 {$ENDIF}
+
     // clone a node
     function Clone: ISuperObject;
     function Delete(const path: SOString): ISuperObject;
@@ -820,6 +822,7 @@ type
 function ObjectIsError(obj: TSuperObject): boolean;
 function ObjectIsType(const obj: ISuperObject; typ: TSuperType): boolean;
 function ObjectGetType(const obj: ISuperObject): TSuperType;
+function ObjectIsNull(const obj: ISuperObject): Boolean;
 
 function ObjectFindFirst(const obj: ISuperObject; var F: TSuperObjectIter): boolean;
 function ObjectFindNext(var F: TSuperObjectIter): boolean;
@@ -853,6 +856,10 @@ type
 function TrySOInvoke(var ctx: TSuperRttiContext; const obj: TValue; const method: string; const params: ISuperObject; var Return: ISuperObject): TSuperInvokeResult; overload;
 function SOInvoke(const obj: TValue; const method: string; const params: ISuperObject; ctx: TSuperRttiContext = nil): ISuperObject; overload;
 function SOInvoke(const obj: TValue; const method: string; const params: string; ctx: TSuperRttiContext = nil): ISuperObject; overload;
+
+function IsGenericType(TypeInfo: PTypeInfo): Boolean;
+function GetDeclaredGenericType(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TRttiType;
+function IsList(RttiContext: TRttiContext; TypeInfo: PTypeInfo): Boolean;
 {$ENDIF}
 
 implementation
@@ -2128,6 +2135,11 @@ begin
     Result := stNull;
 end;
 
+function ObjectIsNull(const obj: ISuperObject): Boolean;
+begin
+  Result := ObjectIsType(obj, stNull);
+end;
+
 function ObjectFindFirst(const obj: ISuperObject; var F: TSuperObjectIter): boolean;
 var
   i: TSuperAvlEntry;
@@ -2637,6 +2649,42 @@ begin
   else
     Exit(irError);
   end;
+end;
+
+function IsGenericType(TypeInfo: PTypeInfo): Boolean;
+begin
+  Result := Pos('<', String(TypeInfo.Name)) > 0
+end;
+
+function GetDeclaredGenericType(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TRttiType;
+var
+  startPos,
+  endPos: Integer;
+  vTypeName: String;
+begin
+  Result := nil;
+
+  startPos := AnsiPos('<', String(TypeInfo.Name));
+
+  if startPos > 0 then
+  begin
+    endPos := Pos('>', String(TypeInfo.Name));
+
+    vTypeName := Copy(String(TypeInfo.Name), startPos + 1, endPos - Succ(startPos));
+
+    Result := RttiContext.FindType(vTypeName);
+  end;
+end;
+
+function IsList(RttiContext: TRttiContext; TypeInfo: PTypeInfo): Boolean;
+var
+  method: TRttiMethod;
+begin
+  method := RttiContext.GetType(TypeInfo).GetMethod('Add');
+
+  Result := (method <> nil) and
+            (method.MethodKind = mkFunction) and
+            (Length(method.GetParameters) = 1)
 end;
 
 {$ENDIF}
@@ -6699,6 +6747,11 @@ begin
     Result := False;
 end;
 
+function TSuperTableString.Exists(const k: SOString): Boolean;
+begin
+  Result := Search(k) <> nil;
+end;
+
 function TSuperTableString.GetO(const k: SOString): ISuperObject;
 var
   e: TSuperAvlEntry;
@@ -7057,6 +7110,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
     v: TValue;
     vArray: TSuperArray;
     i: Integer;
+    method: TRttiMethod;
   begin
     case ObjectGetType(obj) of
       stObject:
@@ -7076,24 +7130,29 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end;
       stArray:
         begin
-          Result := True;
-          if Value.Kind <> tkClass then
-            Value := GetTypeData(TypeInfo).ClassType.Create;
+          Result := False;
 
-          vArray := obj.AsArray;
-
-          for I := 0 to vArray.Length-1 do
+          if IsList(Context, TypeInfo) and IsGenericType(TypeInfo) then
           begin
+            Result := True;
 
-            for f in Context.GetType(Value.AsObject.ClassType).GetFields do
-              if f.FieldType <> nil then
-              begin
-                v := TValue.Empty;
-                Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
-                if Result then
-                  f.SetValue(Value.AsObject, v) else
-                  Exit;
-              end;
+            if Value.Kind <> tkClass then
+              Value := GetTypeData(TypeInfo).ClassType.Create;
+
+            method := Context.GetType(Value.AsObject.ClassType).GetMethod('Add');
+
+            vArray := obj.AsArray;
+            for I := 0 to vArray.Length-1 do
+            begin
+              v := TValue.Empty;
+
+              Result := FromJson(GetDeclaredGenericType(Context, TypeInfo).Handle, vArray[i], v);
+
+              if Result then
+                method.Invoke(Value.AsObject, [v])
+              else
+                Exit;
+            end;
           end;
         end;
       stNull:
@@ -7129,7 +7188,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         if Result then
           f.SetValue(p, v) else
           begin
-            Writeln(f.Name);
+            //Writeln(f.Name);
             Exit;
           end;
       end else
@@ -7336,6 +7395,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 var
   Serial: TSerialFromJson;
 begin
+
   if TypeInfo <> nil then
   begin
     if not SerialFromJson.TryGetValue(TypeInfo, Serial) then

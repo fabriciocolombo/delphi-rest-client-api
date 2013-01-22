@@ -117,7 +117,6 @@ end;
 class procedure TJsonToDataSetConverter.SetFieldValue(AField: TField;AValue: ISuperObject);
 var
   vFieldName: string;
-  vDate: TDateTime;
   vNestedDataSet: TDataSet;
 begin
   vFieldName := AField.FieldName;

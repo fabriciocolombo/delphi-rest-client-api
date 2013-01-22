@@ -26,6 +26,7 @@ uses
   BaseTestRest in 'BaseTestRest.pas',
   {$IFDEF USE_GENERICS}
   TestDBXJson in 'TestDBXJson.pas',
+  TestSerializer in 'TestSerializer.pas',
   {$ENDIF}
   TestHeader in 'TestHeader.pas',
   TestResponseHandler in 'TestResponseHandler.pas',
