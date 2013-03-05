@@ -26,11 +26,11 @@ Samples
  - **GET**
                 
         var
-          vLista : TList<TPerson>;
+          vList : TList<TPerson>;
         begin
-          vLista := RestClient.Resource('http://localhost:8080/java-rest-server/rest/persons')
-                            .Accept(RestUtils.MediaType_Json)
-                            .GetAsList<TPerson>();
+          vList := RestClient.Resource('http://localhost:8080/java-rest-server/rest/persons')
+                             .Accept(RestUtils.MediaType_Json)
+                             .Get<TList<TPerson>>();
 
  - **GET ONE**
 

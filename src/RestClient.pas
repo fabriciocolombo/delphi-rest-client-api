@@ -109,7 +109,6 @@ type
 
     {$IFDEF USE_GENERICS}
     function Get<T>(): T;overload;
-    function GetAsList<T>(): TList<T>;
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     {$ENDIF}
@@ -379,15 +378,6 @@ begin
   vResponse := Self.Get;
 
   Result := TJsonUtil.UnMarshal<T>(vResponse);
-end;
-
-function TResource.GetAsList<T>: TList<T>;
-var
-  vResponse: string;
-begin
-  vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshalList<T>(vResponse);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;

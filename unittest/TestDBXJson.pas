@@ -52,7 +52,7 @@ var
 begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'persons')
                           .Accept(RestUtils.MediaType_Json)
-                          .GetAsList<TPerson>();
+                          .Get<TList<TPerson>>();
   try
     CheckNotNull(vResponse);
     CheckEquals(4, vResponse.Count);
