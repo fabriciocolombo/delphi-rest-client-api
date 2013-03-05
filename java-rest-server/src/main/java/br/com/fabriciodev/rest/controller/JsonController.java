@@ -1,6 +1,7 @@
 package br.com.fabriciodev.rest.controller;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,6 +28,14 @@ public class JsonController {
 	public Response postPerson(Person person) {
 		return Response.ok(person).build();
 	}
+	
+	@POST
+	@Path("persons")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response postPerson(List<Person> people) {
+		return Response.ok(people).build();
+	}	
 
 	@PUT
 	@Path("person")

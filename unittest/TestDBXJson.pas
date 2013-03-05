@@ -13,6 +13,7 @@ type
   published
     procedure MarshalAndUnmarshal;
     procedure EchoJsonObjectWithPost;
+    procedure EchoJsonObjectListWithPost;
     procedure EchoJsonObjectWithPut;
     procedure GetJsonObject;
     procedure GetJsonList;
@@ -122,6 +123,35 @@ begin
     vPerson.Free;
   end;
 
+end;
+
+procedure TTestDbxJson.EchoJsonObjectListWithPost;
+var
+  vPerson: TPerson;
+  vReqJson,
+  vRespJson: TList<TPerson>;
+begin
+  vReqJson := TList<TPerson>.Create;
+  try
+    vPerson := TPerson.NewFrom(123, 'Fabricio', 'fabricio.colombo.mva@gmail.com');
+    try
+      vReqJson.Add(vPerson);
+
+      vRespJson := RestClient.Resource(CONTEXT_PATH + 'json/persons')
+                             .Accept(RestUtils.MediaType_Json)
+                             .ContentType(RestUtils.MediaType_Json)
+                             .Post<TList<TPerson>>(vReqJson);
+      try
+        CheckEqualsString(vReqJson[0].ToString, vRespJson[0].ToString);
+      finally
+        vRespJson.Free;
+      end;
+    finally
+      vPerson.Free;
+    end;
+  finally
+    vReqJson.Free;
+  end;
 end;
 
 procedure TTestDbxJson.EchoJsonObjectWithPost;

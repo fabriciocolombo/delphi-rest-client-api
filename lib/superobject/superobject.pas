@@ -7475,6 +7475,17 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
           if f.FieldType <> nil then
           begin
             v := f.GetValue(Value.AsObject);
+
+            if IsList(Context, value.TypeInfo) then
+            begin
+              if (GetFieldName(f) = 'FItems') then
+              begin
+                Result := ToJson(v, index);
+              end;
+
+              Continue;
+            end;
+
             Result.AsObject[GetFieldName(f)] := ToJson(v, index);
           end
       end else

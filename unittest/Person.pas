@@ -2,6 +2,8 @@ unit Person;
 
 interface
 
+uses SysUtils;
+
 type
   TPerson = class(TObject)
   public
@@ -12,6 +14,8 @@ type
     createDate: TDateTime;
 
     class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
+
+    function ToString: string; override;
   end;
 
 implementation
@@ -24,6 +28,11 @@ begin
   Result.Id := Id;
   Result.Name := Name;
   Result.EMail := EMail;
+end;
+
+function TPerson.ToString: string;
+begin
+  Result := 'id:' + IntToStr(id) + ' name:' + name + ' email:' + email + ' createDate:' + DateTimeToStr(createDate);
 end;
 
 end.

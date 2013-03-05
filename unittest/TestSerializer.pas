@@ -2,7 +2,7 @@ unit TestSerializer;
 
 interface
 
-uses BaseTestRest, Generics.Collections, SuperObject, ContNrs, Classes;
+uses BaseTestRest, Generics.Collections, SuperObject, ContNrs, Classes, SysUtils;
 
 type
   TPhone = class(TObject)
@@ -17,6 +17,8 @@ type
     name: String;
     father: TPerson;
     phones : TList<TPhone>;
+
+    function ToString: string; override;
   end;
   
   TTestDesserializer = class(TBaseTestRest)
@@ -24,6 +26,11 @@ type
     procedure person;
     procedure personWithFather;
     procedure personWithFatherAndPhones;
+  end;
+
+  TTestSerializer = class(TBaseTestRest)
+  published
+    procedure person;
   end;
 
 implementation
@@ -45,7 +52,7 @@ const
 var
   vPerson: TPerson;
 begin
-   vPerson := TPerson.FromJson(sJson);
+  vPerson := TPerson.FromJson(sJson);
 
   CheckNotNull(vPerson);
   CheckEquals('Helbert', vPerson.name);
@@ -116,7 +123,30 @@ begin
   CheckEquals(30, vPerson.age);
 end;
 
+{ TTestSerializer }
+
+procedure TTestSerializer.person;
+const
+  sJson = '{"age":30,"father":null,"name":"Helbert","phones":null}';
+var
+  vPerson: TPerson;
+begin
+  vPerson := TPerson.Create;
+  vPerson.name := 'Helbert';
+  vPerson.age := 30;
+
+  CheckEquals(sJson, vPerson.ToJson().AsJSon());
+end;
+
+{ TPerson }
+
+function TPerson.ToString: string;
+begin
+  Result := 'name:' + name + ' age:' + IntToStr(age);
+end;
+
 initialization
   TTestDesserializer.RegisterTest;
+  TTestSerializer.RegisterTest;
 
 end.

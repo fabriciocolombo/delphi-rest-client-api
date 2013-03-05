@@ -59,11 +59,11 @@ var
   vResponse: String;
 begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'helloworld/header/custom')
-                         .Header('custom-A', '1')
-                         .Header('custom-B', '2')
+                         .Header('custom-a', '1')
+                         .Header('custom-b', '2')
                          .Get;
 
-  CheckEqualsString('{"custom-A":"1","custom-B":"2"}', vResponse);
+  CheckEqualsString('{"custom-a":"1","custom-b":"2"}', vResponse);
 end;
 
 procedure TTestHeader.OneAcceptLanguages;
@@ -82,10 +82,10 @@ var
   vResponse: String;
 begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'helloworld/header/x-foo')
-                         .Header('X-FOO', 'Bar')
+                         .Header('x-foo', 'Bar')
                          .Get;
 
-  CheckEqualsString('{"X-FOO":"Bar"}', vResponse);
+  CheckEqualsString('{"x-foo":"Bar"}', vResponse);
 end;
 
 initialization

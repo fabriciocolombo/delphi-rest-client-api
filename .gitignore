@@ -1,4 +1,7 @@
 java-rest-server/target
+java-rest-server/.classpath
+java-rest-server/.project
+java-rest-server/.settings
 unittest/Debug
 unittest/UnitTest.res
 unittest/UnitTest.dsk
