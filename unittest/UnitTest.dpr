@@ -32,7 +32,12 @@ uses
   TestResponseHandler in 'TestResponseHandler.pas',
   TestDataSetHandler in 'TestDataSetHandler.pas',
   Person in 'Person.pas',
-  DataSetUtils in '..\src\DataSetUtils.pas';
+  DataSetUtils in '..\src\DataSetUtils.pas',
+  RestClient in '..\src\RestClient.pas',
+  HttpConnection in '..\src\HttpConnection.pas',
+  HttpConnectionFactory in '..\src\HttpConnectionFactory.pas',
+  HttpConnectionWinHttp in '..\src\HttpConnectionWinHttp.pas',
+  WinHttp_TLB in '..\lib\WinHttp_TLB.pas';
 
 {$R *.RES}
 

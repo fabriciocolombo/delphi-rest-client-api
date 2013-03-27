@@ -84,6 +84,11 @@
 			<DCCReference Include="TestDataSetHandler.pas"/>
 			<DCCReference Include="Person.pas"/>
 			<DCCReference Include="..\src\DataSetUtils.pas"/>
+			<DCCReference Include="..\src\RestClient.pas"/>
+			<DCCReference Include="..\src\HttpConnection.pas"/>
+			<DCCReference Include="..\src\HttpConnectionFactory.pas"/>
+			<DCCReference Include="..\src\HttpConnectionWinHttp.pas"/>
+			<DCCReference Include="..\lib\WinHttp_TLB.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

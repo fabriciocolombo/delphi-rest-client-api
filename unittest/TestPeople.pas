@@ -2,7 +2,7 @@ unit TestPeople;
 
 interface
 
-uses BaseTestRest, Classes, IdHttp, DBClient, Db;
+uses BaseTestRest, Classes, DBClient, Db;
 
 type
   TTestPeople = class(TBaseTestRest)
@@ -182,17 +182,11 @@ end;
 
 procedure TTestPeople.PersonNotFound;
 begin
-  try
-    RestClient.Resource(CONTEXT_PATH + 'person/999')
-              .Accept(RestUtils.MediaType_Json)
-              .GET();
-  except
-    on E: Exception do
-    begin
-      CheckIs(E, EIdHTTPProtocolException);
-      CheckEquals(RestUtils.TStatusCode.NOT_FOUND.StatusCode, RestClient.ResponseCode);
-    end;
-  end;
+  RestClient.Resource(CONTEXT_PATH + 'person/999')
+            .Accept(RestUtils.MediaType_Json)
+            .GET();
+
+  CheckEquals(RestUtils.TStatusCode.NOT_FOUND.StatusCode, RestClient.ResponseCode);
 end;
 
 procedure TTestPeople.RemovePerson;

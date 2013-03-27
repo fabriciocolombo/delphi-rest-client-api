@@ -41,7 +41,11 @@ begin
 
                      vStringStream.CopyFrom(ResponseContent, ResponseContent.Size);
 
-                     vResponse := UTF8Decode(vStringStream.DataString);
+                    {$IFDEF UNICODE}
+                      vResponse :=  UTF8ToWideString(RawByteString(vStringStream.DataString));
+                    {$ELSE}
+                      vResponse :=  UTF8Decode(vStringStream.DataString);
+                    {$ENDIF}
                    finally
                      vStringStream.Free;
                    end;
@@ -61,7 +65,11 @@ begin
 
     vStringStream.CopyFrom(ResponseContent, ResponseContent.Size);
 
-    FResponse := UTF8Decode(vStringStream.DataString);
+    {$IFDEF UNICODE}
+      FResponse :=  UTF8ToWideString(RawByteString(vStringStream.DataString));
+    {$ELSE}
+      FResponse :=  UTF8Decode(vStringStream.DataString);
+    {$ENDIF}
   finally
     vStringStream.Free;
   end;

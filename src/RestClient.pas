@@ -4,7 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses Classes, SysUtils, Windows, IdHTTP,
+uses Classes, SysUtils, Windows, HttpConnection,
      SuperObject,
      RestUtils,
      {$IFDEF USE_GENERICS}
@@ -27,8 +27,9 @@ type
 
   TRestClient = class
   private
-    FIdHttp: TIdHTTP;
+    FHttpConnection: IHttpConnection;
     FResources: TObjectList;
+    FConnectionType: THttpConnectionType;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -38,6 +39,10 @@ type
     function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): WideString;overload;
 
     function GetResponseCode: Integer;
+
+    procedure SetConnectionType(const Value: THttpConnectionType);
+
+    procedure RecreateConnection;
   public
     constructor Create;
     destructor Destroy; override;
@@ -45,6 +50,8 @@ type
     property ResponseCode: Integer read GetResponseCode;
 
     function Resource(URL: String): TResource;
+
+    property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
   end;
 
   TCookie = class
@@ -122,22 +129,22 @@ type
 
 implementation
 
-uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter;
+uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter,
+  HttpConnectionFactory;
 
 { TRestClient }
 
 constructor TRestClient.Create;
 begin
-  FIdHttp := TIdHTTP.Create(nil);
-  FIdHttp.HandleRedirects := True;
-
   FResources := TObjectList.Create;
+
+  RecreateConnection;
 end;
 
 destructor TRestClient.Destroy;
 begin
   FResources.Free;
-  FIdHttp.Free;
+  FHttpConnection := nil;
   inherited;
 end;
 
@@ -148,20 +155,20 @@ var
 begin
   vResponse := TStringStream.Create('');
   try
-    FIdHttp.Request.Accept := ResourceRequest.GetAcceptTypes;
-    FIdHttp.Request.ContentType := ResourceRequest.GetContentTypes;
-    FIdHttp.Request.CustomHeaders.AddStrings(ResourceRequest.GetHeaders);
-    FIdHttp.Request.AcceptLanguage := ResourceRequest.GetAcceptedLanguages;
+    FHttpConnection.SetAcceptTypes(ResourceRequest.GetAcceptTypes)
+                   .SetContentTypes(ResourceRequest.GetContentTypes)
+                   .SetHeaders(ResourceRequest.GetHeaders)
+                   .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages);
 
     vUrl := ResourceRequest.GetURL;
 
     ResourceRequest.GetContent.Position := 0;
 
     case Method of
-      METHOD_GET: FIdHttp.Get(vUrl, vResponse);
-      METHOD_POST: FIdHttp.Post(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_PUT: FIdHttp.Put(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_DELETE: FIdHttp.Delete(vUrl);
+      METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
+      METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_DELETE: FHttpConnection.Delete(vUrl);
     end;
 
     if Assigned(AHandler) then
@@ -198,7 +205,12 @@ end;
 
 function TRestClient.GetResponseCode: Integer;
 begin
-  Result := FIdHttp.ResponseCode;
+  Result := FHttpConnection.ResponseCode;
+end;
+
+procedure TRestClient.RecreateConnection;
+begin
+  FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
 end;
 
 function TRestClient.Resource(URL: String): TResource;
@@ -206,6 +218,16 @@ begin
   Result := TResource.Create(Self, URL);
 
   FResources.Add(Result);
+end;
+
+procedure TRestClient.SetConnectionType(const Value: THttpConnectionType);
+begin
+  if (FConnectionType <> Value) then
+  begin
+    FConnectionType := Value;
+
+    RecreateConnection;
+  end;
 end;
 
 { TResource }

@@ -4,6 +4,8 @@ interface
 
 uses SysUtils;
 
+{$I DelphiRest.inc}
+
 type
   TPerson = class(TObject)
   public
@@ -15,7 +17,7 @@ type
 
     class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
 
-    function ToString: string;
+    function ToString: string;{$IFDEF DELPHI_2009_UP}override;{$ENDIF}
   end;
 
 implementation

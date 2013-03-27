@@ -6,7 +6,7 @@
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<AppType>Package</AppType>
-			<FrameworkType>None</FrameworkType>
+			<FrameworkType>VCL</FrameworkType>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
 			<TargetedPlatforms>1</TargetedPlatforms>
@@ -37,7 +37,7 @@
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 			<VerInfo_Locale>1046</VerInfo_Locale>
-			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Winapi;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<GenPackage>true</GenPackage>
 			<DCC_DcuOutput>.\$(Config)\$(Platform)</DCC_DcuOutput>
@@ -83,13 +83,21 @@
 			<DCCReference Include="IndyProtocols.dcp"/>
 			<DCCReference Include="dbrtl.dcp"/>
 			<DCCReference Include="DbxCommonDriver.dcp"/>
-			<DCCReference Include="..\..\src\RestClient.pas"/>
-			<DCCReference Include="..\..\src\RestUtils.pas"/>
+			<DCCReference Include="vcl.dcp"/>
 			<DCCReference Include="..\..\lib\superobject\superobject.pas"/>
 			<DCCReference Include="..\..\lib\superobject\superxmlparser.pas"/>
-			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
+			<DCCReference Include="..\..\src\DataSetUtils.pas"/>
+			<DCCReference Include="..\..\src\HttpConnection.pas"/>
+			<DCCReference Include="..\..\src\HttpConnectionFactory.pas"/>
+			<DCCReference Include="..\..\src\HttpConnectionIndy.pas"/>
+			<DCCReference Include="..\..\src\HttpConnectionWinHttp.pas"/>
+			<DCCReference Include="..\..\src\JsonToDataSetConverter.pas"/>
+			<DCCReference Include="..\..\src\RestClient.pas"/>
 			<DCCReference Include="..\..\src\RestJsonGenerics.pas"/>
 			<DCCReference Include="..\..\src\RestJsonOldRTTI.pas"/>
+			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
+			<DCCReference Include="..\..\src\RestUtils.pas"/>
+			<DCCReference Include="..\..\lib\WinHttp_TLB.pas"/>
 			<None Include="..\..\src\DelphiRest.ini"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>

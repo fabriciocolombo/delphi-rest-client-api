@@ -5,11 +5,11 @@ interface
 
 {$I DelphiRest.inc}
 
-uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, SuperObject,
+uses TestFramework, Classes, RestClient, RestUtils, SuperObject,
      RestJsonUtils, DB, DBClient, Person, SysUtils, DateUtils;
 
 type
-  TTestDataSetHandler = class(TBaseTestRest)
+  TTestDataSetHandler = class(TTestCase)
   private
     FDataSet: TClientDataSet;
   protected
@@ -214,6 +214,6 @@ begin
 end;
 
 initialization
-  TTestDataSetHandler.RegisterTest;
+  RegisterTest(TTestDataSetHandler.Suite);
 
 end.

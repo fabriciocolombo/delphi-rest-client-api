@@ -33,15 +33,23 @@ requires
   IndySystem,
   IndyProtocols,
   dbrtl,
-  DbxCommonDriver;
+  DbxCommonDriver,
+  vcl;
 
 contains
-  RestClient in '..\..\src\RestClient.pas',
-  RestUtils in '..\..\src\RestUtils.pas',
   superobject in '..\..\lib\superobject\superobject.pas',
   superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
-  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  DataSetUtils in '..\..\src\DataSetUtils.pas',
+  HttpConnection in '..\..\src\HttpConnection.pas',
+  HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  HttpConnectionIndy in '..\..\src\HttpConnectionIndy.pas',
+  HttpConnectionWinHttp in '..\..\src\HttpConnectionWinHttp.pas',
+  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
+  RestClient in '..\..\src\RestClient.pas',
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
-  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas';
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
+  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  RestUtils in '..\..\src\RestUtils.pas',
+  WinHttp_TLB in '..\..\lib\WinHttp_TLB.pas';
 
 end.
