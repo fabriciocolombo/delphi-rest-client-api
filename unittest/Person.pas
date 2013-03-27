@@ -15,7 +15,7 @@ type
 
     class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
 
-    function ToString: string; override;
+    function ToString: string;
   end;
 
 implementation
