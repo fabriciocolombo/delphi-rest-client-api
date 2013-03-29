@@ -26,9 +26,10 @@ package D7_RestApi;
 
 requires
   rtl,
-  IndyCore70,
-  IndySystem70,
-  IndyProtocols70;
+  vcl,
+  dbrtl,
+  dsnap,
+  indy;
 
 contains
   RestClient in '..\..\src\RestClient.pas',
@@ -36,6 +37,10 @@ contains
   superobject in '..\..\lib\superobject\superobject.pas',
   superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
-  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas';
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
+  DataSetUtils in '..\..\src\DataSetUtils.pas',
+  HttpConnection in '..\..\src\HttpConnection.pas',
+  HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas';
 
 end.

@@ -1,7 +1,6 @@
 package DelphiXE_RestApi;
 
 {$R *.res}
-{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -12,33 +11,38 @@ package DelphiXE_RestApi;
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
+{$OPTIMIZATION ON}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
-{$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
 requires
   rtl,
+  dbrtl,
+  DbxCommonDriver,
   IndyCore,
   IndySystem,
-  IndyProtocols,
-  dbrtl,
-  DbxCommonDriver;
+  IndyProtocols;
 
 contains
-  RestClient in '..\..\src\RestClient.pas',
-  RestUtils in '..\..\src\RestUtils.pas',
   superobject in '..\..\lib\superobject\superobject.pas',
-  superxmlparser in '..\..\lib\superobject\superxmlparser.pas';
+  superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
+  DataSetUtils in '..\..\src\DataSetUtils.pas',
+  HttpConnection in '..\..\src\HttpConnection.pas',
+  HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
+  RestClient in '..\..\src\RestClient.pas',
+  RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
+  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  RestUtils in '..\..\src\RestUtils.pas';
 
 end.

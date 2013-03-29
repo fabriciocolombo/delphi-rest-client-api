@@ -98,7 +98,6 @@
 			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
 			<DCCReference Include="..\..\src\RestUtils.pas"/>
 			<DCCReference Include="..\..\lib\WinHttp_TLB.pas"/>
-			<None Include="..\..\src\DelphiRest.ini"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
