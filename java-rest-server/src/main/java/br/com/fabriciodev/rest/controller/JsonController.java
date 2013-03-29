@@ -55,8 +55,8 @@ public class JsonController {
 	@DELETE
 	@Path("person")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void removePerson() {
-		// assert(person != null);
+	public void removePerson(Person person) {
+		assert(person != null);
 
 		Response.noContent().build();
 	}

@@ -124,13 +124,11 @@ type
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
+    procedure Delete(Entity: TObject);overload;
     {$ENDIF}
 
     procedure GetAsDataSet(ADataSet: TDataSet);overload;
     function GetAsDataSet(): TDataSet;overload;
-
-    //Delete has no support content
-    procedure Delete(Entity: TObject);overload;
   end;
 
 implementation
@@ -175,7 +173,7 @@ begin
       METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
       METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_DELETE: FHttpConnection.Delete(vUrl);
+      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
     end;
 
     if Assigned(AHandler) then
@@ -338,13 +336,6 @@ begin
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
 
-procedure TResource.Delete(Entity: TObject);
-begin
-  SetContent(Entity);
- 
-  FRestClient.DoRequest(METHOD_DELETE, Self);
-end;
-
 destructor TResource.Destroy;
 begin
   FContent.Free;
@@ -447,6 +438,13 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
   Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+
+procedure TResource.Delete(Entity: TObject);
+begin
+  SetContent(Entity);
+
+  FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
 {$ENDIF}
 

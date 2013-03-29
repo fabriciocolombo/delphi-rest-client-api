@@ -44,10 +44,10 @@ public class PeopleRepository {
 
 	public Person saveOrUpdate(Person person) {
 		remove(person.getId());
-		
+
 		peoples.add(person);
-		
-		if (person.getId() == null){
+
+		if (person.getId() == null) {
 			person.setId(peoples.size());
 		}
 
@@ -60,11 +60,15 @@ public class PeopleRepository {
 
 			if (person.getId().equals(id)) {
 				peoples.remove(i);
-				
+
 				return person;
 			}
 		}
-		
+
 		return null;
+	}
+
+	public void remove(Person person) {
+		peoples.remove(person);
 	}
 }

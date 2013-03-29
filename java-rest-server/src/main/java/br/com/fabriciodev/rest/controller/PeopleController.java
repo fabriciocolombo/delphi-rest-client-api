@@ -87,4 +87,13 @@ public class PeopleController {
 
 		return Response.noContent().build();
 	}
+	
+	@DELETE
+	@Path("person")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void removePerson(Person person) {
+		repository.remove(person.getId());
+
+		Response.noContent().build();
+	}
 }

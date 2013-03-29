@@ -18,6 +18,7 @@ type
     procedure GetJsonObject;
     procedure GetJsonList;
     procedure DeleteJsonObject;
+    procedure RemovePerson;
   end;
 
 implementation
@@ -172,6 +173,29 @@ begin
     end;
   finally
     vReqJson.Free;
+  end;
+end;
+
+procedure TTestDbxJson.RemovePerson;
+var
+  vPerson: TPerson;
+  vResult: String;
+begin
+  vPerson := TPerson.Create;
+  try
+    vPerson.id := 4;
+
+    RestClient.Resource(CONTEXT_PATH + 'person')
+              .ContentType(RestUtils.MediaType_Json)
+              .Delete(vPerson);
+
+    CheckEquals(RestUtils.TStatusCode.NO_CONTENT.StatusCode, RestClient.ResponseCode);
+
+    vResult := RestClient.Resource(CONTEXT_PATH + 'persons')
+                         .Accept(RestUtils.MediaType_Json)
+                         .GET();
+  finally
+    vPerson.Free;
   end;
 end;
 

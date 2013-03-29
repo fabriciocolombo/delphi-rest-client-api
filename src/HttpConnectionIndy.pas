@@ -5,6 +5,11 @@ interface
 uses IdHTTP, HttpConnection, Classes, RestUtils;
 
 type
+  TIdHTTP = class(idHTTP.TIdHTTP)
+  public
+    procedure Delete(AURL: string);
+  end;
+
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
   private
     FIdHttp: TIdHTTP;
@@ -20,7 +25,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string);
+    procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
   end;
@@ -35,8 +40,10 @@ begin
   FIdHttp.HandleRedirects := True;
 end;
 
-procedure THttpConnectionIndy.Delete(AUrl: string);
+procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
 begin
+  FIdHttp.Request.Source := AContent;
+
   FIdHttp.Delete(AUrl);
 end;
 
@@ -96,6 +103,13 @@ function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
   FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
   Result := Self;
+end;
+
+{ TIdHTTP }
+
+procedure TIdHTTP.Delete(AURL: string);
+begin
+  DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
 end;
 
 end.

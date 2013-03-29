@@ -20,7 +20,7 @@ type
     procedure GetPerson;
     procedure AddPerson;
     procedure UpdatePerson;
-    procedure RemovePerson;
+    procedure RemovePersonById;
     procedure PersonNotFound;
     procedure GetAsDataSet;
     procedure GetAsDynamicDataSet;
@@ -28,7 +28,7 @@ type
 
 implementation
 
-uses RestUtils, StrUtils, SysUtils, Math, DataSetUtils;
+uses RestUtils, StrUtils, SysUtils, Math, DataSetUtils, Person;
 
 { TTestPeople }
 
@@ -189,7 +189,7 @@ begin
   CheckEquals(RestUtils.TStatusCode.NOT_FOUND.StatusCode, RestClient.ResponseCode);
 end;
 
-procedure TTestPeople.RemovePerson;
+procedure TTestPeople.RemovePersonById;
 var
   vResult: String;
 begin
@@ -204,6 +204,7 @@ begin
                        .GET();
 
   CheckEquals(3, WordCount(vResult, '"id"'));
+
 end;
 
 procedure TTestPeople.SetUp;

@@ -28,7 +28,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string);
+    procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
   end;
@@ -80,13 +80,13 @@ begin
   FHeaders := TStringList.Create;
 end;
 
-procedure THttpConnectionWinHttp.Delete(AUrl: string);
+procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
 begin
   FWinHttpRequest.Open('DELETE', AUrl, false);
 
   Configure;
 
-  FWinHttpRequest.Send(EmptyParam);
+  FWinHttpRequest.Send(TStreamAdapter.Create(AContent, soReference) as IStream);
 end;
 
 destructor THttpConnectionWinHttp.Destroy;
