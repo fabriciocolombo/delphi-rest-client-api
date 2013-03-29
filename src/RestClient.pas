@@ -137,8 +137,6 @@ uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter,
 constructor TRestClient.Create;
 begin
   FResources := TObjectList.Create;
-
-  RecreateConnection;
 end;
 
 destructor TRestClient.Destroy;

@@ -21,7 +21,7 @@ uses SysUtils,
     {$IFDEF USE_WIN_HTTP}
     HttpConnectionWinHttp,
     {$ENDIF}
-    Classes;
+    Classes, TypInfo;
     
 { THttpConnectionFactory }
 
@@ -38,6 +38,8 @@ begin
                 {$ELSE}
                 raise Exception.Create('WinHTTP not supported. If do you run under windows, enable USE_WIN_HTTP compiler directive.');
                 {$ENDIF}
+  else
+    raise Exception.CreateFmt('Connection Type "%s" is not supported.', [GetEnumName(TypeInfo(THttpConnectionType), Ord(AType))]);
   end;
 end;
 

@@ -4,6 +4,8 @@ interface
 
 uses RestClient, TestFramework, HttpConnection, TestExtensions, TypInfo;
 
+{$I DelphiRest.inc}
+
 type
   IBaseTestRest = interface(ITest)
   ['{519FE812-AC27-484D-9C4B-C7195E0068C4}']
@@ -49,9 +51,12 @@ end;
 
 class procedure TBaseTestRest.RegisterTest;
 begin
-
+  {$IFDEF USE_INDY}
   TestFramework.RegisterTest('Indy', TBaseTestSuite.Create(Self, hctIndy));
+  {$ENDIF}
+  {$IFDEF USE_WIN_HTTP}
   TestFramework.RegisterTest('WinHTTP', TBaseTestSuite.Create(Self, hctWinHttp));
+  {$ENDIF}
 end;
 
 procedure TBaseTestRest.SetHttpConnectionType(AHttpConnectionType: THttpConnectionType);
