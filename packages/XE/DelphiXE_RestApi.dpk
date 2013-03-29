@@ -43,6 +43,7 @@ contains
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
   RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
-  RestUtils in '..\..\src\RestUtils.pas';
+  RestUtils in '..\..\src\RestUtils.pas',
+  RestRegister in '..\..\src\RestRegister.pas';
 
 end.

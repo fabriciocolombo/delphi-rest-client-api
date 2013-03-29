@@ -50,6 +50,6 @@ contains
   RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
-  WinHttp_TLB in '..\..\lib\WinHttp_TLB.pas';
+  RestRegister in '..\..\src\RestRegister.pas';
 
 end.

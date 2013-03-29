@@ -67,7 +67,7 @@ end;
 procedure TBaseTestRest.SetUp;
 begin
   inherited;
-  FRestClient := TRestClient.Create;
+  FRestClient := TRestClient.Create(nil);
   FRestClient.ConnectionType := FHttpConnectionType;
 end;
 

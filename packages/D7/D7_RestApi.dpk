@@ -41,6 +41,7 @@ contains
   DataSetUtils in '..\..\src\DataSetUtils.pas',
   HttpConnection in '..\..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
-  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas';
+  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
+  RestRegister in '..\..\src\RestRegister.pas';
 
 end.

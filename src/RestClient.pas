@@ -25,11 +25,12 @@ type
 
   TResource = class;
 
-  TRestClient = class
+  TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
     FResources: TObjectList;
     FConnectionType: THttpConnectionType;
+
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -43,14 +44,19 @@ type
     procedure SetConnectionType(const Value: THttpConnectionType);
 
     procedure RecreateConnection;
+
+    procedure CheckConnection;
+  protected
+    procedure Loaded; override;  
   public
-    constructor Create;
+    constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
 
     property ResponseCode: Integer read GetResponseCode;
 
     function Resource(URL: String): TResource;
 
+  published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
   end;
 
@@ -134,8 +140,9 @@ uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter,
 
 { TRestClient }
 
-constructor TRestClient.Create;
+constructor TRestClient.Create(Owner: TComponent);
 begin
+  inherited;
   FResources := TObjectList.Create;
 end;
 
@@ -151,6 +158,8 @@ var
   vResponse: TStringStream;
   vUrl: String;
 begin
+  CheckConnection;
+
   vResponse := TStringStream.Create('');
   try
     FHttpConnection.SetAcceptTypes(ResourceRequest.GetAcceptTypes)
@@ -203,12 +212,30 @@ end;
 
 function TRestClient.GetResponseCode: Integer;
 begin
+  CheckConnection;
+  
   Result := FHttpConnection.ResponseCode;
 end;
 
 procedure TRestClient.RecreateConnection;
 begin
-  FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
+  if not (csDesigning in ComponentState) then
+  begin
+    FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
+  end;
+end;
+
+procedure TRestClient.CheckConnection;
+begin
+  if (FHttpConnection = nil) then
+  begin
+    raise Exception.CreateFmt('%s: Connection is not active.', [Name]);
+  end;
+end;
+
+procedure TRestClient.Loaded;
+begin
+  RecreateConnection;
 end;
 
 function TRestClient.Resource(URL: String): TResource;
