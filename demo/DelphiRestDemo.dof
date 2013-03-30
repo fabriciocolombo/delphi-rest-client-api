@@ -94,8 +94,8 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=
-Packages=
+SearchPath=..\lib;..\lib\SuperObject
+Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;dsnapcon;vcldb;soaprtl;VclSmp;dbexpress;dbxcds;inetdb;bdertl;vcldbx;webdsnap;websnap;adortl;ibxpress;teeui;teedb;tee;dss;visualclx;visualdbclx;vclactnband;vclshlctrls;IntrawebDB_50_70;Intraweb_50_70;Rave50CLX;Rave50VCL;dclOfficeXP;dacvcl70;dac70;crcontrols70;ibdacvcl70;ibdac70;odacvcl70;odac70;pgdacvcl70;pgdac70;sdacvcl70;sdac70;ElotechBase;EloDataBaseLayer;BdeEloDatabaseLayer;DbExpressEloDatabaseLayer;IBEloDatabaseLayer;IBDacEloDatabaseLayer;OraDacEloDatabaseLayer;PgDacEloDatabaseLayer;MsDacEloDatabaseLayer;ElotechCore;ContabilCore;eloNews;D7_ElotechComponents;CR_ElotechComponents;RE_ElotechComponents;AiseTribTributacaoComponents;ADOEloDatabaseLayer;WebIntegra;ContabilUtils;RxCtl7;PkgContabilidade;RxDB7;FSM5;RxBDE7;EloAppPath;crystal;elooutlookbar;EloAppkey;ZMstr190D7;qrpt;dxThemeD7;cxGridD7;cxEditorsVCLD7;dxGDIPlusD7;cxPageControlVCLD7;cxDataD7;cxExtEditorsVCLD7;SynEdit_R7;pkEloUserControl;D7_RestApi
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
@@ -134,3 +134,12 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[Excluded Packages]
+C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D7.bpl=RemObjects Everwood for Delphi
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=2
+Item0=..\lib;..\lib\SuperObject
+Item1=..\lib

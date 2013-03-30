@@ -43,29 +43,30 @@ public class PeopleRepository {
 	}
 
 	public Person saveOrUpdate(Person person) {
-		remove(person.getId());
 
-		peoples.add(person);
-
-		if (person.getId() == null) {
-			person.setId(peoples.size());
+		if ((person.getId() == null)||(person.getId() == 0)) {
+			person.setId(peoples.size() + 1);
+			peoples.add(person);
+		} else {
+			int index = remove(person.getId());
+			peoples.add(index, person);
 		}
 
 		return person;
 	}
 
-	public Person remove(Integer id) {
+	public int remove(Integer id) {
 		for (int i = 0; i < peoples.size(); i++) {
 			Person person = peoples.get(i);
 
 			if (person.getId().equals(id)) {
 				peoples.remove(i);
 
-				return person;
+				return i;
 			}
 		}
 
-		return null;
+		throw new IllegalArgumentException("Person not found for id " + id);
 	}
 
 	public void remove(Person person) {
