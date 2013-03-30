@@ -3,20 +3,28 @@ Delphi REST Client API
 
 A Delphi REST client API to consume REST services written in any programming language.
 
-The API was tested in Delphi 7, XE e XE2, and need [Indy 10](http://www.indyproject.org/index.en.aspx) to work fine.
+The API was tested in Delphi 7, XE e XE2. If you are able to run this project successfully in another delphi version, let me known to update this document.
 
-Serialization / deserialization is transparent. The objects are transported as JSON format, and the i am using [SuperObject](http://code.google.com/p/superobject/) as Json framework.
+Connection Layer
+---
+There are a IHttpConnection interface to abstract the real Http conection. This interface currently have two implementations, using  [Indy 10](http://www.indyproject.org/index.en.aspx) and [WinHTTP](http://msdn.microsoft.com/en-us/library/windows/desktop/aa382925.aspx).
 
-For serialization to work well, the object must be declared as follows, with public fields:
+Indy 9 does not handles HTTP response codes correctly, then if you are using Delphi 7, you must update your indy library to version 10 or use WinHttp (recommended).
+
+Serialization/Desserialization
+--	
+The objects are streamed as JSON format, and SuperObject was chosen for deal with json transformation. SuperObject it's lighter  and less intrusive than DBX framework. He too have a good support to serialization through TSuperObjectHelper class helper.
+
+For serialization work fine, the object must be declared as follows, with public fields. How public fields are a bad smell(IMHO), the serialization process will be improved to read `properties` too, and give some configuration options.
      
     TPerson = class(TObject)
     public 
-      (* Reflect the java object field names, case-sensitive *)
+      (* Reflect the server side object field names, for Java must be case-sensitive *)
       id: Integer;
       name: String;
       email: String;
 
-      (* utility function *)
+      (* Static constructor *)
       class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
     end;
 
