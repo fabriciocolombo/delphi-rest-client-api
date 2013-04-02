@@ -89,11 +89,11 @@
   {$DEFINE HAVE_INLINE}
 {$ifend}
 
-{$if defined(VER210) or defined(VER220) or defined(VER230)}
+{$if defined(VER210) or defined(VER220) or defined(VER230) or defined(VER240)}
   {$define HAVE_RTTI}
 {$ifend}
 
-{$if defined(VER230)}
+{$if defined(VER230) or defined(VER240)}
   {$define NEED_FORMATSETTINGS}
 {$ifend}
 
@@ -860,6 +860,7 @@ function SOInvoke(const obj: TValue; const method: string; const params: string;
 function IsGenericType(TypeInfo: PTypeInfo): Boolean;
 function GetDeclaredGenericType(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TRttiType;
 function IsList(RttiContext: TRttiContext; TypeInfo: PTypeInfo): Boolean;
+function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue ;
 {$ENDIF}
 
 implementation
@@ -2654,6 +2655,22 @@ end;
 function IsGenericType(TypeInfo: PTypeInfo): Boolean;
 begin
   Result := Pos('<', String(TypeInfo.Name)) > 0
+end;
+
+function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue;
+var
+  method: TRttiMethod;
+begin
+  for method in RttiContext.GetType(TypeInfo).GetMethods() do
+  begin
+    if method.IsConstructor and (Length(method.GetParameters) = 0) then
+    begin
+      Result := method.Invoke(GetTypeData(TypeInfo).ClassType, []);
+      Exit;
+    end
+  end;
+
+  raise Exception.CreateFmt('No default constructor found for clas "%s".', [GetTypeData(TypeInfo).ClassType.ClassName]);
 end;
 
 function GetDeclaredGenericType(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TRttiType;
@@ -7117,7 +7134,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         begin
           Result := True;
           if Value.Kind <> tkClass then
-            Value := GetTypeData(TypeInfo).ClassType.Create;
+            Value := CreateInstance(Context, TypeInfo);
           for f in Context.GetType(Value.AsObject.ClassType).GetFields do
             if f.FieldType <> nil then
             begin
@@ -7137,7 +7154,9 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
             Result := True;
 
             if Value.Kind <> tkClass then
-              Value := GetTypeData(TypeInfo).ClassType.Create;
+            begin
+              Value := CreateInstance(Context, TypeInfo);
+            end;
 
             method := Context.GetType(Value.AsObject.ClassType).GetMethod('Add');
 
