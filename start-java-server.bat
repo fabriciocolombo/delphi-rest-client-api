@@ -1,2 +1,4 @@
 cd java-rest-server
-mvn jetty:run
+call mvn clean
+call mvn package
+call mvn jetty:run

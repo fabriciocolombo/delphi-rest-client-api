@@ -10,6 +10,8 @@ uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections,
 type
   TTestDbxJson = class(TBaseTestRest)
   private
+  protected
+    procedure SetUp; override;
   published
     procedure MarshalAndUnmarshal;
     procedure EchoJsonObjectWithPost;
@@ -197,6 +199,12 @@ begin
   finally
     vPerson.Free;
   end;
+end;
+
+procedure TTestDbxJson.SetUp;
+begin
+  inherited;
+  RestClient.Resource(CONTEXT_PATH + 'persons/reset').GET();
 end;
 
 initialization
