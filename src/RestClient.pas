@@ -10,7 +10,7 @@ uses Classes, SysUtils, Windows, HttpConnection,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
      {$ENDIF}
-     Contnrs, DB;
+     Contnrs, DB, DataSetToJsonConverter;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -86,7 +86,8 @@ type
     FAcceptedLanguages: string;
 
     constructor Create(RestClient: TRestClient; URL: string);
-    procedure SetContent(entity: TObject);
+    procedure SetContent(Entity: TObject);overload;
+    procedure SetContent(Json: String);overload;
   public
     destructor Destroy; override;
 
@@ -127,8 +128,16 @@ type
     procedure Delete(Entity: TObject);overload;
     {$ENDIF}
 
-    procedure GetAsDataSet(ADataSet: TDataSet);overload;
-    function GetAsDataSet(): TDataSet;overload;
+    procedure GetAsDataSet(ADataSet: TDataSet); overload;
+    function GetAsDataSet(): TDataSet; overload;
+    function Post(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): string; overload;
+    function Put(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): string; overload;
+    procedure Delete(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet); overload;
+
+    {$IFDEF USE_GENERICS}
+    function Post<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T; overload;
+    function Put<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T; overload;
+    {$ENDIF}
   end;
 
 implementation
@@ -274,6 +283,54 @@ begin
   FRestClient.DoRequest(METHOD_POST, Self, AHandler);
 end;
 
+function TResource.Post(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): string;
+var
+  vJson: string;
+begin
+  case ARecordDataSet of
+    rdsAll: TDataSetToJsonConverter.UnMarshalAllToJson(vJson, ADataSet);
+    rdsCurrent: TDataSetToJsonConverter.UnMarshalCurrentToJson(vJson, ADataSet);
+  end;
+
+  SetContent(vJson);
+
+  Result := FRestClient.DoRequest(METHOD_POST, Self);
+end;
+
+ {$IFDEF USE_GENERICS}
+function TResource.Post<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T;
+var
+  vResponse: string;
+begin
+  vResponse := Post(ADataSet, ARecordDataSet);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+
+function TResource.Put<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T;
+var
+  vResponse: string;
+begin
+  vResponse := Put(ADataSet, ARecordDataSet);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+{$ENDIF}
+
+function TResource.Put(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): string;
+var
+  vJson: string;
+begin
+  case ARecordDataSet of
+    rdsAll: TDataSetToJsonConverter.UnMarshalAllToJson(vJson, ADataSet);
+    rdsCurrent: TDataSetToJsonConverter.UnMarshalCurrentToJson(vJson, ADataSet);
+  end;
+
+  SetContent(vJson);
+
+  Result := FRestClient.DoRequest(METHOD_PUT, Self);
+end;
+
 procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandler);
 begin
   Content.Position := 0;
@@ -333,6 +390,20 @@ end;
 
 procedure TResource.Delete();
 begin
+  FRestClient.DoRequest(METHOD_DELETE, Self);
+end;
+
+procedure TResource.Delete(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet);
+var
+  vJson: string;
+begin
+  case ARecordDataSet of
+    rdsAll: TDataSetToJsonConverter.UnMarshalAllToJson(vJson, ADataSet);
+    rdsCurrent: TDataSetToJsonConverter.UnMarshalCurrentToJson(vJson, ADataSet);
+  end;
+
+  SetContent(vJson);
+
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
 
@@ -448,7 +519,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TResource.SetContent(entity: TObject);
+procedure TResource.SetContent(Entity: TObject);
 var
   vJson: string;
   vStream: TStringStream;
@@ -456,6 +527,20 @@ begin
   vJson := TJsonUtil.Marshal(Entity);
 
   vStream := TStringStream.Create(vJson);
+  try
+    vStream.Position := 0;
+    FContent.Clear;
+    FContent.CopyFrom(vStream, vStream.Size);
+  finally
+    vStream.Free;
+  end;
+end;
+
+procedure TResource.SetContent(Json: String);
+var
+  vStream: TStringStream;
+begin
+  vStream := TStringStream.Create(Json);
   try
     vStream.Position := 0;
     FContent.Clear;

@@ -38,6 +38,7 @@ constructor THttpConnectionIndy.Create;
 begin
   FIdHttp := TIdHTTP.Create(nil);
   FIdHttp.HandleRedirects := True;
+  FIdHttp.HTTPOptions := [hoKeepOrigProtocol, hoForceEncodeParams];
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);

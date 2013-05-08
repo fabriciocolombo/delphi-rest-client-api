@@ -10,6 +10,9 @@ const
   LOCALE_US = 'en-US';
 
 type
+
+  TRecordDataSet = (rdsAll, rdsCurrent);
+
   TReponseCode = record
     StatusCode: Integer;
     Reason: string;
