@@ -9,7 +9,7 @@ Connection Layer
 ---
 There are a IHttpConnection interface to abstract the real Http conection. This interface currently have two implementations, using  [Indy 10](http://www.indyproject.org/index.en.aspx) and [WinHTTP](http://msdn.microsoft.com/en-us/library/windows/desktop/aa382925.aspx).
 
-Indy 9 does not handles HTTP response codes correctly, then if you are using Delphi 7, you must update your indy library to version 10 or use WinHttp (recommended).
+Indy 9 does not handles HTTP response codes correctly, then if you are using Delphi 7, you must update your indy library to version 10 or use WinHttp (recommended). To disable indy support comment the compiler directive ``{.$DEFINE USE_INDY}`` in ``DelphiRest.inc`` file.
 
 Serialization/Desserialization
 --	

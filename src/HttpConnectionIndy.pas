@@ -2,7 +2,7 @@ unit HttpConnectionIndy;
 
 interface
 
-uses IdHTTP, HttpConnection, Classes, RestUtils;
+uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils;
 
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
@@ -13,6 +13,7 @@ type
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
   private
     FIdHttp: TIdHTTP;
+    FEnabledCompression: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -28,6 +29,9 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+
+    function GetEnabledCompression: Boolean;
+    procedure SetEnabledCompression(const Value: Boolean);
   end;
 
 implementation
@@ -67,6 +71,11 @@ begin
   end;
 end;
 
+function THttpConnectionIndy.GetEnabledCompression: Boolean;
+begin
+  Result := FEnabledCompression;
+end;
+
 function THttpConnectionIndy.GetResponseCode: Integer;
 begin
   Result := FIdHttp.ResponseCode;
@@ -98,6 +107,24 @@ function THttpConnectionIndy.SetContentTypes(AContentTypes: string): IHttpConnec
 begin
   FIdHttp.Request.ContentType := AContentTypes;
   Result := Self;
+end;
+
+procedure THttpConnectionIndy.SetEnabledCompression(const Value: Boolean);
+begin
+  if (FEnabledCompression <> Value) then
+  begin
+    FEnabledCompression := Value;
+
+    if FEnabledCompression then
+    begin
+      FIdHttp.Compressor := TIdCompressorZLib.Create(FIdHttp);
+    end
+    else
+    begin
+      FIdHttp.Compressor.Free;
+      FIdHttp.Compressor := nil;
+    end;
+  end;
 end;
 
 function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;

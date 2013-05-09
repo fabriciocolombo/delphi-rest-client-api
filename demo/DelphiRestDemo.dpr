@@ -11,6 +11,9 @@ uses
 
 begin
   Application.Initialize;
+
+  ReportMemoryLeaksOnShutdown := True;
+
   Application.CreateForm(TDM, DM);
   Application.CreateForm(TFrm_PersonList, Frm_PersonList);
   Application.Run;

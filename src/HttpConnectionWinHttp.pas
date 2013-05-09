@@ -31,6 +31,9 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+
+    function GetEnabledCompression: Boolean;
+    procedure SetEnabledCompression(const Value: Boolean);
   end;
 
 implementation
@@ -107,6 +110,11 @@ begin
   CopyResourceStreamToStream(AResponse);
 end;
 
+function THttpConnectionWinHttp.GetEnabledCompression: Boolean;
+begin
+  Result := False;
+end;
+
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
@@ -161,6 +169,11 @@ begin
   FContentTypes := AContentTypes;
 
   Result := Self;
+end;
+
+procedure THttpConnectionWinHttp.SetEnabledCompression(const Value: Boolean);
+begin
+  //Nothing to do
 end;
 
 function THttpConnectionWinHttp.SetHeaders(AHeaders: TStrings): IHttpConnection;
