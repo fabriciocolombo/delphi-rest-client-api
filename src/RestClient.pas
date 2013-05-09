@@ -30,6 +30,7 @@ type
     FHttpConnection: IHttpConnection;
     FResources: TObjectList;
     FConnectionType: THttpConnectionType;
+    FEnabledCompression: Boolean;
 
 
     {$IFDEF DELPHI_2009_UP}
@@ -46,8 +47,10 @@ type
     procedure RecreateConnection;
 
     procedure CheckConnection;
-  protected
-    procedure Loaded; override;  
+
+    procedure SetEnabledCompression(const Value: Boolean);  protected
+
+    procedure Loaded; override;
   public
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
@@ -58,6 +61,7 @@ type
 
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
+    property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
   end;
 
   TCookie = class
@@ -142,6 +146,7 @@ constructor TRestClient.Create(Owner: TComponent);
 begin
   inherited;
   FResources := TObjectList.Create;
+  FEnabledCompression := True;
 end;
 
 destructor TRestClient.Destroy;
@@ -220,6 +225,7 @@ begin
   if not (csDesigning in ComponentState) then
   begin
     FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
+    FHttpConnection.EnabledCompression := FEnabledCompression;
   end;
 end;
 
@@ -250,6 +256,19 @@ begin
     FConnectionType := Value;
 
     RecreateConnection;
+  end;
+end;
+
+procedure TRestClient.SetEnabledCompression(const Value: Boolean);
+begin
+  if (FEnabledCompression <> Value) then
+  begin
+    FEnabledCompression := Value;
+
+    if Assigned(FHttpConnection) then
+    begin
+      FHttpConnection.EnabledCompression := FEnabledCompression;
+    end;
   end;
 end;
 

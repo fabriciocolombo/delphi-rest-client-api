@@ -20,8 +20,12 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+    function GetEnabledCompression: Boolean;
+
+    procedure SetEnabledCompression(const Value: Boolean);
 
     property ResponseCode: Integer read GetResponseCode;
+    property EnabledCompression: Boolean read GetEnabledCompression write SetEnabledCompression;
   end;
 
 implementation

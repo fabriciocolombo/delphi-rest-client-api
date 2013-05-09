@@ -88,4 +88,13 @@ object Frm_PersonList: TFrm_PersonList
     TabOrder = 5
     OnClick = btnResetClick
   end
+  object chkEnableCompression: TCheckBox
+    Left = 495
+    Top = 263
+    Width = 128
+    Height = 17
+    Caption = 'Enable Compression'
+    TabOrder = 6
+    OnClick = chkEnableCompressionClick
+  end
 end

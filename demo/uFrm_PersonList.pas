@@ -14,15 +14,17 @@ type
     btnRemove: TButton;
     btnRefresh: TButton;
     btnReset: TButton;
+    chkEnableCompression: TCheckBox;
     procedure btnAddClick(Sender: TObject);
     procedure btnUpdateClick(Sender: TObject);
     procedure btnRemoveClick(Sender: TObject);
     procedure btnResetClick(Sender: TObject);
     procedure btnRefreshClick(Sender: TObject);
+    procedure chkEnableCompressionClick(Sender: TObject);
   private
     procedure RefreshList;
   public
-    { Public declarations }
+    constructor Create(AOwner: TComponent); override;
   end;
 
 var
@@ -98,6 +100,17 @@ begin
       RefreshList;
     end;
   end;
+end;
+
+procedure TFrm_PersonList.chkEnableCompressionClick(Sender: TObject);
+begin
+  DM.RestClient.EnabledCompression := chkEnableCompression.Checked;
+end;
+
+constructor TFrm_PersonList.Create(AOwner: TComponent);
+begin
+  inherited;
+  chkEnableCompression.Checked := DM.RestClient.EnabledCompression;
 end;
 
 procedure TFrm_PersonList.RefreshList;
