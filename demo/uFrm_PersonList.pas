@@ -46,11 +46,16 @@ begin
 
   if TFrm_Person.Modify(vPerson) then
   begin
-    DM.RestClient.Resource(CONTEXT_PATH + 'person')
-                 .Accept(RestUtils.MediaType_Json)
-                 .ContentType(RestUtils.MediaType_Json)
-                 .Post<TPerson>(vPerson);
-
+    try
+      DM.RestClient.Resource(CONTEXT_PATH + 'person')
+                              .Accept(RestUtils.MediaType_Json)
+                              .Header('Accept-Encoding', 'gzip')
+                              .ContentType(RestUtils.MediaType_Json)
+                              .Post<TPerson>(vPerson)
+                              .Free;
+    finally
+      vPerson.Free;
+    end;
     RefreshList;
   end;
 end;
@@ -97,7 +102,8 @@ begin
       DM.RestClient.Resource(CONTEXT_PATH + 'person')
                    .Accept(RestUtils.MediaType_Json)
                    .ContentType(RestUtils.MediaType_Json)
-                   .Put<TPerson>(vPerson);
+                   .Put<TPerson>(vPerson)
+                   .Free;
 
       RefreshList;
     end;
