@@ -22,9 +22,11 @@ type
     procedure btnRefreshClick(Sender: TObject);
     procedure chkEnableCompressionClick(Sender: TObject);
   private
+    procedure ClearList;
     procedure RefreshList;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 var
@@ -107,10 +109,27 @@ begin
   DM.RestClient.EnabledCompression := chkEnableCompression.Checked;
 end;
 
+procedure TFrm_PersonList.ClearList;
+var
+  i: Integer;
+begin
+  for i := ListView1.Items.Count-1 downto 0 do
+  begin
+    TObject(ListView1.Items[i].Data).Free;
+  end;
+  ListView1.Items.Clear;
+end;
+
 constructor TFrm_PersonList.Create(AOwner: TComponent);
 begin
   inherited;
   chkEnableCompression.Checked := DM.RestClient.EnabledCompression;
+end;
+
+destructor TFrm_PersonList.Destroy;
+begin
+  ClearList;
+  inherited;
 end;
 
 procedure TFrm_PersonList.RefreshList;
@@ -118,7 +137,7 @@ var
   vResponse: TList<TPerson>;
   vPerson: TPerson;
 begin
-  ListView1.Items.Clear;
+  ClearList;
 
   vResponse := Dm.RestClient.Resource(CONTEXT_PATH + 'persons')
                             .Accept(RestUtils.MediaType_Json)
