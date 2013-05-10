@@ -52,9 +52,11 @@ end;
 class procedure TBaseTestRest.RegisterTest;
 begin
   {$IFDEF USE_INDY}
+  //TestFramework.RegisterTest('Indy', TRepeatedTest.Create(TBaseTestSuite.Create(Self, hctIndy), 100));
   TestFramework.RegisterTest('Indy', TBaseTestSuite.Create(Self, hctIndy));
   {$ENDIF}
   {$IFDEF USE_WIN_HTTP}
+  //TestFramework.RegisterTest('WinHTTP', TRepeatedTest.Create(TBaseTestSuite.Create(Self, hctWinHttp), 100));
   TestFramework.RegisterTest('WinHTTP', TBaseTestSuite.Create(Self, hctWinHttp));
   {$ENDIF}
 end;
@@ -68,6 +70,7 @@ procedure TBaseTestRest.SetUp;
 begin
   inherited;
   FRestClient := TRestClient.Create(nil);
+  FRestClient.EnabledCompression := True;
   FRestClient.ConnectionType := FHttpConnectionType;
 end;
 
