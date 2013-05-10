@@ -75,11 +75,14 @@ begin
       for i := 0 to Pred(ADataSet.FieldCount) do
       begin
         if VarIsNull(ADataSet.Fields[i].Value) then
-          vJo.O[ADataSet.Fields[i].FieldName] := SO(Null)
-        else
         begin
+          if (ADataSet.Fields[i].DataType = ftDataSet) then
+            vJo.O[ADataSet.Fields[i].FieldName] := SA([])
+          else
+            vJo.O[ADataSet.Fields[i].FieldName] := SO(Null);
+        end
+        else
           CreateJsonValueByField(vJo, ADataSet.Fields[i]);
-        end;
       end;
       vJa.AsArray.Add(vJo);
       ADataSet.Next;
@@ -117,11 +120,14 @@ begin
       for i := 0 to Pred(ADataSet.FieldCount) do
       begin
         if VarIsNull(ADataSet.Fields[i].Value) then
-          vJo.O[ADataSet.Fields[i].FieldName] := SO(Null)
-        else
         begin
+          if (ADataSet.Fields[i].DataType = ftDataSet) then
+            vJo.O[ADataSet.Fields[i].FieldName] := SA([])
+          else
+            vJo.O[ADataSet.Fields[i].FieldName] := SO(Null);
+        end
+        else
           CreateJsonValueByField(vJo, ADataSet.Fields[i]);
-        end;
       end;
     end;
 
