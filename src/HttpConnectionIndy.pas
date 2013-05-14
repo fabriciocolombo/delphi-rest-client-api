@@ -2,7 +2,8 @@ unit HttpConnectionIndy;
 
 interface
 
-uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils;
+uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
+     IdSSLOpenSSL;
 
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
@@ -13,6 +14,7 @@ type
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
   private
     FIdHttp: TIdHTTP;
+    FIdSSL: TIdSSLIOHandlerSocketOpenSSL;
     FEnabledCompression: Boolean;
   public
     constructor Create;
@@ -40,7 +42,9 @@ implementation
 
 constructor THttpConnectionIndy.Create;
 begin
+  FIdSSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   FIdHttp := TIdHTTP.Create(nil);
+  FIdHttp.IOHandler := FIdSSL;
   FIdHttp.HandleRedirects := True;
 end;
 
@@ -54,6 +58,7 @@ end;
 destructor THttpConnectionIndy.Destroy;
 begin
   FIdHttp.Free;
+  FIdSSL.Free;
   inherited;
 end;
 
