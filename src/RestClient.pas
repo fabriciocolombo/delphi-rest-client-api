@@ -441,7 +441,8 @@ function TResource.Post<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
@@ -452,7 +453,8 @@ function TResource.Put<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
@@ -461,7 +463,8 @@ end;
 
 procedure TResource.Delete(Entity: TObject);
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
