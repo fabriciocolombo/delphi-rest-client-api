@@ -2,10 +2,20 @@ unit HttpConnection;
 
 interface
 
-uses Classes;
+uses Classes, SysUtils;
 
 type
   THttpConnectionType = (hctUnknown, hctIndy, hctWinHttp);
+
+  EHTTPError = class(Exception)
+    private
+      FErrorCode: integer;
+      FErrorMessage: string;
+    public
+      constructor Create(const Msg, HTTPText: string; const HTTPErrorCode: integer); overload; virtual;
+      property ErrorMessage: string read FErrorMessage;
+      property ErrorCode: integer read FErrorCode;
+  end;
 
   IHttpConnection = interface
   ['{B9611100-5243-4874-A777-D91448517116}']
@@ -29,5 +39,14 @@ type
   end;
 
 implementation
+
+{ THttpError }
+
+constructor EHTTPError.Create(const Msg, HTTPText: string; const HTTPErrorCode: integer);
+begin
+  inherited Create(Msg);
+  FErrorMessage := HTTPText;
+  FErrorCode := FErrorCode;
+end;
 
 end.

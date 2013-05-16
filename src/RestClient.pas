@@ -193,6 +193,12 @@ begin
         Result :=  UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
+    if FHttpConnection.ResponseCode >= 400 then
+      raise EHTTPError.Create(
+        format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+        Result,
+        FHttpConnection.ResponseCode
+      );
   finally
     vResponse.Free;
   end;
