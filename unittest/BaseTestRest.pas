@@ -70,7 +70,8 @@ procedure TBaseTestRest.SetUp;
 begin
   inherited;
   FRestClient := TRestClient.Create(nil);
-  FRestClient.EnabledCompression := True;
+// AV in Delphi XE2
+  FRestClient.EnabledCompression := False;
   FRestClient.ConnectionType := FHttpConnectionType;
 end;
 

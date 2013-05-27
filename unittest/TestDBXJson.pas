@@ -50,14 +50,15 @@ end;
 
 procedure TTestDbxJson.GetJsonList;
 var
-  vResponse: TList<TPerson>;
+  vResponse: TObjectList<TPerson>;
   vPerson: TPerson;
 begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'persons')
                           .Accept(RestUtils.MediaType_Json)
-                          .Get<TList<TPerson>>();
+                          .Get<TObjectList<TPerson>>();
   try
     CheckNotNull(vResponse);
+    vResponse.OwnsObjects := True;
     CheckEquals(4, vResponse.Count);
 
     for vPerson in vResponse do
@@ -130,27 +131,22 @@ end;
 
 procedure TTestDbxJson.EchoJsonObjectListWithPost;
 var
-  vPerson: TPerson;
   vReqJson,
-  vRespJson: TList<TPerson>;
+  vRespJson: TObjectList<TPerson>;
 begin
-  vReqJson := TList<TPerson>.Create;
+  vReqJson := TObjectList<TPerson>.Create;
   try
-    vPerson := TPerson.NewFrom(123, 'Fabricio', 'fabricio.colombo.mva@gmail.com');
-    try
-      vReqJson.Add(vPerson);
+    vReqJson.Add(TPerson.NewFrom(123, 'Fabricio', 'fabricio.colombo.mva@gmail.com'));
 
-      vRespJson := RestClient.Resource(CONTEXT_PATH + 'json/persons')
-                             .Accept(RestUtils.MediaType_Json)
-                             .ContentType(RestUtils.MediaType_Json)
-                             .Post<TList<TPerson>>(vReqJson);
-      try
-        CheckEqualsString(vReqJson[0].ToString, vRespJson[0].ToString);
-      finally
-        vRespJson.Free;
-      end;
+    vRespJson := RestClient.Resource(CONTEXT_PATH + 'json/persons')
+                           .Accept(RestUtils.MediaType_Json)
+                           .ContentType(RestUtils.MediaType_Json)
+                           .Post<TObjectList<TPerson>>(vReqJson);
+    try
+      vRespJson.OwnsObjects := True;
+      CheckEqualsString(vReqJson[0].ToString, vRespJson[0].ToString);
     finally
-      vPerson.Free;
+      vRespJson.Free;
     end;
   finally
     vReqJson.Free;

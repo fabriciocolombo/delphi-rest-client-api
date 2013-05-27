@@ -112,12 +112,15 @@ begin
   vJson := '{"id":123,"name":"Fabricio Colombo"}';
 
   vDataSet := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
-
-  CheckNotNull(vDataSet);
-  CheckTrue(vDataSet.Active);
-  CheckEquals(2, vDataSet.FieldCount);
-  CheckEquals('id', vDataSet.Fields[0].FieldName);
-  CheckEquals('name', vDataSet.Fields[1].FieldName);
+  try
+    CheckNotNull(vDataSet);
+    CheckTrue(vDataSet.Active);
+    CheckEquals(2, vDataSet.FieldCount);
+    CheckEquals('id', vDataSet.Fields[0].FieldName);
+    CheckEquals('name', vDataSet.Fields[1].FieldName);
+  finally
+    vDataSet.Free;
+  end;
 end;
 
 procedure TTestDataSetHandler.JsonToDynamicDataSetWithNestedDataSet;
@@ -141,10 +144,8 @@ begin
            '   ]' +
            '}';
 
-  vDataSet := TClientDataSet.Create(nil);
+  vDataSet := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
   try
-    vDataSet := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
-
     CheckNotNull(vDataSet);
     CheckTrue(vDataSet.Active);
     CheckEquals(3, vDataSet.FieldCount);

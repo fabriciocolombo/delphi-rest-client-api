@@ -16,9 +16,10 @@ type
     age: Integer;
     name: String;
     father: TPerson;
-    phones : TList<TPhone>;
+    phones : TObjectList<TPhone>;
 
     function ToString: string; override;
+    destructor Destroy; override;
   end;
   
   TTestDesserializer = class(TBaseTestRest)
@@ -53,14 +54,17 @@ var
   vPerson: TPerson;
 begin
   vPerson := TPerson.FromJson(sJson);
+  try
+    CheckNotNull(vPerson);
+    CheckEquals('Helbert', vPerson.name);
+    CheckEquals(30, vPerson.age);
 
-  CheckNotNull(vPerson);
-  CheckEquals('Helbert', vPerson.name);
-  CheckEquals(30, vPerson.age);
-
-  CheckNotNull(vPerson.father);
-  CheckEquals('Luiz', vPerson.father.name);
-  CheckEquals(60, vPerson.father.age);
+    CheckNotNull(vPerson.father);
+    CheckEquals('Luiz', vPerson.father.name);
+    CheckEquals(60, vPerson.father.age);
+  finally
+    vPerson.Free;
+  end;
 end;
 
 procedure TTestDesserializer.personWithFatherAndPhones;
@@ -89,22 +93,25 @@ var
   vPerson: TPerson;
 begin
   vPerson := TPerson.FromJson(sJson);
+  try
+    CheckNotNull(vPerson);
+    CheckEquals('Helbert', vPerson.name);
+    CheckEquals(30, vPerson.age);
 
-  CheckNotNull(vPerson);
-  CheckEquals('Helbert', vPerson.name);
-  CheckEquals(30, vPerson.age);
+    CheckNotNull(vPerson.father);
+    CheckEquals('Luiz', vPerson.father.name);
+    CheckEquals(60, vPerson.father.age);
 
-  CheckNotNull(vPerson.father);
-  CheckEquals('Luiz', vPerson.father.name);
-  CheckEquals(60, vPerson.father.age);
+    CheckNotNull(vPerson.phones);
+    CheckEquals(2, vPerson.phones.Count);
+    CheckEquals(33083518, vPerson.phones[0].number);
+    CheckEquals(61, vPerson.phones[0].code);
 
-  CheckNotNull(vPerson.phones);
-  CheckEquals(2, vPerson.phones.Count);
-  CheckEquals(33083518, vPerson.phones[0].number);
-  CheckEquals(61, vPerson.phones[0].code);
-
-  CheckEquals(99744165, vPerson.phones[1].number);
-  CheckEquals(61, vPerson.phones[1].code);
+    CheckEquals(99744165, vPerson.phones[1].number);
+    CheckEquals(61, vPerson.phones[1].code);
+  finally
+    vPerson.Free;
+  end;
 end;
 
 procedure TTestDesserializer.person;
@@ -117,10 +124,13 @@ var
   vPerson: TPerson;
 begin
   vPerson := TPerson.FromJson(sJson);
-
-  CheckNotNull(vPerson);
-  CheckEquals('Helbert', vPerson.name);
-  CheckEquals(30, vPerson.age);
+  try
+    CheckNotNull(vPerson);
+    CheckEquals('Helbert', vPerson.name);
+    CheckEquals(30, vPerson.age);
+  finally
+    vPerson.Free;
+  end;
 end;
 
 { TTestSerializer }
@@ -132,13 +142,26 @@ var
   vPerson: TPerson;
 begin
   vPerson := TPerson.Create;
-  vPerson.name := 'Helbert';
-  vPerson.age := 30;
+  try
+    vPerson.name := 'Helbert';
+    vPerson.age := 30;
 
-  CheckEquals(sJson, vPerson.ToJson().AsJSon());
+    CheckEquals(sJson, vPerson.ToJson().AsJSon());
+  finally
+    vPerson.Free;
+  end;
 end;
 
 { TPerson }
+
+destructor TPerson.Destroy;
+begin
+  if Assigned(phones) then
+    phones.OwnsObjects := True;
+  phones.Free;
+  father.Free;
+  inherited;
+end;
 
 function TPerson.ToString: string;
 begin
