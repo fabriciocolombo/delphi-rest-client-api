@@ -116,6 +116,7 @@ begin
 
     if FEnabledCompression then
     begin
+	  //NOTE: This does not work in Delphi XE2. Access violation occurs. 
       FIdHttp.Compressor := TIdCompressorZLib.Create(FIdHttp);
     end
     else

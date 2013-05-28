@@ -47,13 +47,13 @@
 			<Base>true</Base>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
+			<Manifest_File>None</Manifest_File>
 			<VerInfo_Locale>1046</VerInfo_Locale>
 			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 			<DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
 			<DCC_UnitSearchPath>$(BDS)\Source\DUnit\src;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_ImageBase>00400000</DCC_ImageBase>
 			<DCC_ExeOutput>.\$(Config)\$(Platform)</DCC_ExeOutput>
-			<DCC_Define>_CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
 			<DCC_DcuOutput>.</DCC_DcuOutput>
 			<DCC_N>false</DCC_N>
 			<DCC_S>false</DCC_S>
@@ -69,16 +69,16 @@
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<Manifest_File>None</Manifest_File>
 			<DCC_UnitSearchPath>..\src;..\lib\superobject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
 			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+			<DCC_MapFile>3</DCC_MapFile>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 			<DCC_DebugDCUs>true</DCC_DebugDCUs>
@@ -90,6 +90,8 @@
 			<DCC_DebugInformation>false</DCC_DebugInformation>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+			<DCC_Define>CONSOLE_TESTRUNNER;$(DCC_Define)</DCC_Define>
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_UnitSearchPath>..\src;..\lib\superobject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
@@ -111,6 +113,8 @@
 			<DCCReference Include="..\src\HttpConnectionFactory.pas"/>
 			<DCCReference Include="..\src\HttpConnectionWinHttp.pas"/>
 			<DCCReference Include="..\lib\WinHttp_TLB.pas"/>
+			<DCCReference Include="TestRegister.pas"/>
+			<DCCReference Include="TestRestClient.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -161,8 +165,11 @@
 						<Source Name="MainSource">UnitTest.dpr</Source>
 					</Source>
 					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl">File C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>

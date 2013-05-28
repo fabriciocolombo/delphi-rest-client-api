@@ -10,6 +10,8 @@ program UnitTest;
 
 }
 
+{.$DEFINE CONSOLE_TESTRUNNER}
+
 {$IFDEF CONSOLE_TESTRUNNER}
   {$APPTYPE CONSOLE}
 {$ENDIF}
@@ -24,10 +26,6 @@ uses
   TestHelloWorld in 'TestHelloWorld.pas',
   TestPeople in 'TestPeople.pas',
   BaseTestRest in 'BaseTestRest.pas',
-  {$IFDEF USE_GENERICS}
-  TestDBXJson in 'TestDBXJson.pas',
-  TestSerializer in 'TestSerializer.pas',
-  {$ENDIF}
   TestHeader in 'TestHeader.pas',
   TestResponseHandler in 'TestResponseHandler.pas',
   TestDataSetHandler in 'TestDataSetHandler.pas',
@@ -37,14 +35,16 @@ uses
   HttpConnection in '..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\src\HttpConnectionFactory.pas',
   HttpConnectionWinHttp in '..\src\HttpConnectionWinHttp.pas',
-  WinHttp_TLB in '..\lib\WinHttp_TLB.pas';
+  WinHttp_TLB in '..\lib\WinHttp_TLB.pas',
+  TestRegister in 'TestRegister.pas',
+  TestRestClient in 'TestRestClient.pas';
 
 {$R *.RES}
 
 begin
   Application.Initialize;
 
-//  ReportMemoryLeaksOnShutdown := True;
+  ReportMemoryLeaksOnShutdown := True;
 
   if IsConsole then
     with TextTestRunner.RunRegisteredTests do
