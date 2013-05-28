@@ -42,6 +42,7 @@ contains
   HttpConnection in '..\..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
   JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
-  RestRegister in '..\..\src\RestRegister.pas';
+  RestRegister in '..\..\src\RestRegister.pas',
+  wcrypt2 in '..\..\lib\Wcrypt2.pas';
 
 end.

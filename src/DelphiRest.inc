@@ -1,7 +1,8 @@
 (* Full	Delphi Version Compiler Directives list could be found here: https://gist.github.com/2485849*)
 
-{$DEFINE USE_INDY}
+{.$DEFINE USE_INDY}
 {$DEFINE USE_WIN_HTTP}
+{$DEFINE USE_WIN_INET}
 
 {$IFDEF VER150} // Delphi 7
   {$DEFINE DELPHI_7}

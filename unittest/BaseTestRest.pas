@@ -59,6 +59,10 @@ begin
   //TestFramework.RegisterTest('WinHTTP', TRepeatedTest.Create(TBaseTestSuite.Create(Self, hctWinHttp), 100));
   TestFramework.RegisterTest('WinHTTP', TBaseTestSuite.Create(Self, hctWinHttp));
   {$ENDIF}
+  {$IFDEF USE_WIN_INET}
+  //TestFramework.RegisterTest('WinInet', TRepeatedTest.Create(TBaseTestSuite.Create(Self, hctWinInet), 100));
+  TestFramework.RegisterTest('WinInet', TBaseTestSuite.Create(Self, hctWinInet));
+  {$ENDIF}
 end;
 
 procedure TBaseTestRest.SetHttpConnectionType(AHttpConnectionType: THttpConnectionType);
