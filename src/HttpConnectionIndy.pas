@@ -116,7 +116,9 @@ begin
 
     if FEnabledCompression then
     begin
-      {$Message Warn 'TIdCompressorZLib does not work properly in Delphi XE2. Access violation occurs.'}
+      {$IFDEF DELPHI_XE2}
+        {$Message Warn 'TIdCompressorZLib does not work properly in Delphi XE2. Access violation occurs.'}
+      {$ENDIF}
       FIdHttp.Compressor := TIdCompressorZLib.Create(FIdHttp);
     end
     else
