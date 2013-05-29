@@ -5,7 +5,7 @@ interface
 uses Classes;
 
 type
-  THttpConnectionType = (hctUnknown, hctIndy, hctWinHttp);
+  THttpConnectionType = (hctUnknown, hctIndy, hctWinHttp, hctWinInet, hctCustom);
 
   IHttpConnection = interface
   ['{B9611100-5243-4874-A777-D91448517116}']

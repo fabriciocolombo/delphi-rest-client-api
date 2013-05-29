@@ -10,6 +10,8 @@ program UnitTest;
 
 }
 
+{.$DEFINE CONSOLE_TESTRUNNER}
+
 {$IFDEF CONSOLE_TESTRUNNER}
   {$APPTYPE CONSOLE}
 {$ENDIF}
@@ -17,6 +19,9 @@ program UnitTest;
 {$I DelphiRest.inc}
 
 uses
+  {$IFDEF DELPHI_7}
+  FastMM4,
+  {$ENDIF}
   Forms,
   TestFramework,
   GUITestRunner,
@@ -32,16 +37,20 @@ uses
   RestClient in '..\src\RestClient.pas',
   HttpConnection in '..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\src\HttpConnectionFactory.pas',
-  HttpConnectionWinHttp in '..\src\HttpConnectionWinHttp.pas',
-  WinHttp_TLB in '..\lib\WinHttp_TLB.pas';
+  WinHttp_TLB in '..\lib\WinHttp_TLB.pas',
+  TestRegister in 'TestRegister.pas',
+  TestRestClient in 'TestRestClient.pas',
+  Wcrypt2 in '..\lib\Wcrypt2.pas';
 
 {$R *.RES}
 
 begin
   Application.Initialize;
 
-//  ReportMemoryLeaksOnShutdown := True;
-
+  {$IFNDEF DELPHI_7}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+  
   if IsConsole then
     with TextTestRunner.RunRegisteredTests do
       Free

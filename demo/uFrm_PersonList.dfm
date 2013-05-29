@@ -89,7 +89,7 @@ object Frm_PersonList: TFrm_PersonList
     OnClick = btnResetClick
   end
   object chkEnableCompression: TCheckBox
-    Left = 495
+    Left = 503
     Top = 263
     Width = 128
     Height = 17

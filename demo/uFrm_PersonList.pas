@@ -22,9 +22,11 @@ type
     procedure btnRefreshClick(Sender: TObject);
     procedure chkEnableCompressionClick(Sender: TObject);
   private
+    procedure ClearList;
     procedure RefreshList;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 var
@@ -44,11 +46,16 @@ begin
 
   if TFrm_Person.Modify(vPerson) then
   begin
-    DM.RestClient.Resource(CONTEXT_PATH + 'person')
-                 .Accept(RestUtils.MediaType_Json)
-                 .ContentType(RestUtils.MediaType_Json)
-                 .Post<TPerson>(vPerson);
-
+    try
+      DM.RestClient.Resource(CONTEXT_PATH + 'person')
+                              .Accept(RestUtils.MediaType_Json)
+                              .Header('Accept-Encoding', 'gzip')
+                              .ContentType(RestUtils.MediaType_Json)
+                              .Post<TPerson>(vPerson)
+                              .Free;
+    finally
+      vPerson.Free;
+    end;
     RefreshList;
   end;
 end;
@@ -95,7 +102,8 @@ begin
       DM.RestClient.Resource(CONTEXT_PATH + 'person')
                    .Accept(RestUtils.MediaType_Json)
                    .ContentType(RestUtils.MediaType_Json)
-                   .Put<TPerson>(vPerson);
+                   .Put<TPerson>(vPerson)
+                   .Free;
 
       RefreshList;
     end;
@@ -107,10 +115,27 @@ begin
   DM.RestClient.EnabledCompression := chkEnableCompression.Checked;
 end;
 
+procedure TFrm_PersonList.ClearList;
+var
+  i: Integer;
+begin
+  for i := ListView1.Items.Count-1 downto 0 do
+  begin
+    TObject(ListView1.Items[i].Data).Free;
+  end;
+  ListView1.Items.Clear;
+end;
+
 constructor TFrm_PersonList.Create(AOwner: TComponent);
 begin
   inherited;
   chkEnableCompression.Checked := DM.RestClient.EnabledCompression;
+end;
+
+destructor TFrm_PersonList.Destroy;
+begin
+  ClearList;
+  inherited;
 end;
 
 procedure TFrm_PersonList.RefreshList;
@@ -118,7 +143,7 @@ var
   vResponse: TList<TPerson>;
   vPerson: TPerson;
 begin
-  ListView1.Items.Clear;
+  ClearList;
 
   vResponse := Dm.RestClient.Resource(CONTEXT_PATH + 'persons')
                             .Accept(RestUtils.MediaType_Json)

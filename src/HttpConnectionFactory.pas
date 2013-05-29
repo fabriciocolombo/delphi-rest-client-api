@@ -21,6 +21,9 @@ uses SysUtils,
     {$IFDEF USE_WIN_HTTP}
     HttpConnectionWinHttp,
     {$ENDIF}
+    {$IFDEF USE_WIN_INET}
+    HttpConnectionWinInet,
+    {$ENDIF}
     Classes, TypInfo;
     
 { THttpConnectionFactory }
@@ -37,6 +40,11 @@ begin
                 Result := THttpConnectionWinHttp.Create;
                 {$ELSE}
                 raise Exception.Create('WinHTTP not supported. If do you run under windows, enable USE_WIN_HTTP compiler directive.');
+                {$ENDIF}
+    hctWinInet: {$IFDEF USE_WIN_INET}
+                Result := THttpConnectionWinInet.Create(False);
+                {$ELSE}
+                raise Exception.Create('WinInet not supported. If do you run under windows, enable USE_WIN_INET compiler directive.');
                 {$ENDIF}
   else
     raise Exception.CreateFmt('Connection Type "%s" is not supported.', [GetEnumName(TypeInfo(THttpConnectionType), Ord(AType))]);

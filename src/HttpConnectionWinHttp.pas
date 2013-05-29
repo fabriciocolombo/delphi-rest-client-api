@@ -79,12 +79,12 @@ end;
 
 constructor THttpConnectionWinHttp.Create;
 begin
-  FWinHttpRequest := CoWinHttpRequest.Create;
   FHeaders := TStringList.Create;
 end;
 
 procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
 begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
   FWinHttpRequest.Open('DELETE', AUrl, false);
 
   Configure;
@@ -101,6 +101,7 @@ end;
 
 procedure THttpConnectionWinHttp.Get(AUrl: string; AResponse: TStream);
 begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
   FWinHttpRequest.Open('GET', AUrl, false);
 
   Configure;
@@ -124,6 +125,7 @@ procedure THttpConnectionWinHttp.Post(AUrl: string; AContent, AResponse: TStream
 var
   vAdapter: IStream;
 begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
   FWinHttpRequest.Open('POST', AUrl, false);
 
   Configure;
@@ -139,6 +141,7 @@ procedure THttpConnectionWinHttp.Put(AUrl: string; AContent,AResponse: TStream);
 var
   vAdapter: IStream;
 begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
   FWinHttpRequest.Open('PUT', AUrl, false);
 
   Configure;

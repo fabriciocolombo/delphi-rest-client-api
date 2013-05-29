@@ -25,13 +25,20 @@ type
 
   TResource = class;
 
+  TCustomCreateConnection = procedure(Sender: TObject; AConnectionType: THttpConnectionType; out AConnection: IHttpConnection) of object;
+
+  ERestClientException = class(Exception);
+  EInvalidHttpConnectionConfiguration = class(ERestClientException);
+  ECustomCreateConnectionException = class(ERestClientException);
+  EInactiveConnection = class(ERestClientException);
+
   TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
     FResources: TObjectList;
     FConnectionType: THttpConnectionType;
     FEnabledCompression: Boolean;
-
+    FOnCustomCreateConnection: TCustomCreateConnection;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -48,8 +55,10 @@ type
 
     procedure CheckConnection;
 
-    procedure SetEnabledCompression(const Value: Boolean);  protected
+    procedure SetEnabledCompression(const Value: Boolean);
 
+    function DoCustomCreateConnection: IHttpConnection;
+  protected
     procedure Loaded; override;
   public
     constructor Create(Owner: TComponent); override;
@@ -59,9 +68,11 @@ type
 
     function Resource(URL: String): TResource;
 
+    function UnWrapConnection: IHttpConnection;
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
+    property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
   end;
 
   TCookie = class
@@ -165,6 +176,23 @@ begin
   inherited;
 end;
 
+function TRestClient.DoCustomCreateConnection: IHttpConnection;
+begin
+  if Assigned(FOnCustomCreateConnection) then
+  begin
+    FOnCustomCreateConnection(Self, FConnectionType, Result);
+
+    if Result = nil then
+    begin
+      raise ECustomCreateConnectionException.Create('HttpConnection not supplied by OnCustomCreateConnection');
+    end;
+  end
+  else
+  begin
+    raise EInvalidHttpConnectionConfiguration.Create('ConnectionType is set to Custom but OnCustomCreateConnection event is not implemented.');
+  end;
+end;
+
 function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): WideString;
 var
   vResponse: TStringStream;
@@ -233,8 +261,15 @@ procedure TRestClient.RecreateConnection;
 begin
   if not (csDesigning in ComponentState) then
   begin
-    FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
-    FHttpConnection.EnabledCompression := FEnabledCompression;
+    if FConnectionType = hctCustom then
+    begin
+      FHttpConnection := DoCustomCreateConnection;
+    end
+    else
+    begin
+      FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
+      FHttpConnection.EnabledCompression := FEnabledCompression;
+    end;
   end;
 end;
 
@@ -242,7 +277,7 @@ procedure TRestClient.CheckConnection;
 begin
   if (FHttpConnection = nil) then
   begin
-    raise Exception.CreateFmt('%s: Connection is not active.', [Name]);
+    raise EInactiveConnection.CreateFmt('%s: Connection is not active.', [Name]);
   end;
 end;
 
@@ -279,6 +314,11 @@ begin
       FHttpConnection.EnabledCompression := FEnabledCompression;
     end;
   end;
+end;
+
+function TRestClient.UnWrapConnection: IHttpConnection;
+begin
+  Result := FHttpConnection;
 end;
 
 { TResource }

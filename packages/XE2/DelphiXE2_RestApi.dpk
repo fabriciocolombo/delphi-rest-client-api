@@ -50,6 +50,7 @@ contains
   RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
-  RestRegister in '..\..\src\RestRegister.pas';
+  RestRegister in '..\..\src\RestRegister.pas',
+  Wcrypt2 in '..\..\lib\Wcrypt2.pas';
 
 end.

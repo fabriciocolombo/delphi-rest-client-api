@@ -89,11 +89,11 @@
   {$DEFINE HAVE_INLINE}
 {$ifend}
 
-{$if defined(VER210) or defined(VER220) or defined(VER230) or defined(VER240)}
+{$if defined(VER210) or defined(VER220) or defined(VER230) or defined(VER240) or defined(VER250)}
   {$define HAVE_RTTI}
 {$ifend}
 
-{$if defined(VER230) or defined(VER240)}
+{$if defined(VER230) or defined(VER240) or defined(VER250)}
   {$define NEED_FORMATSETTINGS}
 {$ifend}
 
