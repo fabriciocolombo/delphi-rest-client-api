@@ -12,7 +12,7 @@ type
       FErrorCode: integer;
       FErrorMessage: string;
     public
-      constructor Create(const Msg, HTTPText: string; const HTTPErrorCode: integer); overload; virtual;
+      constructor Create(const Msg, ErrorMessage: string; const ErrorCode: integer); overload; virtual;
       property ErrorMessage: string read FErrorMessage;
       property ErrorCode: integer read FErrorCode;
   end;
@@ -42,10 +42,10 @@ implementation
 
 { THttpError }
 
-constructor EHTTPError.Create(const Msg, HTTPText: string; const HTTPErrorCode: integer);
+constructor EHTTPError.Create(const Msg, ErrorMessage: string; const ErrorCode: integer);
 begin
   inherited Create(Msg);
-  FErrorMessage := HTTPText;
+  FErrorMessage := ErrorMessage;
   FErrorCode := FErrorCode;
 end;
 

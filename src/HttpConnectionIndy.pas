@@ -68,10 +68,7 @@ begin
     FIdHttp.Get(AUrl, AResponse);
   except
     on E: EIdHTTPProtocolException do
-    begin
-      if not EIdHTTPProtocolException(E).ErrorCode = TStatusCode.NOT_FOUND.StatusCode then
-        raise;
-    end;
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
   end;
 end;
 
@@ -87,12 +84,22 @@ end;
 
 procedure THttpConnectionIndy.Post(AUrl: string; AContent, AResponse: TStream);
 begin
-  FIdHttp.Post(AUrl, AContent, AResponse);
+  try
+    FIdHttp.Post(AUrl, AContent, AResponse);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 procedure THttpConnectionIndy.Put(AUrl: string; AContent, AResponse: TStream);
 begin
-  FIdHttp.Put(AUrl, AContent, AResponse)
+  try
+    FIdHttp.Put(AUrl, AContent, AResponse);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 function THttpConnectionIndy.SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
@@ -142,7 +149,12 @@ end;
 
 procedure TIdHTTP.Delete(AURL: string);
 begin
-  DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
+  try
+    DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 end.
