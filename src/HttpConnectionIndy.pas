@@ -46,6 +46,7 @@ begin
   FIdHttp := TIdHTTP.Create(nil);
   FIdHttp.IOHandler := FIdSSL;
   FIdHttp.HandleRedirects := True;
+  FIdHttp.Request.CustomHeaders.FoldLines := false;
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
