@@ -221,6 +221,12 @@ begin
         Result :=  UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
+    if FHttpConnection.ResponseCode >= 400 then
+      raise EHTTPError.Create(
+        format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+        Result,
+        FHttpConnection.ResponseCode
+      );
   finally
     vResponse.Free;
   end;
@@ -473,35 +479,38 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);     
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 procedure TResource.Delete(Entity: TObject);
 begin
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
@@ -513,7 +522,6 @@ var
   vStream: TStringStream;
 begin
   vJson := TJsonUtil.Marshal(Entity);
-
   vStream := TStringStream.Create(vJson);
   try
     vStream.Position := 0;
