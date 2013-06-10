@@ -15,3 +15,13 @@ packages/XE/DelphiXE_RestApi.res
 packages/XE2/DelphiXE2_RestApi.res
 demo/DelphiRestDemo.exe
 demo/Debug
+*.dcu
+*.~*~
+*.local
+*.identcache
+__history
+*.drc
+*.map
+*.exe
+*.dll
+bin/*
