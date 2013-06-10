@@ -439,8 +439,8 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
@@ -451,8 +451,8 @@ begin
     SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);     
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -463,8 +463,8 @@ begin
     SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then   
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 procedure TResource.Delete(Entity: TObject);
@@ -482,7 +482,6 @@ var
   vStream: TStringStream;
 begin
   vJson := TJsonUtil.Marshal(Entity);
-
   vStream := TStringStream.Create(vJson);
   try
     vStream.Position := 0;
