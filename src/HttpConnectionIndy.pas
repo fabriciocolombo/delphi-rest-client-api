@@ -2,7 +2,8 @@ unit HttpConnectionIndy;
 
 interface
 
-uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils;
+uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
+     IdSSLOpenSSL;
 
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
@@ -13,6 +14,7 @@ type
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
   private
     FIdHttp: TIdHTTP;
+    FIdSSL: TIdSSLIOHandlerSocketOpenSSL;
     FEnabledCompression: Boolean;
   public
     constructor Create;
@@ -40,9 +42,11 @@ implementation
 
 constructor THttpConnectionIndy.Create;
 begin
+  FIdSSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   FIdHttp := TIdHTTP.Create(nil);
+  FIdHttp.IOHandler := FIdSSL;
   FIdHttp.HandleRedirects := True;
-  FIdHttp.HTTPOptions := [hoKeepOrigProtocol, hoForceEncodeParams];
+  FIdHttp.Request.CustomHeaders.FoldLines := false;
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
@@ -55,6 +59,7 @@ end;
 destructor THttpConnectionIndy.Destroy;
 begin
   FIdHttp.Free;
+  FIdSSL.Free;
   inherited;
 end;
 
@@ -64,10 +69,7 @@ begin
     FIdHttp.Get(AUrl, AResponse);
   except
     on E: EIdHTTPProtocolException do
-    begin
-      if not EIdHTTPProtocolException(E).ErrorCode = TStatusCode.NOT_FOUND.StatusCode then
-        raise;
-    end;
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
   end;
 end;
 
@@ -83,12 +85,22 @@ end;
 
 procedure THttpConnectionIndy.Post(AUrl: string; AContent, AResponse: TStream);
 begin
-  FIdHttp.Post(AUrl, AContent, AResponse);
+  try
+    FIdHttp.Post(AUrl, AContent, AResponse);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 procedure THttpConnectionIndy.Put(AUrl: string; AContent, AResponse: TStream);
 begin
-  FIdHttp.Put(AUrl, AContent, AResponse)
+  try
+    FIdHttp.Put(AUrl, AContent, AResponse);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 function THttpConnectionIndy.SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
@@ -132,6 +144,7 @@ end;
 
 function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
+  FIdHttp.Request.CustomHeaders.Clear;
   FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
   Result := Self;
 end;
@@ -140,7 +153,12 @@ end;
 
 procedure TIdHTTP.Delete(AURL: string);
 begin
-  DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
+  try
+    DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
+  except
+    on E: EIdHTTPProtocolException do
+      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+  end;
 end;
 
 end.

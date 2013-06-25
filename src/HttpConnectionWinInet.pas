@@ -7,7 +7,6 @@ interface
 
 uses HttpConnection, Classes, SysUtils, Variants, ActiveX, AxCtrls, Wcrypt2;
 
-{$REGION 'WIN_INET D7 COMPATIBILITY'}
 {$IFDEF DELPHI_7}
 const
   INTERNET_OPTION_FROM_CACHE_TIMEOUT          = 63;
@@ -88,7 +87,6 @@ const
   INTERNET_OPTION_SERVER_CERT_CHAIN_CONTEXT   = 105;
   {$EXTERNALSYM INTERNET_OPTION_SERVER_CERT_CHAIN_CONTEXT}
 {$ENDIF}
-{$ENDREGION}
 
 type
   THttpConnectionWinInet = class(TInterfacedObject, IHttpConnection)

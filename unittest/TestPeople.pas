@@ -28,7 +28,8 @@ type
 
 implementation
 
-uses RestUtils, StrUtils, SysUtils, Math, DataSetUtils, Person;
+uses RestUtils, StrUtils, SysUtils, Math, DataSetUtils, Person,
+  TestFramework, HttpConnection;
 
 { TTestPeople }
 
@@ -182,11 +183,18 @@ end;
 
 procedure TTestPeople.PersonNotFound;
 begin
-  RestClient.Resource(CONTEXT_PATH + 'person/999')
-            .Accept(RestUtils.MediaType_Json)
-            .GET();
-
-  CheckEquals(RestUtils.TStatusCode.NOT_FOUND.StatusCode, RestClient.ResponseCode);
+  try
+    RestClient.Resource(CONTEXT_PATH + 'person/999')
+              .Accept(RestUtils.MediaType_Json)
+              .GET();
+    Fail('Exception not throwed');
+  except
+    on E: Exception do
+    begin
+      CheckTrue(E is EHTTPError);
+      CheckEquals(TStatusCode.NOT_FOUND.StatusCode, EHTTPError(E).ErrorCode);
+    end;
+  end;
 end;
 
 procedure TTestPeople.RemovePersonById;
