@@ -152,6 +152,9 @@ type
     {$IFDEF USE_GENERICS}
     function Post<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T; overload;
     function Put<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T; overload;
+
+    function Post<T,R>(Entity: TObject): R; overload;
+    function Put<T,R>(Entity: TObject): R; overload;
     {$ENDIF}
   end;
 
@@ -362,7 +365,7 @@ begin
   Result := FRestClient.DoRequest(METHOD_POST, Self);
 end;
 
- {$IFDEF USE_GENERICS}
+{$IFDEF USE_GENERICS}
 function TResource.Post<T>(ADataSet: TDataSet; ARecordDataSet: TRecordDataSet): T;
 var
   vResponse: string;
@@ -379,6 +382,30 @@ begin
   vResponse := Put(ADataSet, ARecordDataSet);
 
   Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+
+function TResource.Post<T,R>(Entity: TObject): R;
+var
+  vResponse: string;
+begin
+  if Entity <> nil then
+    SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<R>(vResponse);
+end;
+
+function TResource.Put<T,R>(Entity: TObject): R;
+var
+  vResponse: string;
+begin
+  if Entity <> nil then
+    SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<R>(vResponse);
 end;
 {$ENDIF}
 
