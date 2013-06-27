@@ -34,7 +34,8 @@ requires
   dbrtl,
   IndySystem,
   IndyProtocols,
-  IndyCore;
+  IndyCore,
+  soaprtl;
 
 contains
   superobject in '..\..\lib\superobject\superobject.pas',
@@ -50,6 +51,7 @@ contains
   RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
-  RestRegister in '..\..\src\RestRegister.pas';
+  RestRegister in '..\..\src\RestRegister.pas',
+  DataSetToJsonConverter in '..\..\src\DataSetToJsonConverter.pas';
 
 end.

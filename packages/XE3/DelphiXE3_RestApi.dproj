@@ -75,10 +75,11 @@
         <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <DCC_UsePackage>soaprtl;dsnap;$(DCC_UsePackage)</DCC_UsePackage>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>vcl;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;soaprtl;dsnap;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -86,7 +87,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>vcl;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;soaprtl;dsnap;$(DCC_UsePackage)</DCC_UsePackage>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -124,6 +125,7 @@
         <DCCReference Include="IndySystem.dcp"/>
         <DCCReference Include="IndyProtocols.dcp"/>
         <DCCReference Include="IndyCore.dcp"/>
+        <DCCReference Include="soaprtl.dcp"/>
         <DCCReference Include="..\..\lib\superobject\superobject.pas"/>
         <DCCReference Include="..\..\lib\superobject\superxmlparser.pas"/>
         <DCCReference Include="..\..\src\DataSetUtils.pas"/>
@@ -138,6 +140,7 @@
         <DCCReference Include="..\..\src\RestJsonUtils.pas"/>
         <DCCReference Include="..\..\src\RestUtils.pas"/>
         <DCCReference Include="..\..\src\RestRegister.pas"/>
+        <DCCReference Include="..\..\src\DataSetToJsonConverter.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
