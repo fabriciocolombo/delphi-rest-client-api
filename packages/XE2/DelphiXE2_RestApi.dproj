@@ -96,14 +96,11 @@
 			<DCCReference Include="IndyProtocols.dcp"/>
 			<DCCReference Include="dbrtl.dcp"/>
 			<DCCReference Include="DbxCommonDriver.dcp"/>
-			<DCCReference Include="vcl.dcp"/>
 			<DCCReference Include="..\..\lib\superobject\superobject.pas"/>
 			<DCCReference Include="..\..\lib\superobject\superxmlparser.pas"/>
 			<DCCReference Include="..\..\src\DataSetUtils.pas"/>
 			<DCCReference Include="..\..\src\HttpConnection.pas"/>
 			<DCCReference Include="..\..\src\HttpConnectionFactory.pas"/>
-			<DCCReference Include="..\..\src\HttpConnectionIndy.pas"/>
-			<DCCReference Include="..\..\src\HttpConnectionWinHttp.pas"/>
 			<DCCReference Include="..\..\src\JsonToDataSetConverter.pas"/>
 			<DCCReference Include="..\..\src\RestClient.pas"/>
 			<DCCReference Include="..\..\src\RestJsonGenerics.pas"/>

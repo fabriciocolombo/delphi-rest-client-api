@@ -33,8 +33,7 @@ requires
   IndySystem,
   IndyProtocols,
   dbrtl,
-  DbxCommonDriver,
-  vcl;
+  DbxCommonDriver;
 
 contains
   superobject in '..\..\lib\superobject\superobject.pas',
@@ -42,8 +41,6 @@ contains
   DataSetUtils in '..\..\src\DataSetUtils.pas',
   HttpConnection in '..\..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
-  HttpConnectionIndy in '..\..\src\HttpConnectionIndy.pas',
-  HttpConnectionWinHttp in '..\..\src\HttpConnectionWinHttp.pas',
   JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
   RestClient in '..\..\src\RestClient.pas',
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
