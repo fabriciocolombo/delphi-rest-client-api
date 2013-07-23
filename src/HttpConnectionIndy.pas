@@ -42,9 +42,8 @@ implementation
 
 constructor THttpConnectionIndy.Create;
 begin
-  FIdSSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   FIdHttp := TIdHTTP.Create(nil);
-  FIdHttp.IOHandler := FIdSSL;
+  FIdHttp.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
   FIdHttp.HandleRedirects := True;
   FIdHttp.Request.CustomHeaders.FoldLines := false;
 end;
@@ -59,7 +58,6 @@ end;
 destructor THttpConnectionIndy.Destroy;
 begin
   FIdHttp.Free;
-  FIdSSL.Free;
   inherited;
 end;
 

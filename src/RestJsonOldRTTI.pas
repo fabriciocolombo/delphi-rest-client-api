@@ -4,8 +4,6 @@ interface
 
 {$I DelphiRest.inc}
 
-uses SuperObject;
-
 type
   TJsonUtilOldRTTI = class
   public

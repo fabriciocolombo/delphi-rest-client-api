@@ -31,7 +31,6 @@ uses
   BaseTestRest in 'BaseTestRest.pas',
   TestHeader in 'TestHeader.pas',
   TestResponseHandler in 'TestResponseHandler.pas',
-  TestDataSetHandler in 'TestDataSetHandler.pas',
   Person in 'Person.pas',
   DataSetUtils in '..\src\DataSetUtils.pas',
   RestClient in '..\src\RestClient.pas',

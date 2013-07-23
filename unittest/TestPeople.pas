@@ -4,6 +4,8 @@ interface
 
 uses BaseTestRest, Classes, DBClient, Db;
 
+{$I DelphiRest.inc}
+
 type
   TTestPeople = class(TBaseTestRest)
   private
@@ -22,8 +24,11 @@ type
     procedure UpdatePerson;
     procedure RemovePersonById;
     procedure PersonNotFound;
+
+    {$IFDEF USE_GENERICS}
     procedure GetAsDataSet;
     procedure GetAsDynamicDataSet;
+    {$ENDIF}
   end;
 
 implementation
@@ -104,6 +109,7 @@ begin
   ExtractStrings([','], [' '], PChar(Response), List);
 end;
 
+{$IFDEF USE_GENERICS}
 procedure TTestPeople.GetAsDataSet;
 const
   ExpectedPeoples = '[{"id":1,"name":"John Doe","email":"john@hotmail.com"},'+
@@ -151,6 +157,7 @@ begin
     vDataSet.Free;
   end;
 end;
+{$ENDIF}
 
 procedure TTestPeople.GetPerson;
 begin

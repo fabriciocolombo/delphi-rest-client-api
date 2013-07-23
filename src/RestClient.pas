@@ -5,10 +5,9 @@ interface
 {$I DelphiRest.inc}
 
 uses Classes, SysUtils, Windows, HttpConnection,
-     SuperObject,
      RestUtils,
      {$IFDEF USE_GENERICS}
-     Generics.Collections, Rtti,
+     SuperObject, Generics.Collections, Rtti,
      {$ENDIF}
      Contnrs, DB;
 
@@ -112,9 +111,9 @@ type
     function GetHeaders: TStrings;
     function GetAcceptedLanguages: string;
 
-    function Accept(AcceptType: String): TResource;overload;
-    function ContentType(ContentType: String): TResource;overload;
-    function AcceptLanguage(Language: String): TResource;overload;
+    function Accept(AcceptType: String): TResource;
+    function ContentType(ContentType: String): TResource;
+    function AcceptLanguage(Language: String): TResource;
 
     function Header(Name: String; Value: string): TResource;
 
@@ -140,16 +139,19 @@ type
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     procedure Delete(Entity: TObject);overload;
-    {$ENDIF}
 
     procedure GetAsDataSet(ADataSet: TDataSet);overload;
     function GetAsDataSet(): TDataSet;overload;
+    {$ENDIF}
   end;
 
 implementation
 
-uses StrUtils, Math, RestJsonUtils, JsonToDataSetConverter,
-  HttpConnectionFactory;
+uses StrUtils, Math, RestJsonUtils,
+     {$IFDEF USE_GENERICS}
+     JsonToDataSetConverter,
+    {$ENDIF}
+     HttpConnectionFactory;
 
 { TRestClient }
 
@@ -229,6 +231,7 @@ begin
       );
   finally
     vResponse.Free;
+    FResources.Remove(ResourceRequest);
   end;
 end;
 
@@ -403,6 +406,8 @@ end;
 
 destructor TResource.Destroy;
 begin
+  FRestClient.FResources.Extract(Self);
+  
   FContent.Free;
   FHeaders.Free;
   inherited;
@@ -416,26 +421,6 @@ end;
 function TResource.GetAcceptTypes: string;
 begin
   Result := FAcceptTypes;
-end;
-
-function TResource.GetAsDataSet: TDataSet;
-var
-  vJson: ISuperObject;
-begin
-  vJson := SuperObject.SO(Get);
-
-  Result := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
-
-  TJsonToDataSetConverter.UnMarshalToDataSet(Result, vJson);
-end;
-
-procedure TResource.GetAsDataSet(ADataSet: TDataSet);
-var
-  vJson: string;
-begin
-  vJson := Self.Get;
-
-  TJsonToDataSetConverter.UnMarshalToDataSet(ADataSet, vJson);
 end;
 
 function TResource.GetContent: TStream;
@@ -479,7 +464,7 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-  if trim(vResponse) <> '' then   
+  if trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
@@ -491,8 +476,8 @@ begin
     SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-  if trim(vResponse) <> '' then   
-    Result := TJsonUtil.UnMarshal<T>(vResponse);     
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -503,7 +488,7 @@ begin
     SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-  if trim(vResponse) <> '' then   
+  if trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
@@ -513,6 +498,26 @@ begin
     SetContent(Entity);
 
   FRestClient.DoRequest(METHOD_DELETE, Self);
+end;
+
+function TResource.GetAsDataSet: TDataSet;
+var
+  vJson: ISuperObject;
+begin
+  vJson := SuperObject.SO(Get);
+
+  Result := TJsonToDataSetConverter.CreateDataSetMetadata(vJson);
+
+  TJsonToDataSetConverter.UnMarshalToDataSet(Result, vJson);
+end;
+
+procedure TResource.GetAsDataSet(ADataSet: TDataSet);
+var
+  vJson: string;
+begin
+  vJson := Self.Get;
+
+  TJsonToDataSetConverter.UnMarshalToDataSet(ADataSet, vJson);
 end;
 {$ENDIF}
 
