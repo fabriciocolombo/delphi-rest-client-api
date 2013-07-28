@@ -14,7 +14,6 @@ type
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
   private
     FIdHttp: TIdHTTP;
-    FIdSSL: TIdSSLIOHandlerSocketOpenSSL;
     FEnabledCompression: Boolean;
   public
     constructor Create;

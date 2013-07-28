@@ -1,22 +1,12 @@
 program UnitTest;
-{
 
-  Delphi DUnit Test Project
-  -------------------------
-  This project contains the DUnit test framework and the GUI/Console test runners.
-  Add "CONSOLE_TESTRUNNER" to the conditional defines entry in the project options
-  to use the console test runner.  Otherwise the GUI test runner will be used by
-  default.
-
-}
-
-{.$DEFINE CONSOLE_TESTRUNNER}
-
-{$IFDEF CONSOLE_TESTRUNNER}
-  {$APPTYPE CONSOLE}
-{$ENDIF}
+{$APPTYPE CONSOLE}
 
 {$I DelphiRest.inc}
+
+//{$IFDEF DELPHI_7}
+//FastMM4,
+//{$ENDIF}
 
 uses
   {$IFDEF DELPHI_7}
@@ -26,6 +16,7 @@ uses
   TestFramework,
   GUITestRunner,
   TextTestRunner,
+  SysUtils,
   TestHelloWorld in 'TestHelloWorld.pas',
   TestPeople in 'TestPeople.pas',
   BaseTestRest in 'BaseTestRest.pas',
@@ -39,7 +30,9 @@ uses
   WinHttp_TLB in '..\lib\WinHttp_TLB.pas',
   TestRegister in 'TestRegister.pas',
   TestRestClient in 'TestRestClient.pas',
-  Wcrypt2 in '..\lib\Wcrypt2.pas';
+  Wcrypt2 in '..\lib\Wcrypt2.pas',
+  TypesToTest in 'TypesToTest.pas',
+  DBXJsonUnMarshal in '..\src\DBXJsonUnMarshal.pas';
 
 {$R *.RES}
 
@@ -49,8 +42,8 @@ begin
   {$IFNDEF DELPHI_7}
   ReportMemoryLeaksOnShutdown := True;
   {$ENDIF}
-  
-  if IsConsole then
+
+  if FindCmdLineSwitch('text', ['-', '/'], True) then
     with TextTestRunner.RunRegisteredTests do
       Free
   else
