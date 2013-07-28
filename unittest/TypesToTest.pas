@@ -23,6 +23,7 @@ type
     valueInteger: Integer;
     valueDouble: Double;
     valueCurrency: Currency;
+    valueAnsiString: AnsiString;
     valueString: string;
     valueAnsiChar: AnsiChar;
     valueChar: Char;

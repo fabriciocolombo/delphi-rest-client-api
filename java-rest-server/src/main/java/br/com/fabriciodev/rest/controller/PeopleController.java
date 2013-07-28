@@ -61,6 +61,8 @@ public class PeopleController {
 	@Consumes({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public Response save(@Context UriInfo uriInfo, Person person) {
 		person = repository.save(person);
+
+		System.out.println(person);
 		
 		URI uri =  uriInfo.getAbsolutePath();
 		URI location = new UriBuilderImpl().uri(uri).path(person.getId().toString()).build();

@@ -23,11 +23,14 @@ type
     procedure valueInt64;
     procedure valueInt64FromString;
     procedure valueCurrency;
+    procedure valueAnsiString;
     procedure valueString;
     procedure valueStringNull;
     procedure valueStringWithInvalidContent;
     procedure valueStringRenamed;
     procedure valueStringDefault;
+    procedure valueStringDefaultFromEmpty;
+    procedure valueStringDefaultFromNull;
     procedure valueChar;
     procedure valueAnsiChar;
     procedure valueSingle;
@@ -87,6 +90,14 @@ begin
 
   CheckNotNull(FObject);
   CheckEquals('F', String(FObject.valueAnsiChar));
+end;
+
+procedure TTestDbxJsonUnMarshal.valueAnsiString;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueAnsiString" : "marshal - #"}');
+
+  CheckNotNull(FObject);
+  CheckEquals(AnsiString('marshal - #'), FObject.valueAnsiString);
 end;
 
 procedure TTestDbxJsonUnMarshal.valueBooleanFalse;
@@ -326,15 +337,31 @@ end;
 
 procedure TTestDbxJsonUnMarshal.valueString;
 begin
-  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : "Fabricio"}');
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : "marshal - 资"}');
 
   CheckNotNull(FObject);
-  CheckEquals('Fabricio', FObject.valueString);
+  CheckEquals('marshal - 资', FObject.valueString);
 end;
 
 procedure TTestDbxJsonUnMarshal.valueStringDefault;
 begin
   FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{}');
+
+  CheckNotNull(FObject);
+  CheckEquals('default', FObject.fieldDefaultValue);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueStringDefaultFromEmpty;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"fieldDefaultValue" : ""}');
+
+  CheckNotNull(FObject);
+  CheckEquals('default', FObject.fieldDefaultValue);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueStringDefaultFromNull;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"fieldDefaultValue" : null}');
 
   CheckNotNull(FObject);
   CheckEquals('default', FObject.fieldDefaultValue);
@@ -391,15 +418,19 @@ var
 begin
   vChild1 := TAllTypes.Create;
   vChild1.valueInteger := 123;
+  vChild1.fieldDefaultValue := 'default';
 
   vChild2 := TAllTypes.Create;
   vChild2.valueDouble := 1.23;
+  vChild2.fieldDefaultValue := 'default';
 
   vChild3 := TAllTypes.Create;
   vChild3.valueString := 'third';
+  vChild3.fieldDefaultValue := 'default';
 
   vChild4 := TAllTypes.Create;
   vChild4.valueDateTime := Now;
+  vChild4.fieldDefaultValue := 'default';
 
   vRoot := TAllTypes.Create;
   try
@@ -421,6 +452,7 @@ begin
     vRoot.valueSet := [etOne, etThree];
 
     vRoot.valueTObject := TAllTypes.Create;
+    vRoot.valueTObject.fieldDefaultValue := 'default';
     vRoot.valueList := TList<TAllTypes>.Create;
     vRoot.valueList.Add(vChild1);
     vRoot.valueList.Add(vChild2);
@@ -430,8 +462,9 @@ begin
 
     vExpectedJson := vRoot.ToJson().AsJSon(True);
 
-    vRestored := TDbxJsonUnMarshal.FromJson<TAllTypes>(vExpectedJson);
+    vRestored := TDbxJsonUnMarshal.FromJson<TAllTypes>(vRoot.ToJson().AsJSon(True));
     try
+      CheckEquals('default', vRestored.fieldDefaultValue);
       vRestoredJson := vRestored.ToJson().AsJSon(True);
 
       CheckEquals(vExpectedJson, vRestoredJson);

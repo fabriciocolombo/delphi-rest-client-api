@@ -2,31 +2,9 @@ unit DBXJsonUnMarshal;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, RestJsonUtils;
+uses System.Rtti, System.TypInfo, Data.DBXJson, RestJsonUtils, DBXJsonHelpers;
 
 type
-  TJsonValueHelper = class helper for TJsonValue
-  private
-  public
-    function IsJsonNumber: Boolean;
-    function IsJsonTrue: Boolean;
-    function IsJsonFalse: Boolean;
-    function IsJsonString: Boolean;
-    function IsJsonNull: Boolean;
-    function IsJsonObject: Boolean;
-    function IsJsonArray: Boolean;
-
-    function AsJsonNumber: TJSONNumber;
-    function AsJsonString: TJSONString;
-    function AsJsonObject: TJSONObject;
-    function AsJsonArray: TJSONArray;
-  end;
-
-  TRttiFieldHelper = class helper for TRttiField
-  public
-    function GetFieldName: string;
-  end;
-
   TDBXJsonUnmarshal = class
   private
     FContext: TRttiContext;
@@ -35,7 +13,7 @@ type
     function IsList(ATypeInfo: PTypeInfo): Boolean;
     function IsParameterizedType(ATypeInfo: PTypeInfo): Boolean;
     function GetParameterizedType(ATypeInfo: PTypeInfo): TRttiType;
-    function GetFieldDefault(AField: TRttiField): TJSONValue;
+    function GetFieldDefault(AField: TRttiField; AJsonPair: TJSONPair; var AOwned: Boolean): TJSONValue;
 
     function FromJson(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;overload;
 
@@ -124,16 +102,7 @@ begin
         begin
           vFieldPair := AJSONValue.AsJsonObject.Get(f.GetFieldName);
 
-          if Assigned(vFieldPair) then
-          begin
-            vJsonValue := vFieldPair.JsonValue;
-            vOwnedJsonValue := False;
-          end
-          else
-          begin
-            vJsonValue := GetFieldDefault(f);
-            vOwnedJsonValue := True;
-          end;
+          vJsonValue := GetFieldDefault(f, vFieldPair, vOwnedJsonValue);
 
           if Assigned(vJsonValue) then
           begin
@@ -420,19 +389,29 @@ begin
   end;
 end;
 
-function TDBXJsonUnmarshal.GetFieldDefault(AField: TRttiField): TJSONValue;
+function TDBXJsonUnmarshal.GetFieldDefault(AField: TRttiField; AJsonPair: TJSONPair; var AOwned: Boolean): TJSONValue;
 var
   attr: TCustomAttribute;
 begin
-  for attr in AField.GetAttributes do
+  AOwned := False;
+  if (not Assigned(AJsonPair) or not Assigned(AJsonPair.JsonValue)) or
+     (Assigned(AJsonPair) and Assigned(AJsonPair.JsonValue) and AJsonPair.JsonValue.IsJsonNull) or
+     (Assigned(AJsonPair) and Assigned(AJsonPair.JsonValue) and AJsonPair.JsonValue.IsJsonString) and (Length(AJsonPair.JsonValue.AsJsonString.Value)= 0) and Assigned(AJsonPair.JsonValue) then
   begin
-    if attr is JsonDefault then
+    for attr in AField.GetAttributes do
     begin
-      Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name));
+      if attr is JsonDefault then
+      begin
+        AOwned := True;
+        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name));
+      end;
     end;
   end;
 
   Result := nil;
+
+  if Assigned(AJsonPair) then
+    Result := AJsonPair.JsonValue;
 end;
 
 function TDBXJsonUnmarshal.GetParameterizedType(ATypeInfo: PTypeInfo): TRttiType;
@@ -472,80 +451,6 @@ var
 begin
   vStartPos := Pos('<', String(ATypeInfo.Name));
   Result := (vStartPos > 0) and (PosEx('>', String(ATypeInfo.Name), vStartPos) > 0);
-end;
-
-{ TJsonValueHelper }
-
-function TJsonValueHelper.AsJsonArray: TJSONArray;
-begin
-  Result := Self as TJSONArray;
-end;
-
-function TJsonValueHelper.AsJsonNumber: TJSONNumber;
-begin
-  Result := Self as TJSONNumber;
-end;
-
-function TJsonValueHelper.AsJsonObject: TJSONObject;
-begin
-  Result := Self as TJSONObject;
-end;
-
-function TJsonValueHelper.AsJsonString: TJSONString;
-begin
-  Result := Self as TJSONString;
-end;
-
-function TJsonValueHelper.IsJsonArray: Boolean;
-begin
-  Result := ClassType = TJSONArray;
-end;
-
-function TJsonValueHelper.IsJsonFalse: Boolean;
-begin
-  Result := ClassType = TJSONFalse;
-end;
-
-function TJsonValueHelper.IsJsonNull: Boolean;
-begin
-  Result := ClassType = TJSONNull;
-end;
-
-function TJsonValueHelper.IsJsonNumber: Boolean;
-begin
-  Result := ClassType = TJSONNumber;
-end;
-
-function TJsonValueHelper.IsJsonObject: Boolean;
-begin
-  Result := ClassType = TJSONObject;
-end;
-
-function TJsonValueHelper.IsJsonString: Boolean;
-begin
-  Result := ClassType = TJSONString;
-end;
-
-function TJsonValueHelper.IsJsonTrue: Boolean;
-begin
-  Result := ClassType = TJSONTrue;
-end;
-
-{ TRttiFieldHelper }
-
-function TRttiFieldHelper.GetFieldName: string;
-var
-  attr: TCustomAttribute;
-begin
-  for attr in GetAttributes do
-  begin
-    if attr is JsonName then
-    begin
-      Exit(JsonName(attr).Name);
-    end;
-  end;
-
-  Result := Name;
 end;
 
 end.

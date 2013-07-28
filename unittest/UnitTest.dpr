@@ -9,9 +9,6 @@ program UnitTest;
 //{$ENDIF}
 
 uses
-  {$IFDEF DELPHI_7}
-  FastMM4,
-  {$ENDIF}
   Forms,
   TestFramework,
   GUITestRunner,
@@ -32,7 +29,9 @@ uses
   TestRestClient in 'TestRestClient.pas',
   Wcrypt2 in '..\lib\Wcrypt2.pas',
   TypesToTest in 'TypesToTest.pas',
-  DBXJsonUnMarshal in '..\src\DBXJsonUnMarshal.pas';
+  DBXJsonUnMarshal in '..\src\DBXJsonUnMarshal.pas',
+  DBXJsonHelpers in '..\src\DBXJsonHelpers.pas',
+  TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas';
 
 {$R *.RES}
 
