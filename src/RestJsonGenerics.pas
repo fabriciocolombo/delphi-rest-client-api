@@ -4,8 +4,11 @@ interface
 
 {$I DelphiRest.inc}
 
-uses Generics.Collections, Rtti,
-     SuperObject;
+uses Generics.Collections,
+     {$IFDEF USE_SUPER_OBJECT}
+     SuperObject,
+     {$ENDIF}
+     DbxJsonUnMarshal, DbxJsonMarshal, Rtti;
 
 type
   TJsonUtilGenerics = class
@@ -13,8 +16,6 @@ type
     class function Marshal(entity: TObject): string;
 
     class function UnMarshal<T>(text: String): T;
-    class function UnMarshalList<T>(text: String): TList<T>;overload;
-    class function UnMarshalList<T>(obj: ISuperObject): TList<T>;overload;
   end;
 
 implementation
@@ -23,10 +24,15 @@ implementation
 
 class function TJsonUtilGenerics.Marshal(entity: TObject): string;
 begin
+  {$IFDEF USE_SUPER_OBJECT}
   Result := entity.ToJson().AsJSon();
+  {$ELSE}
+  Result := TDBXJsonMarshal.ToJsonText(entity);
+  {$ENDIF}
 end;
 
 class function TJsonUtilGenerics.UnMarshal<T>(text: String): T;
+{$IFDEF USE_SUPER_OBJECT}
 var
   ctx: TSuperRttiContext;
 begin
@@ -36,40 +42,10 @@ begin
   finally
     ctx.Free;
   end;
-end;
-
-class function TJsonUtilGenerics.UnMarshalList<T>(text: String): TList<T>;
+{$ELSE}
 begin
-  Result := Self.UnMarshalList<T>(SuperObject.SO(text));
-end;
-
-class function TJsonUtilGenerics.UnMarshalList<T>(obj: ISuperObject): TList<T>;
-var
-  ctx: TSuperRttiContext;
-  ret: TValue;
-  vArray: TSuperArray;
-  i: Integer;
-begin
-  ctx := TSuperRttiContext.Create;
-  try
-    Result := TList<T>.Create;
-
-    if obj.IsType(stArray) then
-    begin
-      vArray := obj.AsArray;
-
-      for i := 0 to vArray.Length-1 do
-      begin
-        Result.Add(ctx.AsType<T>(vArray.O[i]));
-      end;
-    end
-    else
-    begin
-      Result.Add(ctx.AsType<T>(obj));
-    end;
-  finally
-    ctx.Free;
-  end;
+  Result := TDBXJsonUnmarshal.FromJson<T>(text);
+{$ENDIF}
 end;
 
 end.

@@ -86,6 +86,8 @@ public class Person {
 		builder.append(name);
 		builder.append(", email=");
 		builder.append(email);
+		builder.append(", createDate=");
+		builder.append(createDate);
 		builder.append("]");
 		return builder.toString();
 	}

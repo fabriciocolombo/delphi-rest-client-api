@@ -9,6 +9,9 @@ program UnitTest;
 //{$ENDIF}
 
 uses
+  {$IFDEF DELPHI_7}
+  FastMM4,
+  {$ENDIF}
   Forms,
   TestFramework,
   GUITestRunner,
@@ -27,11 +30,7 @@ uses
   WinHttp_TLB in '..\lib\WinHttp_TLB.pas',
   TestRegister in 'TestRegister.pas',
   TestRestClient in 'TestRestClient.pas',
-  Wcrypt2 in '..\lib\Wcrypt2.pas',
-  TypesToTest in 'TypesToTest.pas',
-  DBXJsonUnMarshal in '..\src\DBXJsonUnMarshal.pas',
-  DBXJsonHelpers in '..\src\DBXJsonHelpers.pas',
-  TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas';
+  Wcrypt2 in '..\lib\Wcrypt2.pas';
 
 {$R *.RES}
 

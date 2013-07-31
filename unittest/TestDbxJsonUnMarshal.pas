@@ -2,8 +2,8 @@
 
 interface
 
-uses TestFramework, DbxJsonUnMarshal, TypesToTest, RestJsonUtils,
-     Generics.Collections, SuperObject, Data.DbxJson;
+uses TestFramework, DbxJsonUnMarshal, TypesToTest,
+     Generics.Collections, SuperObject, Data.DbxJson, DbxJsonUtils;
 
 type
   TTestDbxJsonUnMarshal = class(TTestCase)

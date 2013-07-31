@@ -108,7 +108,7 @@ unit superobject;
 
 interface
 uses
-  Classes
+  Classes, DateUtils
 {$IFDEF HAVE_RTTI}
   ,Generics.Collections, RTTI, TypInfo
 {$ENDIF}

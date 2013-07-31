@@ -30,6 +30,7 @@ begin
   Result.Id := Id;
   Result.Name := Name;
   Result.EMail := EMail;
+  Result.createDate := Now;
 end;
 
 function TPerson.ToString: string;

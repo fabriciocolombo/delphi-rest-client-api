@@ -165,6 +165,7 @@ begin
                            .ContentType(RestUtils.MediaType_Json)
                            .Post<TPerson>(vReqJson);
     try
+      Status(vRespJson.ToString);
       CheckEqualsString(vReqJson.ToString, vRespJson.ToString);
     finally
       vRespJson.Free;

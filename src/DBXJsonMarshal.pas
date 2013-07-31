@@ -2,7 +2,7 @@ unit DBXJsonMarshal;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, RestJsonUtils, DBXJsonHelpers;
+uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils, DBXJsonHelpers;
 
 type
   TDBXJsonMarshal = class
@@ -125,7 +125,10 @@ begin
         
         vJsonValue := ToJson(fieldValue);
 
-        vJsonObject.AddPair(TJSONPair.Create(f.GetFieldName, vJsonValue));
+        if vJsonValue <> nil then
+        begin
+          vJsonObject.AddPair(TJSONPair.Create(f.GetFieldName, vJsonValue));
+        end;
       end;
     end;
     Result := vJsonObject;

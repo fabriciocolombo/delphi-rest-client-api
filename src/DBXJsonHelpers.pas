@@ -2,7 +2,7 @@ unit DBXJsonHelpers;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, RestJsonUtils;
+uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils;
 
 type
   TJsonValueHelper = class helper for TJsonValue

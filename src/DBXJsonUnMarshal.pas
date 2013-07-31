@@ -2,7 +2,7 @@ unit DBXJsonUnMarshal;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, RestJsonUtils, DBXJsonHelpers;
+uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils, DBXJsonHelpers;
 
 type
   TDBXJsonUnmarshal = class

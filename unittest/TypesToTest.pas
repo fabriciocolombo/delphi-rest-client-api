@@ -2,7 +2,7 @@ unit TypesToTest;
 
 interface
 
-uses Generics.Collections, SuperObject, RestJsonUtils;
+uses Generics.Collections, SuperObject, DbxJsonUtils;
 
 type
   TEnumType = (etOne, etTwo, etThree);

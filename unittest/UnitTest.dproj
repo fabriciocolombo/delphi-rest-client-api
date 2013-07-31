@@ -115,10 +115,6 @@
 			<DCCReference Include="TestRegister.pas"/>
 			<DCCReference Include="TestRestClient.pas"/>
 			<DCCReference Include="..\lib\Wcrypt2.pas"/>
-			<DCCReference Include="TypesToTest.pas"/>
-			<DCCReference Include="..\src\DBXJsonUnMarshal.pas"/>
-			<DCCReference Include="..\src\DBXJsonHelpers.pas"/>
-			<DCCReference Include="TestDbxJsonMarshal.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

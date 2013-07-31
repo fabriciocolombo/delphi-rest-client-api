@@ -45,7 +45,6 @@ type
     procedure SetUp; override;
     procedure TearDown; override;
   published
-     procedure CompareResultWithSuperObject;
      procedure MarshalAndUnMarshal;
   end;
 
@@ -313,21 +312,6 @@ end;
 
 { TTestDbxJsonMarshalCompatibility }
 
-procedure TTestDbxJsonMarshalCompatibility.CompareResultWithSuperObject;
-var
-  vMyJson: string;
-  vRestored: TAllTypes;
-begin
-  vMyJson := TDBXJsonMarshal.ToJsonText(vRoot);
-
-  vRestored := TAllTypes.FromJson(vMyJson);
-  try
-    CheckEquals(TDBXJsonMarshal.ToJsonText(vRoot), TDBXJsonMarshal.ToJsonText(vRestored));
-  finally
-    vRestored.Free;
-  end;
-end;
-
 procedure TTestDbxJsonMarshalCompatibility.MarshalAndUnMarshal;
 var
   vMyJson: string;
@@ -337,6 +321,7 @@ begin
 
   vRestored := TDBXJsonUnmarshal.FromJson<TAllTypes>(vMyJson);
   try
+    CheckNotNull(vRestored);
     CheckEquals(vRoot.ToJson.AsJSon, vRestored.ToJson().AsJSon());
   finally
     vRestored.Free;

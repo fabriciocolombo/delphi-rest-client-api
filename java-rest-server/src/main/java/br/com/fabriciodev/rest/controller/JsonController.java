@@ -26,6 +26,7 @@ public class JsonController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response postPerson(Person person) {
+		System.out.println("POST " + person);
 		return Response.ok(person).build();
 	}
 	
@@ -34,6 +35,7 @@ public class JsonController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response postPerson(List<Person> people) {
+		System.out.println("POST " + people);
 		return Response.ok(people).build();
 	}	
 
@@ -42,6 +44,7 @@ public class JsonController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response putPerson(Person person) {
+		System.out.println("PUT " + person);
 		return Response.ok(person).build();
 	}
 
@@ -57,7 +60,7 @@ public class JsonController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void removePerson(Person person) {
 		assert(person != null);
-
+		System.out.println("DELETE " + person);
 		Response.noContent().build();
 	}
 

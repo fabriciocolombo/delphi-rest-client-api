@@ -7,7 +7,7 @@ interface
 uses Classes, SysUtils, Windows, HttpConnection,
      RestUtils,
      {$IFDEF USE_GENERICS}
-     SuperObject, Generics.Collections, Rtti,
+     Generics.Collections, Rtti,
      {$ENDIF}
      Contnrs, DB;
 
@@ -139,7 +139,8 @@ type
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     procedure Delete(Entity: TObject);overload;
-
+    {$ENDIF}
+    {$IFDEF USE_SUPER_OBJECT}
     procedure GetAsDataSet(ADataSet: TDataSet);overload;
     function GetAsDataSet(): TDataSet;overload;
     {$ENDIF}
@@ -148,9 +149,9 @@ type
 implementation
 
 uses StrUtils, Math, RestJsonUtils,
-     {$IFDEF USE_GENERICS}
-     JsonToDataSetConverter,
-    {$ENDIF}
+     {$IFDEF USE_SUPER_OBJECT}
+     SuperObject, JsonToDataSetConverter,
+     {$ENDIF}
      HttpConnectionFactory;
 
 { TRestClient }
@@ -499,7 +500,9 @@ begin
 
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
+{$ENDIF}
 
+{$IFDEF USE_SUPER_OBJECT}
 function TResource.GetAsDataSet: TDataSet;
 var
   vJson: ISuperObject;
