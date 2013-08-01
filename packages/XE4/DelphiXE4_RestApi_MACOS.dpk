@@ -1,4 +1,4 @@
-package DelphiXE2_RestApi;
+package DelphiXE4_RestApi_MACOS;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -31,16 +31,16 @@ requires
   rtl,
   dsnap,
   dbrtl,
-  DbxCommonDriver,
-  IndyCore,
   IndySystem,
-  vcl,
-  IndyProtocols;
+  IndyProtocols,
+  IndyCore,
+  DbxCommonDriver;
 
 contains
   DataSetUtils in '..\..\src\DataSetUtils.pas',
   HttpConnection in '..\..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  HttpConnectionIndy in '..\..\src\HttpConnectionIndy.pas',
   RestClient in '..\..\src\RestClient.pas',
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
   RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',

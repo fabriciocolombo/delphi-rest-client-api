@@ -1,4 +1,4 @@
-package DelphiXE2_RestApi;
+package DelphiXE2_RestApi_MACOS;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -34,7 +34,6 @@ requires
   DbxCommonDriver,
   IndyCore,
   IndySystem,
-  vcl,
   IndyProtocols;
 
 contains

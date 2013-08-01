@@ -1,8 +1,16 @@
 (* Full	Delphi Version Compiler Directives list could be found here: https://gist.github.com/2485849*)
 
-{.$DEFINE USE_INDY}
+{$DEFINE USE_INDY}
 {$DEFINE USE_WIN_HTTP}
 {$DEFINE USE_WIN_INET}
+
+{$DEFINE USE_SUPER_OBJECT}
+
+{$IFDEF MACOS}
+  {$UNDEF USE_SUPER_OBJECT}
+  {$UNDEF USE_WIN_HTTP}
+  {$UNDEF USE_WIN_INET}  
+{$ENDIF}
 
 {$IFDEF VER150} // Delphi 7
   {$DEFINE DELPHI_7}
@@ -74,9 +82,4 @@
 
 {$IFDEF DELPHI_2010_UP}
   {$DEFINE USE_GENERICS}
-{$ENDIF}
-
-{$DEFINE USE_SUPER_OBJECT}
-{$IFDEF IOS}
-  {$UNDEF USE_SUPER_OBJECT}
 {$ENDIF}

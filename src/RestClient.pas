@@ -4,7 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses Classes, SysUtils, Windows, HttpConnection,
+uses Classes, SysUtils, HttpConnection,
      RestUtils,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,

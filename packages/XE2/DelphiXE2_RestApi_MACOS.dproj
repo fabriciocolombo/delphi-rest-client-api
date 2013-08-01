@@ -1,15 +1,15 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
 			<ProjectGuid>{8431842E-843D-4F8F-87E6-7360403375BD}</ProjectGuid>
-			<MainSource>DelphiXE2_RestApi.dpk</MainSource>
+			<MainSource>DelphiXE2_RestApi_MACOS.dpk</MainSource>
 			<ProjectVersion>13.4</ProjectVersion>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<AppType>Package</AppType>
 			<FrameworkType>VCL</FrameworkType>
 			<DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-			<Platform Condition="'$(Platform)'==''">Win64</Platform>
-			<TargetedPlatforms>3</TargetedPlatforms>
+			<Platform Condition="'$(Platform)'==''">OSX32</Platform>
+			<TargetedPlatforms>4</TargetedPlatforms>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
 			<Base>true</Base>
@@ -116,7 +116,6 @@
 			<DCCReference Include="DbxCommonDriver.dcp"/>
 			<DCCReference Include="IndyCore.dcp"/>
 			<DCCReference Include="IndySystem.dcp"/>
-			<DCCReference Include="vcl.dcp"/>
 			<DCCReference Include="IndyProtocols.dcp"/>
 			<DCCReference Include="..\..\src\DataSetUtils.pas"/>
 			<DCCReference Include="..\..\src\HttpConnection.pas"/>
@@ -147,7 +146,7 @@
 			<BorlandProject>
 				<Delphi.Personality>
 					<Source>
-						<Source Name="MainSource">DelphiXE2_RestApi.dpk</Source>
+						<Source Name="MainSource">DelphiXE2_RestApi_MACOS.dpk</Source>
 					</Source>
 					<VersionInfo>
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
@@ -185,9 +184,9 @@
 					</Excluded_Packages>
 				</Delphi.Personality>
 				<Platforms>
-					<Platform value="Win64">True</Platform>
-					<Platform value="OSX32">False</Platform>
-					<Platform value="Win32">True</Platform>
+					<Platform value="Win64">False</Platform>
+					<Platform value="OSX32">True</Platform>
+					<Platform value="Win32">False</Platform>
 				</Platforms>
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>

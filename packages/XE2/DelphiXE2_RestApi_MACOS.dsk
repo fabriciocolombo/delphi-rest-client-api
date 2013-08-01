@@ -14,7 +14,7 @@ File_11=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client
 File_12=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\unittest\TestResponseHandler.pas',0,1,54,1,67,0,0,,
 
 [Modules]
-Module0=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj
+Module0=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi_MACOS.dproj
 Module1=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas
 Module2=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
 Module3=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinInet.pas
@@ -24,7 +24,7 @@ Module6=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DataSe
 Count=7
 EditWindowCount=1
 
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj]
+[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi_MACOS.dproj]
 ModuleType=TBaseProject
 
 [C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas]
@@ -59,7 +59,7 @@ FormOnTop=0
 
 [EditWindow0]
 ViewCount=7
-CurrentEditView=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
+CurrentEditView=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi_MACOS.dpk
 View0=0
 View1=1
 View2=2
@@ -142,14 +142,14 @@ EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\H
 
 [View4]
 CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
+Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi_MACOS.dpk
 CursorX=14
 CursorY=36
 TopLine=29
 LeftCol=1
 Elisions=
 Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
+EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi_MACOS.dpk
 
 [View5]
 CustomEditViewType=TEditView
