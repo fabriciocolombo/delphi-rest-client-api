@@ -79,7 +79,7 @@ begin
 
   if AJSONValue.IsJsonString and (Length(AJSONValue.AsJsonString.Value) = 1) then
   begin
-    Result := String(AnsiString(AJSONValue.AsJsonString.Value)[1]);
+    Result := AJSONValue.AsJsonString.Value[1];
   end;
 end;
 
@@ -418,19 +418,26 @@ function TDBXJsonUnmarshal.GetParameterizedType(ATypeInfo: PTypeInfo): TRttiType
 var
   startPos,
   endPos: Integer;
-  vTypeName: String;
+  vTypeName,
+  vParameterizedType: String;
 begin
   Result := nil;
 
-  startPos := AnsiPos('<', String(ATypeInfo.Name));
+{$IFDEF NEXTGEN}
+  vTypeName := ATypeInfo.Name.ToString();
+{$ELSE  NEXTGEN}
+  vTypeName := String(ATypeInfo.Name);
+{$ENDIF NEXTGEN}
+
+  startPos := AnsiPos('<', vTypeName);
 
   if startPos > 0 then
   begin
-    endPos := Pos('>', String(ATypeInfo.Name));
+    endPos := Pos('>', vTypeName);
 
-    vTypeName := Copy(String(ATypeInfo.Name), startPos + 1, endPos - Succ(startPos));
+    vParameterizedType := Copy(vTypeName, startPos + 1, endPos - Succ(startPos));
 
-    Result := FContext.FindType(vTypeName);
+    Result := FContext.FindType(vParameterizedType);
   end;
 end;
 
@@ -448,9 +455,16 @@ end;
 function TDBXJsonUnmarshal.IsParameterizedType(ATypeInfo: PTypeInfo): Boolean;
 var
   vStartPos: Integer;
+  vTypeName: string;
 begin
-  vStartPos := Pos('<', String(ATypeInfo.Name));
-  Result := (vStartPos > 0) and (PosEx('>', String(ATypeInfo.Name), vStartPos) > 0);
+{$IFDEF NEXTGEN}
+  vTypeName := ATypeInfo.Name.ToString();
+{$ELSE  NEXTGEN}
+  vTypeName := String(ATypeInfo.Name);
+{$ENDIF NEXTGEN}
+
+  vStartPos := Pos('<', vTypeName);
+  Result := (vStartPos > 0) and (PosEx('>', vTypeName, vStartPos) > 0);
 end;
 
 end.

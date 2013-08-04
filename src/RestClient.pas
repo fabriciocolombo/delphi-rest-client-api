@@ -8,8 +8,10 @@ uses Classes, SysUtils, HttpConnection,
      RestUtils,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
+     {$ELSE}
+     Contnrs,
      {$ENDIF}
-     Contnrs, DB;
+     DB;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -34,7 +36,11 @@ type
   TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
+    {$IFDEF USE_GENERICS}
+    FResources: TObjectList<TResource>;
+    {$ELSE}
     FResources: TObjectList;
+    {$ENDIF}
     FConnectionType: THttpConnectionType;
     FEnabledCompression: Boolean;
     FOnCustomCreateConnection: TCustomCreateConnection;
@@ -44,7 +50,7 @@ type
     procedure DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
     procedure HandleAnonymousMethod(ResponseContent: TStream);
     {$ENDIF}
-    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): WideString;overload;
+    function DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler = nil): String;overload;
 
     function GetResponseCode: Integer;
 
@@ -159,7 +165,12 @@ uses StrUtils, Math, RestJsonUtils,
 constructor TRestClient.Create(Owner: TComponent);
 begin
   inherited;
+  {$IFDEF USE_GENERICS}
+  FResources := TObjectList<TResource>.Create;
+  {$ELSE}
   FResources := TObjectList.Create;
+  {$ENDIF}
+
   FEnabledCompression := True;
 end;
 
@@ -187,10 +198,11 @@ begin
   end;
 end;
 
-function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): WideString;
+function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): String;
 var
   vResponse: TStringStream;
   vUrl: String;
+  vResponseString: string;
 begin
   CheckConnection;
 
@@ -219,9 +231,15 @@ begin
     else
     begin
       {$IFDEF UNICODE}
-        Result :=  UTF8ToWideString(RawByteString(vResponse.DataString));
+        vResponseString := vResponse.DataString;
+
+        {$IFDEF NEXTGEN}
+          Result := TEncoding.UTF8.GetString(TEncoding.UTF8.GetBytes(vResponseString.ToCharArray), 0, vResponseString.Length);
+        {$ELSE}
+        Result := UTF8ToUnicodeString(RawByteString(vResponseString));
+        {$ENDIF}
       {$ELSE}
-        Result :=  UTF8Decode(vResponse.DataString);
+        Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
     if FHttpConnection.ResponseCode >= 400 then

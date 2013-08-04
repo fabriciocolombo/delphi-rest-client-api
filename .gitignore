@@ -25,3 +25,5 @@ __history
 *.exe
 *.dll
 bin/*
+*.hpp
+*.rsm

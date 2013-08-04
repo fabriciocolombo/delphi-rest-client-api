@@ -80,7 +80,7 @@ end;
 
 function TDBXJsonMarshal.ToChar(AValue: TValue): TJSONValue;
 begin
-  Result := TJSONString.Create(String(AValue.AsType<AnsiChar>));
+  Result := TJSONString.Create(String(AValue.AsType<Char>));
 end;
 
 function TDBXJsonMarshal.ToClass(AValue: TValue): TJSONValue;
