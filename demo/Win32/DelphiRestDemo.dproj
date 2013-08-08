@@ -78,8 +78,9 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-			<DCC_UnitSearchPath>..\src;..\lib;..\lib\SuperObject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\..\src;..\..\lib;..\..\lib\SuperObject;..\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<VerInfo_Locale>1033</VerInfo_Locale>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -104,7 +105,7 @@
 				<Form>DM</Form>
 				<DesignClass>TDataModule</DesignClass>
 			</DCCReference>
-			<DCCReference Include="Person.pas"/>
+			<DCCReference Include="..\Common\Person.pas"/>
 			<DCCReference Include="uFrm_PersonList.pas">
 				<Form>Frm_PersonList</Form>
 			</DCCReference>

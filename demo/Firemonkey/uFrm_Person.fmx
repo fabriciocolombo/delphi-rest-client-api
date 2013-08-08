@@ -1,0 +1,91 @@
+object Frm_Person: TFrm_Person
+  Left = 0
+  Top = 0
+  Caption = 'Person'
+  ClientHeight = 204
+  ClientWidth = 446
+  Visible = False
+  StyleLookup = 'backgroundstyle'
+  object edEmail: TEdit
+    Position.Point = '(112,90)'
+    Width = 313.000000000000000000
+    Height = 22.000000000000000000
+    TabOrder = 0
+    KeyboardType = vktDefault
+    Password = False
+  end
+  object Label1: TLabel
+    Position.Point = '(72,32)'
+    Width = 35.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 1
+    TextAlign = taTrailing
+    Text = 'Id'
+  end
+  object Label2: TLabel
+    Position.Point = '(48,64)'
+    Width = 59.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 2
+    TextAlign = taTrailing
+    Text = 'Name'
+  end
+  object Label3: TLabel
+    Position.Point = '(48,96)'
+    Width = 59.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 3
+    TextAlign = taTrailing
+    Text = 'Email'
+  end
+  object edName: TEdit
+    Position.Point = '(112,58)'
+    Width = 313.000000000000000000
+    Height = 22.000000000000000000
+    TabOrder = 4
+    KeyboardType = vktDefault
+    Password = False
+  end
+  object Label4: TLabel
+    Position.Point = '(16,128)'
+    Width = 92.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 5
+    TextAlign = taTrailing
+    Text = 'Create Date'
+  end
+  object btnCancel: TCornerButton
+    Position.Point = '(208,160)'
+    Width = 80.000000000000000000
+    Height = 22.000000000000000000
+    TabOrder = 6
+    ModalResult = 2
+    Text = 'Cancel'
+    XRadius = 3.000000000000000000
+    YRadius = 3.000000000000000000
+    Sides = [sdTop, sdLeft, sdBottom, sdRight]
+  end
+  object btnOK: TCornerButton
+    Position.Point = '(112,160)'
+    Width = 80.000000000000000000
+    Height = 22.000000000000000000
+    TabOrder = 7
+    ModalResult = 1
+    Text = 'OK'
+    XRadius = 3.000000000000000000
+    YRadius = 3.000000000000000000
+    Sides = [sdTop, sdLeft, sdBottom, sdRight]
+  end
+  object lblId: TLabel
+    Position.Point = '(112,32)'
+    Width = 120.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 8
+  end
+  object lblCreateDate: TLabel
+    Position.Point = '(112,128)'
+    Width = 120.000000000000000000
+    Height = 15.000000000000000000
+    TabOrder = 9
+  end
+end

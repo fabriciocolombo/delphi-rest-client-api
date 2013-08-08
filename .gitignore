@@ -13,8 +13,12 @@ packages/D7/D7_RestApi.dsk
 packages/D7/D7_RestApi.res
 packages/XE/DelphiXE_RestApi.res
 packages/XE2/DelphiXE2_RestApi.res
+packages/XE4/Debug
+packages/XE4/Lib
 demo/DelphiRestDemo.exe
 demo/Debug
+demo\XE 4 - iOS\iOSSimulator
+demo\XE 4 - iOS\Win32
 *.dcu
 *.~*~
 *.local

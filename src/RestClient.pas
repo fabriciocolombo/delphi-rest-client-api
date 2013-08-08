@@ -236,9 +236,11 @@ begin
         {$IFDEF NEXTGEN}
           Result := TEncoding.UTF8.GetString(TEncoding.UTF8.GetBytes(vResponseString.ToCharArray), 0, vResponseString.Length);
         {$ELSE}
-        Result := UTF8ToUnicodeString(RawByteString(vResponseString));
+          Result := UTF8ToUnicodeString(RawByteString(vResponseString));
         {$ENDIF}
       {$ELSE}
+        vResponseString := vResponse.DataString;
+         
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;

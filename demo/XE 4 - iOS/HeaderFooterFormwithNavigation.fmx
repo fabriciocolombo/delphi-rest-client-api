@@ -1,0 +1,279 @@
+object HeaderFooterwithNavigation: THeaderFooterwithNavigation
+  Left = 0
+  Top = 0
+  Caption = 'HeaderFooter'
+  ClientHeight = 300
+  ClientWidth = 480
+  FormFactor.Width = 1440
+  FormFactor.Height = 900
+  FormFactor.Devices = [dkDesktop]
+  DesignerMobile = True
+  DesignerWidth = 480
+  DesignerHeight = 320
+  DesignerDeviceName = 'iPhone'
+  DesignerOrientation = 1
+  object TabControl1: TTabControl
+    Align = alClient
+    FullSize = True
+    Height = 300.000000000000000000
+    TabHeight = 49.000000000000000000
+    TabIndex = 0
+    TabOrder = 0
+    TabPosition = tpNone
+    Width = 480.000000000000000000
+    object TabItem1: TTabItem
+      WordWrap = False
+      Height = 8.000000000000000000
+      IsSelected = True
+      Position.X = 231.000000000000000000
+      Position.Y = 281.000000000000000000
+      TabOrder = 0
+      Text = 'TabItem1'
+      Width = 8.000000000000000000
+      object TopToolBar: TToolBar
+        Anchors = []
+        Height = 44.000000000000000000
+        TabOrder = 0
+        Width = 480.000000000000000000
+        object ToolBarLabel: TLabel
+          Align = alCenter
+          Anchors = [akTop, akBottom]
+          Height = 27.000000000000000000
+          StyleLookup = 'toollabel'
+          Text = 'Peoples'
+          TextAlign = taCenter
+          Width = 120.000000000000000000
+        end
+      end
+      object StringGrid1: TStringGrid
+        Align = alClient
+        Height = 212.000000000000000000
+        TabOrder = 1
+        Width = 480.000000000000000000
+        RowCount = 100
+        RowHeight = 21.000000000000000000
+        object StringColumn1: TStringColumn
+          Header = 'Id'
+          Height = 210.000000000000000000
+          TabOrder = 0
+          Width = 25.000000000000000000
+        end
+        object StringColumn2: TStringColumn
+          Header = 'Name'
+          Height = 210.000000000000000000
+          Position.X = 25.000000000000000000
+          TabOrder = 1
+          Width = 160.000000000000000000
+        end
+        object StringColumn3: TStringColumn
+          Header = 'email'
+          Height = 210.000000000000000000
+          Position.X = 185.000000000000000000
+          TabOrder = 2
+          Width = 168.000000000000000000
+        end
+        object StringColumn4: TStringColumn
+          Header = 'Create Date'
+          Height = 210.000000000000000000
+          Position.X = 353.000000000000000000
+          TabOrder = 3
+          Width = 100.000000000000000000
+        end
+      end
+      object BottomToolBar: TToolBar
+        Align = alBottom
+        Anchors = [akLeft]
+        Height = 44.000000000000000000
+        Position.Y = 256.000000000000000000
+        StyleLookup = 'bottomtoolbar'
+        TabOrder = 2
+        Width = 480.000000000000000000
+        object btnRefresh: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 200.000000000000000000
+          Position.Y = 8.000000000000000000
+          StyleLookup = 'refreshtoolbuttonbordered'
+          Text = 'Refresh'
+          Trimming = ttCharacter
+          Width = 34.000000000000000000
+          OnClick = btnRefreshClick
+        end
+        object btnAdd: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 24.000000000000000000
+          Position.Y = 8.000000000000000000
+          StyleLookup = 'addtoolbuttonbordered'
+          Text = 'Add'
+          Trimming = ttCharacter
+          Width = 33.000000000000000000
+          OnClick = btnAddClick
+        end
+        object btnUpdate: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 80.000000000000000000
+          Position.Y = 8.000000000000000000
+          StyleLookup = 'composetoolbuttonbordered'
+          Text = 'Edit'
+          Trimming = ttCharacter
+          Width = 42.000000000000000000
+          OnClick = btnUpdateClick
+        end
+        object btnRemove: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 144.000000000000000000
+          Position.Y = 8.000000000000000000
+          StyleLookup = 'trashtoolbuttonbordered'
+          Text = 'Del'
+          Trimming = ttCharacter
+          Width = 36.000000000000000000
+          OnClick = btnRemoveClick
+        end
+        object btnReset: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 416.000000000000000000
+          Position.Y = 8.000000000000000000
+          StyleLookup = 'detailstoolbuttonbordered'
+          Text = 'Reset'
+          Trimming = ttCharacter
+          Width = 35.000000000000000000
+          OnClick = btnResetClick
+        end
+      end
+    end
+    object TabItem2: TTabItem
+      WordWrap = False
+      Height = 8.000000000000000000
+      IsSelected = False
+      Position.X = 241.000000000000000000
+      Position.Y = 281.000000000000000000
+      TabOrder = 1
+      Text = 'TabItem2'
+      Width = 8.000000000000000000
+      object TopToolBar1: TToolBar
+        Anchors = []
+        Height = 44.000000000000000000
+        TabOrder = 0
+        Width = 480.000000000000000000
+        object ToolBarLabel1: TLabel
+          Align = alCenter
+          Anchors = [akTop, akBottom]
+          Height = 27.000000000000000000
+          StyleLookup = 'toollabel'
+          Text = 'Person'
+          TextAlign = taCenter
+          Width = 120.000000000000000000
+        end
+      end
+      object Label1: TLabel
+        Height = 21.000000000000000000
+        Position.X = 11.000000000000000000
+        Position.Y = 56.000000000000000000
+        Text = 'Id'
+        TextAlign = taTrailing
+        Width = 94.000000000000000000
+        Trimming = ttCharacter
+      end
+      object lblId: TLabel
+        Height = 21.000000000000000000
+        Position.X = 112.000000000000000000
+        Position.Y = 56.000000000000000000
+        Width = 82.000000000000000000
+        Trimming = ttCharacter
+      end
+      object Label2: TLabel
+        Height = 21.000000000000000000
+        Position.X = 11.000000000000000000
+        Position.Y = 168.000000000000000000
+        Text = 'Create Date'
+        TextAlign = taTrailing
+        Width = 94.000000000000000000
+        Trimming = ttCharacter
+      end
+      object lblCreateDate: TLabel
+        Height = 21.000000000000000000
+        Position.X = 112.000000000000000000
+        Position.Y = 168.000000000000000000
+        Width = 185.000000000000000000
+        Trimming = ttCharacter
+      end
+      object Label4: TLabel
+        Height = 21.000000000000000000
+        Position.X = 11.000000000000000000
+        Position.Y = 90.000000000000000000
+        Text = 'Name'
+        TextAlign = taTrailing
+        Width = 94.000000000000000000
+        Trimming = ttCharacter
+      end
+      object Label5: TLabel
+        Height = 21.000000000000000000
+        Position.X = 11.000000000000000000
+        Position.Y = 130.000000000000000000
+        Text = 'Email'
+        TextAlign = taTrailing
+        Width = 94.000000000000000000
+        Trimming = ttCharacter
+      end
+      object edName: TClearingEdit
+        TabOrder = 7
+        Position.X = 112.000000000000000000
+        Position.Y = 85.000000000000000000
+        Width = 353.000000000000000000
+        Height = 31.000000000000000000
+        KillFocusByReturn = False
+      end
+      object edEmail: TClearingEdit
+        TabOrder = 8
+        KeyboardType = vktEmailAddress
+        Position.X = 112.000000000000000000
+        Position.Y = 125.000000000000000000
+        Width = 353.000000000000000000
+        Height = 31.000000000000000000
+        KillFocusByReturn = False
+      end
+      object ToolBar1: TToolBar
+        Align = alBottom
+        Locked = True
+        Height = 44.000000000000000000
+        Position.Y = 256.000000000000000000
+        TabOrder = 9
+        Width = 480.000000000000000000
+        object SpeedButton1: TSpeedButton
+          Height = 31.000000000000000000
+          Position.X = 96.000000000000000000
+          Position.Y = 8.000000000000000000
+          Text = 'Confirm'
+          Trimming = ttCharacter
+          Width = 73.000000000000000000
+          OnClick = SpeedButton1Click
+        end
+        object SpeedButton2: TSpeedButton
+          Action = acBackTab
+          Height = 31.000000000000000000
+          Position.X = 304.000000000000000000
+          Position.Y = 8.000000000000000000
+          Trimming = ttCharacter
+          Width = 73.000000000000000000
+        end
+      end
+    end
+  end
+  object ActionList1: TActionList
+    Left = 144
+    Top = 224
+    object acDetailTab: TChangeTabAction
+      CustomText = 'Next'
+      Tab = TabItem2
+      Transition = ttSlide
+    end
+    object acBackTab: TChangeTabAction
+      CustomText = 'Cancel'
+      Tab = TabItem1
+      Transition = ttSlide
+    end
+  end
+  object ActionList2: TActionList
+    Left = 312
+    Top = 148
+  end
+end

@@ -1,0 +1,107 @@
+object Frm_PersonList: TFrm_PersonList
+  Left = 0
+  Top = 0
+  Caption = 'Peoples'
+  ClientHeight = 400
+  ClientWidth = 600
+  Visible = False
+  StyleLookup = 'backgroundstyle'
+  object Panel1: TPanel
+    Align = alBottom
+    Position.Point = '(0,352)'
+    Width = 600.000000000000000000
+    Height = 48.000000000000000000
+    TabOrder = 0
+    object btnRefresh: TCornerButton
+      Position.Point = '(272,16)'
+      Width = 80.000000000000000000
+      Height = 22.000000000000000000
+      OnClick = btnRefreshClick
+      TabOrder = 0
+      Text = 'Refresh'
+      XRadius = 3.000000000000000000
+      YRadius = 3.000000000000000000
+      Sides = [sdTop, sdLeft, sdBottom, sdRight]
+    end
+    object btnRemove: TCornerButton
+      Position.Point = '(184,16)'
+      Width = 80.000000000000000000
+      Height = 22.000000000000000000
+      OnClick = btnRemoveClick
+      TabOrder = 1
+      Text = 'Remove'
+      XRadius = 3.000000000000000000
+      YRadius = 3.000000000000000000
+      Sides = [sdTop, sdLeft, sdBottom, sdRight]
+    end
+    object btnReset: TCornerButton
+      Position.Point = '(360,16)'
+      Width = 80.000000000000000000
+      Height = 22.000000000000000000
+      OnClick = btnResetClick
+      TabOrder = 2
+      Text = 'Reset'
+      XRadius = 3.000000000000000000
+      YRadius = 3.000000000000000000
+      Sides = [sdTop, sdLeft, sdBottom, sdRight]
+    end
+    object btnAdd: TCornerButton
+      Position.Point = '(8,16)'
+      Width = 80.000000000000000000
+      Height = 22.000000000000000000
+      OnClick = btnAddClick
+      TabOrder = 3
+      Text = 'Add'
+      XRadius = 3.000000000000000000
+      YRadius = 3.000000000000000000
+      Sides = [sdTop, sdLeft, sdBottom, sdRight]
+    end
+    object btnUpdate: TCornerButton
+      Position.Point = '(96,16)'
+      Width = 80.000000000000000000
+      Height = 22.000000000000000000
+      OnClick = btnUpdateClick
+      TabOrder = 4
+      Text = 'Update'
+      XRadius = 3.000000000000000000
+      YRadius = 3.000000000000000000
+      Sides = [sdTop, sdLeft, sdBottom, sdRight]
+    end
+  end
+  object StringGrid1: TStringGrid
+    Position.Point = '(16,16)'
+    Width = 569.000000000000000000
+    Height = 321.000000000000000000
+    StyleLookup = 'gridstyle'
+    TabOrder = 1
+    RowHeight = 21.000000000000000000
+    RowCount = 100
+    object StringColumn1: TStringColumn
+      Width = 41.000000000000000000
+      Height = 315.000000000000000000
+      TabOrder = 0
+      Header = 'Id'
+    end
+    object StringColumn2: TStringColumn
+      Position.Point = '(41,0)'
+      Width = 189.000000000000000000
+      Height = 315.000000000000000000
+      TabOrder = 1
+      Header = 'Name'
+    end
+    object StringColumn3: TStringColumn
+      Position.Point = '(230,0)'
+      Width = 203.000000000000000000
+      Height = 315.000000000000000000
+      TabOrder = 2
+      Header = 'email'
+    end
+    object StringColumn4: TStringColumn
+      Position.Point = '(433,0)'
+      Width = 100.000000000000000000
+      Height = 315.000000000000000000
+      TabOrder = 3
+      Header = 'Create Date'
+    end
+  end
+end

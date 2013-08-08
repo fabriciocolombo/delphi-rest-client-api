@@ -71,8 +71,8 @@ object Frm_PersonList: TFrm_PersonList
     OnClick = btnRemoveClick
   end
   object btnRefresh: TButton
-    Left = 273
-    Top = 263
+    Left = 277
+    Top = 264
     Width = 75
     Height = 25
     Caption = 'Refresh'

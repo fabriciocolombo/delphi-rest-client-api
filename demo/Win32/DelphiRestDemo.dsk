@@ -1,72 +1,32 @@
 ﻿[Closed Files]
-File_0=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\SOURCE\RTL\SYS\System.SysUtils.pas',0,1,4521,42,4530,0,0,,
-File_1=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\Wcrypt2.pas',0,1,34,57,42,0,0,,
-File_2=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestJsonGenerics.pas',0,1,32,13,40,0,0,,
-File_3=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnection.pas',0,1,1,1,1,0,0,,
-File_4=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionIndy.pas',0,1,1,1,1,0,0,,
-File_5=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\rtl\win\Winapi.WinInet.pas',0,1,973,1,992,0,0,,
-File_6=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DelphiRest.inc',0,1,1,2,3,0,0,,
-File_7=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestRegister.pas',0,1,1,1,1,0,0,,
-File_8=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\WinHttp_TLB.pas',0,1,1,43,6,0,0,,
-File_9=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\rtl\common\System.Classes.pas',0,1,877,1,885,0,0,,
-File_10=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\SOURCE\VCL\Vcl.AxCtrls.pas',0,1,22,25,40,0,0,,
-File_11=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\unittest\Person.pas',0,1,1,53,20,0,0,,
-File_12=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\unittest\TestResponseHandler.pas',0,1,54,1,67,0,0,,
+File_0=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\demo\uFrm_Person.pas',0,1,63,1,73,0,0,,
+File_1=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdZLibCompressorBase.pas',0,1,138,61,162,0,0,,
+File_2=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdZLib.pas',0,1,16,12,35,0,0,,
+File_3=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\demo\uFrm_PersonList.pas',0,1,92,1,107,0,0,,{1
+File_4=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas',0,1,121,14,135,0,0,,
+File_5=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\demo\uDM.pas',0,1,1,40,9,0,0,,
+File_6=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionIndy.pas',0,1,105,1,113,0,0,,
+File_7=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',0,1,316,1,329,0,0,,
+File_8=TSourceModule,'C:\Desenvolvimento\Elotech\AiseComumComponentes\third\FastMM\FastMM4.pas',0,1,1742,26,1756,0,0,,
+File_9=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\SOURCE\RTL\SYS\System.pas',0,1,19234,1,19247,0,0,,
+File_10=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\SOURCE\VCL\Vcl.Controls.pas',0,1,7308,1,7321,0,0,,
+File_11=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdZLibHeaders.pas',0,1,859,30,871,0,0,,
+File_12=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdHTTP.pas',0,1,1773,1,1795,0,0,,
+File_13=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\System\IdGlobal.pas',0,1,4736,1,4750,0,0,,
+File_14=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinHttp.pas',0,1,162,1,177,0,0,,
 
 [Modules]
-Module0=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj
-Module1=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas
-Module2=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
-Module3=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinInet.pas
-Module4=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinHttp.pas
-Module5=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas
-Module6=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DataSetUtils.pas
-Count=7
+Module0=default.htm
+Count=1
 EditWindowCount=1
 
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj]
-ModuleType=TBaseProject
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinInet.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinHttp.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DataSetUtils.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
+[default.htm]
+ModuleType=TURLModule
 
 [EditWindow0]
-ViewCount=7
-CurrentEditView=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
+ViewCount=1
+CurrentView=0
 View0=0
-View1=1
-View2=2
-View3=3
-View4=4
-View5=5
-View6=6
 PercentageSizes=1
 Create=1
 Visible=1
@@ -85,93 +45,20 @@ BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=1896
 LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=00000800010100000000280F0000000000000168070000000000000100000000580E000009000000446F636B53697465330100000000F51A00001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=00000800010100000000A5120000000000000168070000000000000100000000580E000009000000446F636B536974653301000000002A2100001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=1999
 RightPanelClients=DockSite2,DockSite4
-RightPanelData=00000800010100000000280F00000000000001CF0700000000000001000000004212000009000000446F636B53697465320100000000F51A000009000000446F636B5369746534FFFFFFFF
-BottomPanelSize=1549
+RightPanelData=00000800010100000000A51200000000000001CF0700000000000001000000004212000009000000446F636B536974653201000000002A21000009000000446F636B5369746534FFFFFFFF
+BottomPanelSize=0
 BottomPanelClients=DockSite1,MessageView
-BottomPanelData=0000080001020100000009000000446F636B53697465317A45000000000000020D0600000000000001000000007A4500000F0000004D65737361676556696577466F726DFFFFFFFF
+BottomPanelData=0000080001020200000009000000446F636B53697465310F0000004D65737361676556696577466F726D1534000000000000022806000000000000FFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0
 BottomMiddelPanelData=0000080001020100000009000000446F636B53697465309A1D00000000000002EB06000000000000FFFFFFFF
 
 [View0]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DataSetUtils.pas
-CursorX=1
-CursorY=1
-TopLine=1
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DataSetUtils.pas
-
-[View1]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas
-CursorX=51
-CursorY=16
-TopLine=1
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas
-
-[View2]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinHttp.pas
-CursorX=67
-CursorY=5
-TopLine=1
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinHttp.pas
-
-[View3]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinInet.pas
-CursorX=1
-CursorY=10
-TopLine=1
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionWinInet.pas
-
-[View4]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
-CursorX=14
-CursorY=36
-TopLine=29
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dpk
-
-[View5]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
-CursorX=1
-CursorY=292
-TopLine=284
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
-
-[View6]
-CustomEditViewType=TEditView
-Module=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas
-CursorX=10
-CursorY=871
-TopLine=862
-LeftCol=1
-Elisions=
-Bookmarks=
-EditViewName=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\lib\SuperObject\SuperObject.pas
+CustomEditViewType=TWelcomePageView
+WelcomePageURL=bds:/default.htm
 
 [Watches]
 Count=0
@@ -198,7 +85,15 @@ Dockable=1
 StayOnTop=0
 
 [Breakpoints]
-Count=0
+Count=8
+Breakpoint0='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',319,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint1='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',329,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint2='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',309,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint3='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',314,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint4='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',251,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint5='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',212,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint6='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdCompressorZLib.pas',157,'',0,1,'',1,0,0,'',1,'','','',0,''
+Breakpoint7='c:\program files (x86)\embarcadero\rad studio\9.0\source\Indy10\Protocols\IdZLib.pas',368,'',0,1,'',1,0,0,'',1,'','','',0,''
 
 [EmbarcaderoWin64Debugger_AddressBreakpoints]
 Count=0
@@ -251,18 +146,18 @@ StayOnTop=0
 [MessageView]
 PercentageSizes=1
 Create=1
-Visible=1
+Visible=0
 Docked=1
 State=0
 Left=0
-Top=23
-Width=10000
-Height=1319
+Top=0
+Width=2767
+Height=1415
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=10000
-ClientHeight=1319
-TBDockHeight=1319
+ClientWidth=2767
+ClientHeight=1415
+TBDockHeight=1415
 LRDockWidth=2767
 Dockable=1
 StayOnTop=0
@@ -276,11 +171,11 @@ State=0
 Left=0
 Top=0
 Width=1999
-Height=2033
+Height=3709
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1999
-ClientHeight=2033
+ClientHeight=3709
 TBDockHeight=7157
 LRDockWidth=1999
 Dockable=1
@@ -295,11 +190,11 @@ State=0
 Left=0
 Top=305
 Width=1896
-Height=3091
+Height=4766
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1896
-ClientHeight=3091
+ClientHeight=4766
 TBDockHeight=8613
 LRDockWidth=1896
 Dockable=1
@@ -761,11 +656,11 @@ State=0
 Left=0
 Top=382
 Width=1999
-Height=2033
+Height=3709
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1999
-ClientHeight=2033
+ClientHeight=3709
 TBDockHeight=8613
 LRDockWidth=1999
 Dockable=1

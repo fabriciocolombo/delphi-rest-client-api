@@ -34,7 +34,8 @@ requires
   dbrtl,
   IndySystem,
   IndyProtocols,
-  IndyCore;
+  IndyCore,
+  DbxCommonDriver;
 
 contains
   superobject in '..\..\lib\superobject\superobject.pas',

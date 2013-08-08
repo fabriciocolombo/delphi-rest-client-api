@@ -1,15 +1,15 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{8431842E-843D-4F8F-87E6-7360403375BD}</ProjectGuid>
-        <MainSource>DelphiXE3_RestApi.dpk</MainSource>
+        <MainSource>DelphiXE3_RestApi_MACOS.dpk</MainSource>
         <ProjectVersion>14.4</ProjectVersion>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <AppType>Package</AppType>
         <FrameworkType>VCL</FrameworkType>
         <DCC_DCCCompiler>DCC32</DCC_DCCCompiler>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <Platform Condition="'$(Platform)'==''">OSX32</Platform>
+        <TargetedPlatforms>4</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -32,6 +32,12 @@
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Cfg_1)'=='true') or '$(Cfg_1_OSX32)'!=''">
+        <Cfg_1_OSX32>true</Cfg_1_OSX32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
@@ -75,15 +81,15 @@
         <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>false</VerInfo_IncludeVerInfo>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>vcl;$(DCC_UsePackage)</DCC_UsePackage>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_Namespace>System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>vcl;$(DCC_UsePackage)</DCC_UsePackage>
@@ -95,6 +101,9 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_OSX32)'!=''">
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_DcuOutput>.\$(Config)\$(Platform)</DCC_DcuOutput>
@@ -117,7 +126,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="dsnap.dcp"/>
         <DCCReference Include="dbrtl.dcp"/>
@@ -125,20 +133,6 @@
         <DCCReference Include="IndyProtocols.dcp"/>
         <DCCReference Include="IndyCore.dcp"/>
         <DCCReference Include="DbxCommonDriver.dcp"/>
-        <DCCReference Include="..\..\lib\superobject\superobject.pas"/>
-        <DCCReference Include="..\..\lib\superobject\superxmlparser.pas"/>
-        <DCCReference Include="..\..\src\DataSetUtils.pas"/>
-        <DCCReference Include="..\..\src\HttpConnection.pas"/>
-        <DCCReference Include="..\..\src\HttpConnectionFactory.pas"/>
-        <DCCReference Include="..\..\src\HttpConnectionIndy.pas"/>
-        <DCCReference Include="..\..\src\HttpConnectionWinHttp.pas"/>
-        <DCCReference Include="..\..\src\JsonToDataSetConverter.pas"/>
-        <DCCReference Include="..\..\src\RestClient.pas"/>
-        <DCCReference Include="..\..\src\RestJsonGenerics.pas"/>
-        <DCCReference Include="..\..\src\RestJsonOldRTTI.pas"/>
-        <DCCReference Include="..\..\src\RestJsonUtils.pas"/>
-        <DCCReference Include="..\..\src\RestUtils.pas"/>
-        <DCCReference Include="..\..\src\RestRegister.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -159,7 +153,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">DelphiXE3_RestApi.dpk</Source>
+                    <Source Name="MainSource">DelphiXE3_RestApi_MACOS.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
@@ -194,8 +188,8 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
-                <Platform value="OSX32">False</Platform>
-                <Platform value="Win32">True</Platform>
+                <Platform value="OSX32">True</Platform>
+                <Platform value="Win32">False</Platform>
                 <Platform value="Win64">False</Platform>
             </Platforms>
         </BorlandProject>
