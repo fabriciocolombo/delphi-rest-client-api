@@ -21,7 +21,9 @@ type
     procedure GettingAllPeoples;
     procedure GetPerson;
     procedure AddPerson;
+    procedure AddPersonFromString;
     procedure UpdatePerson;
+    procedure UpdatePersonFromString;
     procedure RemovePersonById;
     procedure PersonNotFound;
 
@@ -77,6 +79,24 @@ begin
   CheckEquals(RestUtils.TStatusCode.OK.StatusCode, RestClient.ResponseCode);
 
   CheckPerson(vResult, Name, EMail, Id);
+end;
+
+procedure TTestPeople.AddPersonFromString;
+const
+  NewPerson = '{"name":"%s","email":"%s"}';
+  Name = 'Fabricio';
+  EMail = 'fabricio.colombo.mva@gmail.com';
+var
+  vResult: String;
+begin
+  vResult := RestClient.Resource(CONTEXT_PATH + 'person')
+                       .Accept(RestUtils.MediaType_Json)
+                       .ContentType(RestUtils.MediaType_Json)
+                       .POST(Format(NewPerson,[Name, EMail]));
+
+  CheckEquals(RestUtils.TStatusCode.CREATED.StatusCode, RestClient.ResponseCode);
+
+  CheckPerson(vResult, Name, EMail);
 end;
 
 procedure TTestPeople.CheckPerson(Response, Name, EMail: String; Id: Integer);
@@ -252,6 +272,24 @@ begin
   finally
     vStream.Free;
   end;
+end;
+
+procedure TTestPeople.UpdatePersonFromString;
+const
+  UpdatePerson = '{"id":3,"name":"%s","email":"%s"}';
+  Name = 'Joseph Kirk';
+  EMail = 'kirk@hotmail.com';
+var
+  vResult: String;
+begin
+  vResult := RestClient.Resource(CONTEXT_PATH + 'person')
+                       .Accept(RestUtils.MediaType_Json)
+                       .ContentType(RestUtils.MediaType_Json)
+                       .Put(Format(UpdatePerson,[Name, EMail]));
+
+  CheckEquals(201, RestClient.ResponseCode);
+
+  CheckPerson(vResult, Name, EMail, 3);
 end;
 
 function TTestPeople.WordCount(AText, AWord: String): Integer;

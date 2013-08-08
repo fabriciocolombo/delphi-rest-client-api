@@ -127,7 +127,9 @@ type
 
     function Get: string;overload;
     function Post(Content: TStream): String;overload;
+    function Post(Content: string): String;overload;
     function Put(Content: TStream): String;overload;
+    function Put(Content: string): string;overload;
     procedure Delete();overload;
 
     procedure Get(AHandler: TRestResponseHandler);overload;
@@ -361,6 +363,30 @@ begin
   FContent.CopyFrom(Content, Content.Size);
 
   FRestClient.DoRequest(METHOD_POST, Self, AHandler);
+end;
+
+function TResource.Put(Content: string): string;
+var
+  vStringStream: TStringStream;
+begin
+  vStringStream := TStringStream.Create(Content);
+  try
+    Result := Put(vStringStream);
+  finally
+    vStringStream.Free;
+  end;
+end;
+
+function TResource.Post(Content: string): String;
+var
+  vStringStream: TStringStream;
+begin
+  vStringStream := TStringStream.Create(Content);
+  try
+    Result := Post(vStringStream);
+  finally
+    vStringStream.Free;
+  end;
 end;
 
 procedure TResource.Put(Content: TStream; AHandler: TRestResponseHandler);
