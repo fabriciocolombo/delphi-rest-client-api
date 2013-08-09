@@ -30,7 +30,11 @@ uses
   WinHttp_TLB in '..\lib\WinHttp_TLB.pas',
   TestRegister in 'TestRegister.pas',
   TestRestClient in 'TestRestClient.pas',
-  Wcrypt2 in '..\lib\Wcrypt2.pas';
+  Wcrypt2 in '..\lib\Wcrypt2.pas',
+  TestOldRttiMarshal in 'TestOldRttiMarshal.pas',
+  OldRttiMarshal in '..\src\OldRttiMarshal.pas',
+  TestOldRttiUnmarshal in 'TestOldRttiUnmarshal.pas',
+  OldRttiUnMarshal in '..\src\OldRttiUnMarshal.pas';
 
 {$R *.RES}
 
