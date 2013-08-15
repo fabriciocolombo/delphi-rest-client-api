@@ -17,8 +17,6 @@ type
 
   TAllTypes = class;
 
-  TAllTypesArray = array of TAllTypes;
-
   TAllTypes = class
   private
     FvalueChar: Char;
@@ -39,7 +37,6 @@ type
     FvalueSet: TEnumTypeSet;
     FvalueAnsiString: AnsiString;
     FvalueDouble: Double;
-    FvalueArray: TAllTypesArray;
   public
     destructor Destroy; override;
   published
@@ -62,7 +59,6 @@ type
     property valueDateTime: TDateTime read FvalueDateTime write FvalueDateTime;
     property valueEnum: TEnumType read FvalueEnum write FvalueEnum;
     property valueSet: TEnumTypeSet read FvalueSet write FvalueSet;
-    property valueArray: TAllTypesArray read FvalueArray write FvalueArray;
   end;
   {$M-}
 

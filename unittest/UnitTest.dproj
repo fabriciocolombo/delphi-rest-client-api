@@ -81,6 +81,7 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
 			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
 			<Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
 			<DCC_MapFile>3</DCC_MapFile>
