@@ -118,7 +118,7 @@ var
 begin
   vResponse := TObjectList(RestClient.Resource(CONTEXT_PATH + 'persons')
                                       .Accept(RestUtils.MediaType_Json)
-                                      .GetList(TObjectList, TOldPerson));
+                                      .Get(TObjectList, TOldPerson));
   try
     CheckNotNull(vResponse);
     vResponse.OwnsObjects := True;

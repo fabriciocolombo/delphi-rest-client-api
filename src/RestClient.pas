@@ -166,7 +166,7 @@ type
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     {$ELSE}
-    function GetList(AListClass, AItemClass: TClass): TObject;overload;
+    function Get(AListClass, AItemClass: TClass): TObject;overload;
     function Post(Adapter: IJsonListAdapter): TObject;overload;
     function Put(Adapter: IJsonListAdapter): TObject;overload;
     {$ENDIF}
@@ -576,7 +576,7 @@ begin
   Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 {$ELSE}
-function TResource.GetList(AListClass, AItemClass: TClass): TObject;
+function TResource.Get(AListClass, AItemClass: TClass): TObject;
 var
   vResponse: string;
 begin

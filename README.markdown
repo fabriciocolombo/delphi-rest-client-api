@@ -13,15 +13,7 @@ Indy 9 does not handles HTTP response codes correctly, then if you are using Del
 
 Serialization/Desserialization
 --	
-The objects are streamed as JSON format, and SuperObject was chosen for deal with json transformation. SuperObject it's lighter  and less intrusive than DBX framework. He too have a good support to serialization through TSuperObjectHelper class helper.
-
-The framework SuperObject is not compatible with OSX and iOS, for such is used DBXJson framework, which has no compatibility issues. By default SuperObject still used, enabling DBXJson only on MacOS environment.
-You can configure DBXJson  as default framework disabling compiler directive ``USE_SUPER_OBJECT`` in the file ``DelphiRest.inc``.
-
-**Serialization is not available (yet) for Delphi 7.**
-
-
-For serialization work fine, the object must be declared as follows, with public fields. How public fields are a bad smell(IMHO), the serialization process will be improved to read `properties` too, and give some configuration options.
+The objects are transmitted in JSON format. To function properly, the object must be declared as follows, with public fields.
      
     TPerson = class(TObject)
     public 
@@ -33,6 +25,8 @@ For serialization work fine, the object must be declared as follows, with public
       (* Static constructor *)
       class function NewFrom(Id: Integer; Name, EMail: String): TPerson;
     end;
+
+See more details about serialization here: [Serialization](https://github.com/fabriciocolombo/delphi-rest-client-api/wiki/Serialization)
 
 Samples
 ----------------
