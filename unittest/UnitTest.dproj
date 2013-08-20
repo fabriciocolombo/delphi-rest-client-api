@@ -123,6 +123,7 @@
 			<DCCReference Include="..\src\OldRttiMarshal.pas"/>
 			<DCCReference Include="TestOldRttiUnmarshal.pas"/>
 			<DCCReference Include="..\src\OldRttiUnMarshal.pas"/>
+			<DCCReference Include="..\src\JsonListAdapter.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

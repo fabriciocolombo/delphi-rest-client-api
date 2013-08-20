@@ -20,7 +20,7 @@ type
 
 implementation
 
-uses Variants;
+uses Variants, JsonListAdapter, SysUtils;
 
 { TOldRttiMarshal }
 
@@ -38,53 +38,77 @@ var
   vPropInfo: PPropInfo;
   value: ISuperObject;
   vObjProp: TObject;
+  vAdapter: IJsonListAdapter;
 begin
-  vTypeInfo := AObject.ClassInfo;
-  vTypeData := GetTypeData(vTypeInfo);
+  if AObject = nil then
+  begin
+    Result := SuperObject.SO();
+    Exit;
+  end;
 
-  Result := SO();
+  if (AObject is TList) then
+  begin
+    Result := ToList(TList(AObject));
+  end
+  else if Supports(AObject, IJsonListAdapter, vAdapter) then
+  begin
+    Result := ToList(TList(vAdapter.UnWrapList));
+  end
+  else
+  begin
+    vTypeInfo := AObject.ClassInfo;
 
-  New(vPropList);
-  try
-    GetPropList(vTypeInfo, tkProperties, vPropList);
-
-    for i := 0 to vTypeData^.PropCount-1 do
+    if vTypeInfo = nil then
     begin
-      vPropInfo := vPropList^[i];
-
-      value := nil;
-
-      case vPropInfo^.PropType^.Kind of
-        tkMethod: ;
-        tkSet, tkInteger, tkEnumeration: value := ToInteger(AObject, vPropInfo);
-        tkInt64: value := ToInt64(AObject, vPropInfo);
-        tkFloat: value := ToFloat(AObject, vPropInfo);
-        tkChar, tkWChar: value := ToChar(AObject, vPropInfo); 
-        tkString, tkLString,
-        {$IFDEF UNICODE}
-        tkUString,
-        {$ENDIF}
-        tkWString: value := ToJsonString(AObject, vPropInfo);
-        tkClass: begin
-                    value := nil;
-                    vObjProp := GetObjectProp(AObject, vPropInfo);
-                    if Assigned(vObjProp) then
-                    begin
-                      if vObjProp is TList then
-                        value := ToList(TList(vObjProp))
-                      else
-                        value := ToClass(vObjProp);
-                    end;
-                 end;
-      end;
-
-      if Assigned(value) then
-      begin
-        Result.O[String(vPropInfo^.Name)] := value;
-      end;
+      raise ENoSerializableClass.Create(AObject.ClassType);
     end;
-  finally
-    Dispose(vPropList);
+
+    vTypeData := GetTypeData(vTypeInfo);
+
+    Result := SO();
+
+    New(vPropList);
+    try
+      GetPropList(vTypeInfo, tkProperties, vPropList);
+
+      for i := 0 to vTypeData^.PropCount-1 do
+      begin
+        vPropInfo := vPropList^[i];
+
+        value := nil;
+
+        case vPropInfo^.PropType^.Kind of
+          tkMethod: ;
+          tkSet, tkInteger, tkEnumeration: value := ToInteger(AObject, vPropInfo);
+          tkInt64: value := ToInt64(AObject, vPropInfo);
+          tkFloat: value := ToFloat(AObject, vPropInfo);
+          tkChar, tkWChar: value := ToChar(AObject, vPropInfo); 
+          tkString, tkLString,
+          {$IFDEF UNICODE}
+          tkUString,
+          {$ENDIF}
+          tkWString: value := ToJsonString(AObject, vPropInfo);
+          tkClass: begin
+                      value := nil;
+                      vObjProp := GetObjectProp(AObject, vPropInfo);
+                      if Assigned(vObjProp) then
+                      begin
+                        if vObjProp is TList then
+                          value := ToList(TList(vObjProp))
+                        else
+                          value := ToClass(vObjProp);
+                      end;
+                   end;
+        end;
+
+        if Assigned(value) then
+        begin
+          Result.O[String(vPropInfo^.Name)] := value;
+        end;
+      end;
+    finally
+      Dispose(vPropList);
+    end;
   end;
 end;
 

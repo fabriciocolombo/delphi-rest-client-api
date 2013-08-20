@@ -4,9 +4,11 @@ program UnitTest;
 
 {$I DelphiRest.inc}
 
-//{$IFDEF DELPHI_7}
-//FastMM4,
-//{$ENDIF}
+(*
+  {$IFDEF DELPHI_7}
+  FastMM4,
+  {$ENDIF}
+*)
 
 uses
   {$IFDEF DELPHI_7}
@@ -34,7 +36,8 @@ uses
   TestOldRttiMarshal in 'TestOldRttiMarshal.pas',
   OldRttiMarshal in '..\src\OldRttiMarshal.pas',
   TestOldRttiUnmarshal in 'TestOldRttiUnmarshal.pas',
-  OldRttiUnMarshal in '..\src\OldRttiUnMarshal.pas';
+  OldRttiUnMarshal in '..\src\OldRttiUnMarshal.pas',
+  JsonListAdapter in '..\src\JsonListAdapter.pas';
 
 {$R *.RES}
 

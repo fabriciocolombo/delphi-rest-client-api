@@ -2,6 +2,8 @@ unit RestJsonOldRTTI;
 
 interface
 
+uses OldRttiMarshal, OldRttiUnMarshal;
+
 {$I DelphiRest.inc}
 
 type
@@ -9,7 +11,7 @@ type
   public
     class function Marshal(entity: TObject): string;
 
-    class function UnMarshal(text: String): TObject;
+    class function UnMarshal(AClassType: TClass; AJsonText: String): TObject;
   end;
 
 implementation
@@ -18,12 +20,12 @@ implementation
 
 class function TJsonUtilOldRTTI.Marshal(entity: TObject): string;
 begin
-  Result := entity.ClassName;
+  Result := TOldRttiMarshal.ToJson(entity).AsJSon();
 end;
 
-class function TJsonUtilOldRTTI.UnMarshal(text: String): TObject;
+class function TJsonUtilOldRTTI.UnMarshal(AClassType: TClass; AJsonText: String): TObject;
 begin
-  Result := TObject.Create;
+  Result := TOldRttiUnMarshal.FromJson(AClassType, AJsonText);
 end;
 
 end.

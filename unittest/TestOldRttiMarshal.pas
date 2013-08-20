@@ -2,7 +2,7 @@ unit TestOldRttiMarshal;
 
 interface
 
-uses TestFramework, SuperObject, OldRttiMarshal, Classes, Contnrs;
+uses TestFramework, SuperObject, OldRttiMarshal, Classes, Contnrs, DbxJsonUtils;
 
 type
   {$M+}
@@ -62,6 +62,9 @@ type
   end;
   {$M-}
 
+  TNoSerializable = class
+  end;
+
 type
   TTestOldRttiMarshal = class(TTestCase)
   private
@@ -90,6 +93,9 @@ type
     procedure valueObject;
     procedure valueList;
     procedure valueObjectList;
+    procedure returnEmptyForNullObject;
+    procedure List;
+    procedure ObjectList;
   end;
 
 implementation
@@ -341,6 +347,61 @@ begin
   CheckTrue(vObject.IsType(stArray));
   CheckEquals(1, vObject.AsArray.Length);
   CheckEquals(456, vObject.AsArray.O[0].I['valueInteger']);
+end;
+
+procedure TTestOldRttiMarshal.returnEmptyForNullObject;
+begin
+  CheckEquals('{}', TOldRttiMarshal.ToJson(nil).AsJSon());
+end;
+
+procedure TTestOldRttiMarshal.List;
+var
+  vList: TList;
+  vItem: ISuperObject;
+begin
+  vList := TList.Create;
+  try
+    FObject.valueInteger := 123;
+
+    vList.Add(FObject);
+    
+    FJson := TOldRttiMarshal.ToJson(vList);
+
+    CheckNotNull(FJson);
+    CheckTrue(FJson.IsType(stArray),'is array');
+    CheckEquals(1, FJson.AsArray.Length, 'array length');
+
+    vItem := FJson.AsArray.O[0];
+    
+    CheckEquals(123, vItem.I['valueInteger']);
+  finally
+    vList.Free;
+  end;
+end;
+
+procedure TTestOldRttiMarshal.ObjectList;
+var
+  vList: TObjectList;
+  vItem: ISuperObject;
+begin
+  vList := TObjectList.Create(False);
+  try
+    FObject.valueInteger := 123;
+
+    vList.Add(FObject);
+    
+    FJson := TOldRttiMarshal.ToJson(vList);
+
+    CheckNotNull(FJson);
+    CheckTrue(FJson.IsType(stArray),'is array');
+    CheckEquals(1, FJson.AsArray.Length, 'array length');
+
+    vItem := FJson.AsArray.O[0];
+    
+    CheckEquals(123, vItem.I['valueInteger']);
+  finally
+    vList.Free;
+  end;
 end;
 
 { TAllTypes }

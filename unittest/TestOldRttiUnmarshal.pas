@@ -98,6 +98,8 @@ type
     procedure valueEnumFromString;
     procedure valueSet;
     procedure valueSetFromString;
+    procedure FromList;
+    procedure FromObjectList;
   end;
 
 implementation
@@ -116,6 +118,36 @@ end;
 function TTestOldRttiUnmarshal.FromJson(AJson: string): TAllTypes;
 begin
   Result := TAllTypes(TOldRttiUnMarshal.FromJson(TAllTypes, AJson));
+end;
+
+procedure TTestOldRttiUnmarshal.FromList;
+var
+  vList: TList;
+begin
+  vList := TList(TOldRttiUnMarshal.FromJsonArray(TList, TAllTypes, '[{"valueInteger":123}]'));
+  try
+    CheckNotNull(vList);
+    CheckEquals(1, vList.Count);
+    CheckEquals(123, TAllTypes(vList[0]).valueInteger);
+  finally
+    TAllTypes(vList[0]).Free;
+    vList.Free;
+  end;
+end;
+
+procedure TTestOldRttiUnmarshal.FromObjectList;
+var
+  vList: TObjectList;
+begin
+  vList := TObjectList(TOldRttiUnMarshal.FromJsonArray(TObjectList, TAllTypes, '[{"valueInteger":123}]'));
+  try
+    vList.OwnsObjects := True;
+    CheckNotNull(vList);
+    CheckEquals(1, vList.Count);
+    CheckEquals(123, TAllTypes(vList[0]).valueInteger);
+  finally
+    vList.Free;
+  end;
 end;
 
 procedure TTestOldRttiUnmarshal.invalidJsonSyntax;

@@ -8,7 +8,8 @@ type
   TOldRttiUnMarshal = class
   private
     function FromClass(AClassType: TClass; AJSONValue: ISuperObject): TObject;
-    function FromList(AClassType: TClass; APropInfo: PPropInfo; const AJSONValue: ISuperObject): TList;
+    function FromList(AClassType: TClass; APropInfo: PPropInfo; const AJSONValue: ISuperObject): TList;overload;
+    function FromList(AClassType, AItemClassType: TClass; const AJSONValue: ISuperObject): TList;overload;
     function FromInt(APropInfo: PPropInfo; const AJSONValue: ISuperObject): Variant;
     function FromInt64(APropInfo: PPropInfo; const AJSONValue: ISuperObject): Variant;
     function FromFloat(APropInfo: PPropInfo; const AJSONValue: ISuperObject): Variant;
@@ -17,6 +18,7 @@ type
     function FromWideChar(APropInfo: PPropInfo; const AJSONValue: ISuperObject): Variant;
   public
     class function FromJson(AClassType: TClass; const AJson: string): TObject;
+    class function FromJsonArray(AClassType, AItemClassType: TClass; const AJson: string): TObject;    
   end;
 
 implementation
@@ -136,6 +138,9 @@ begin
                   raise;
                 end;
               end;
+    stArray: begin
+               Result := FromList(AClassType, nil, AJSONValue);
+             end;
   end;
 end;
 
@@ -235,12 +240,61 @@ begin
   end;
 end;
 
+class function TOldRttiUnMarshal.FromJsonArray(AClassType, AItemClassType: TClass; const AJson: string): TObject;
+var
+  vUnMarshal: TOldRttiUnMarshal;
+  vJsonObject: ISuperObject;
+begin
+  Result := nil;
+
+  vUnMarshal := TOldRttiUnMarshal.Create;
+  try
+    vJsonObject := SO(AJson);
+
+    if vJsonObject = nil then
+    begin
+      raise EJsonInvalidSyntax.CreateFmt('Invalid json: "%s"', [AJson]);
+    end;
+
+    Result := vUnMarshal.FromList(AClassType, AItemClassType, vJsonObject);
+  finally
+    vUnMarshal.Free;
+  end;
+end;
+
 function TOldRttiUnMarshal.FromList(AClassType: TClass; APropInfo: PPropInfo; const AJSONValue: ISuperObject): TList;
 var
-  i: Integer;
   vPosList: Integer;
   vItemClassName: String;
   vItemClass: TClass;
+begin
+  Result := nil;
+  if ObjectIsType(AJSONValue, stArray) then
+  begin
+    if AClassType.InheritsFrom(TList) and (AJSONValue.AsArray.Length > 0) then
+    begin
+      vItemClassName := '';
+      if Assigned(APropInfo) and (vItemClassName = '') then
+      begin
+        vPosList := Pos('ObjectList', String(APropInfo^.Name));
+        if (vPosList = 0) then
+        begin
+          vPosList := Pos('List', String(APropInfo^.Name));
+        end;
+
+        vItemClassName := 'T' + Copy(String(APropInfo^.Name), 1, vPosList-1);
+      end;
+
+      vItemClass := FindClass(vItemClassName);
+
+      Result :=  FromList(AClassType, vItemClass, AJSONValue);
+    end;
+  end;
+end;
+
+function TOldRttiUnMarshal.FromList(AClassType, AItemClassType: TClass;const AJSONValue: ISuperObject): TList;
+var
+  i: Integer;
   vItem: TObject;
 begin
   Result := nil;
@@ -248,21 +302,11 @@ begin
   begin
     if AClassType.InheritsFrom(TList) and (AJSONValue.AsArray.Length > 0) then
     begin
-      vPosList := Pos('ObjectList', APropInfo^.Name);
-      if (vPosList = 0) then
-      begin
-        vPosList := Pos('List', APropInfo^.Name);
-      end;
-
-      vItemClassName := 'T' + Copy(APropInfo^.Name, 1, vPosList-1);
-
-      vItemClass := FindClass(vItemClassName);
-
       Result := TList(AClassType.Create);
       try
         for i := 0 to AJSONValue.AsArray.Length-1 do
         begin
-          vItem := FromClass(vItemClass, AJSONValue.AsArray.O[i]);
+          vItem := FromClass(AItemClassType, AJSONValue.AsArray.O[i]);
 
           Result.Add(vItem);
         end;

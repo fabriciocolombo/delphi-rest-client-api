@@ -105,7 +105,7 @@ begin
 
     for f in FContext.GetType(AValue.AsObject.ClassType).GetFields do
     begin
-      if f.FieldType <> nil then
+      if (f.FieldType <> nil) (* and (f.Visibility in [mvPublic, mvPublished])*) then
       begin
         fieldValue := f.GetValue(AValue.AsObject);
 

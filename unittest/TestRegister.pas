@@ -5,9 +5,11 @@ interface
 {$I DelphiRest.inc}
 
 {$IFDEF USE_GENERICS}
-  uses TestDBXJson, TestSerializer, TestDataSetHandler,
-       TestDbxJsonUnMarshal, TestDbxJsonMarshal,
-       DbxJsonUnMarshal, DbxJsonMarshal;
+uses TestDBXJson, TestSerializer, TestDataSetHandler,
+     TestDbxJsonUnMarshal, TestDbxJsonMarshal,
+     DbxJsonUnMarshal, DbxJsonMarshal;
+{$ELSE}
+uses TestRequestSerialization;
 {$ENDIF}
 
 implementation

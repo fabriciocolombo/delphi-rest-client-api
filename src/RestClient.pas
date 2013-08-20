@@ -5,13 +5,13 @@ interface
 {$I DelphiRest.inc}
 
 uses Classes, SysUtils, HttpConnection,
-     RestUtils,
+     RestUtils, RestJsonUtils,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
      {$ELSE}
      Contnrs,
      {$ENDIF}
-     DB;
+     DB, JsonListAdapter, OldRttiUnMarshal;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -32,6 +32,19 @@ type
   EInvalidHttpConnectionConfiguration = class(ERestClientException);
   ECustomCreateConnectionException = class(ERestClientException);
   EInactiveConnection = class(ERestClientException);
+
+  TJsonListAdapter = class(TInterfacedObject, IJsonListAdapter)
+  private
+    FItemClass: TClass;
+    FWrappedList: TList;
+  public
+    function ItemClass: TClass;
+    function UnWrapList: TList;
+
+    constructor Create(AList: TList; AItemClass: TClass);
+
+    class function NewFrom(AList: TList; AItemClass: TClass): IJsonListAdapter;
+  end;
 
   TRestClient = class(TComponent)
   private
@@ -126,15 +139,21 @@ type
     //function Cookie(Cookie: TCookie): TResource;
 
     function Get: string;overload;
+    procedure Get(AHandler: TRestResponseHandler);overload;
+    function Get(EntityClass: TClass): TObject;overload;
+
     function Post(Content: TStream): String;overload;
     function Post(Content: string): String;overload;
+    procedure Post(Content: TStream; AHandler: TRestResponseHandler);overload;
+    function Post(Entity: TObject): TObject;overload;
+
     function Put(Content: TStream): String;overload;
     function Put(Content: string): string;overload;
-    procedure Delete();overload;
-
-    procedure Get(AHandler: TRestResponseHandler);overload;
-    procedure Post(Content: TStream; AHandler: TRestResponseHandler);overload;
     procedure Put(Content: TStream; AHandler: TRestResponseHandler);overload;
+    function Put(Entity: TObject): TObject;overload;
+
+    procedure Delete();overload;
+    procedure Delete(Entity: TObject);overload;
 
     {$IFDEF DELPHI_2009_UP}
     procedure Get(AHandler: TRestResponseHandlerFunc);overload;
@@ -146,8 +165,12 @@ type
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
-    procedure Delete(Entity: TObject);overload;
+    {$ELSE}
+    function GetList(AListClass, AItemClass: TClass): TObject;overload;
+    function Post(Adapter: IJsonListAdapter): TObject;overload;
+    function Put(Adapter: IJsonListAdapter): TObject;overload;
     {$ENDIF}
+
     {$IFDEF USE_SUPER_OBJECT}
     procedure GetAsDataSet(ADataSet: TDataSet);overload;
     function GetAsDataSet(): TDataSet;overload;
@@ -156,7 +179,7 @@ type
 
 implementation
 
-uses StrUtils, Math, RestJsonUtils,
+uses StrUtils, Math,
      {$IFDEF USE_SUPER_OBJECT}
      SuperObject, JsonToDataSetConverter,
      {$ENDIF}
@@ -420,6 +443,15 @@ begin
 end;
 {$ENDIF}
 
+function TResource.Get(EntityClass: TClass): TObject;
+var
+  vResponse: string;
+begin
+  vResponse := Self.Get;
+
+  Result := TJsonUtil.UnMarshal(EntityClass, vResponse);
+end;
+
 function TResource.GetAcceptedLanguages: string;
 begin
   Result := FAcceptedLanguages;
@@ -448,6 +480,13 @@ end;
 
 procedure TResource.Delete();
 begin
+  FRestClient.DoRequest(METHOD_DELETE, Self);
+end;
+
+procedure TResource.Delete(Entity: TObject);
+begin
+  SetContent(Entity);
+
   FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
 
@@ -511,40 +550,67 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
+  SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
 var
   vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
+  SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+
+  Result := TJsonUtil.UnMarshal<T>(vResponse);
+end;
+{$ELSE}
+function TResource.GetList(AListClass, AItemClass: TClass): TObject;
+var
+  vResponse: string;
+begin
+  vResponse := Self.Get;
+
+  Result := TOldRttiUnMarshal.FromJsonArray(AListClass, AItemClass, vResponse);
 end;
 
-procedure TResource.Delete(Entity: TObject);
+function TResource.Post(Adapter: IJsonListAdapter): TObject;
+var
+  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
+  if Adapter = nil then
+    raise Exception.Create('Entity can not be null');
 
-  FRestClient.DoRequest(METHOD_DELETE, Self);
+  SetContent(Adapter.UnWrapList);
+
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+
+  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+end;
+
+function TResource.Put(Adapter: IJsonListAdapter): TObject;
+var
+  vResponse: string;
+begin
+  if Adapter = nil then
+    raise Exception.Create('Entity can not be null');
+
+  SetContent(Adapter.UnWrapList);
+
+  vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
+
+  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
 end;
 {$ENDIF}
 
@@ -575,14 +641,18 @@ var
   vJson: string;
   vStream: TStringStream;
 begin
-  vJson := TJsonUtil.Marshal(Entity);
-  vStream := TStringStream.Create(vJson);
-  try
-    vStream.Position := 0;
-    FContent.Clear;
-    FContent.CopyFrom(vStream, vStream.Size);
-  finally
-    vStream.Free;
+  FContent.Clear;
+  if Assigned(entity) then
+  begin
+     vJson := TJsonUtil.Marshal(Entity);
+
+    vStream := TStringStream.Create(vJson);
+    try
+      vStream.Position := 0;
+      FContent.CopyFrom(vStream, vStream.Size);
+    finally
+      vStream.Free;
+    end;
   end;
 end;
 
@@ -592,6 +662,57 @@ begin
   FContent.CopyFrom(Content, Content.Size);
 
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
+end;
+
+function TResource.Post(Entity: TObject): TObject;
+var
+  vResponse: string;
+begin
+  if Entity = nil then
+    raise Exception.Create('Entity can not be null');
+
+  SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+
+  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+end;
+
+function TResource.Put(Entity: TObject): TObject;
+var
+  vResponse: string;
+begin
+  if Entity = nil then
+    raise Exception.Create('Entity can not be null');
+
+  SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
+
+  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+end;
+
+{ TJsonListAdapter }
+
+function TJsonListAdapter.ItemClass: TClass;
+begin
+  Result := FItemClass;
+end;
+
+function TJsonListAdapter.UnWrapList: TList;
+begin
+  Result := FWrappedList;
+end;
+
+constructor TJsonListAdapter.Create(AList: TList; AItemClass: TClass);
+begin
+  FWrappedList := AList;
+  FItemClass := AItemClass;
+end;
+
+class function TJsonListAdapter.NewFrom(AList: TList; AItemClass: TClass): IJsonListAdapter;
+begin
+  Result := TJsonListAdapter.Create(AList, AItemClass);
 end;
 
 end.

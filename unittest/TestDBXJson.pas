@@ -5,7 +5,7 @@ interface
 {$I DelphiRest.inc}
 
 uses BaseTestRest, Classes, IdHttp, RestClient, RestUtils, Generics.Collections,
-     RestJsonUtils, Person;
+     RestJsonUtils, Person, Contnrs;
 
 type
   TTestDbxJson = class(TBaseTestRest)
@@ -18,6 +18,7 @@ type
     procedure EchoJsonObjectListWithPost;
     procedure EchoJsonObjectWithPut;
     procedure GetJsonObject;
+    procedure GetJsonObjectUsingClass;
     procedure GetJsonList;
     procedure DeleteJsonObject;
     procedure RemovePerson;
@@ -79,6 +80,22 @@ begin
   vResponse := RestClient.Resource(CONTEXT_PATH + 'json/person')
                           .Accept(RestUtils.MediaType_Json)
                           .Get<TPerson>();
+  try
+    CheckEquals(123, vResponse.Id);
+    CheckEqualsString('Fabricio', vResponse.Name);
+    CheckEqualsString('fabricio.colombo.mva@gmail.com', vResponse.EMail);
+  finally
+    vResponse.Free;
+  end;
+end;
+
+procedure TTestDbxJson.GetJsonObjectUsingClass;
+var
+  vResponse: TPerson;
+begin
+  vResponse := TPerson(RestClient.Resource(CONTEXT_PATH + 'json/person')
+                                  .Accept(RestUtils.MediaType_Json)
+                                  .Get(TPerson));
   try
     CheckEquals(123, vResponse.Id);
     CheckEqualsString('Fabricio', vResponse.Name);

@@ -32,6 +32,7 @@ type
 
     class function FromJson<T>(AJSONValue: TJSONValue): T;overload;
     class function FromJson<T>(const AJSON: string): T;overload;
+    class function FromJson(AClassType: TClass; const AJSON: string): TObject;overload;
   end;
 
 implementation
@@ -294,6 +295,30 @@ begin
     else
       Result := TValue.Empty;
     end;
+  end;
+end;
+
+class function TDBXJsonUnmarshal.FromJson(AClassType: TClass; const AJSON: string): TObject;
+var
+  vJsonValue: TJSONValue;
+  vUnmarshal: TDBXJsonUnmarshal;
+begin
+  Result := nil;
+  vJsonValue := TJSONObject.ParseJSONValue(AJSON);
+  try
+    if vJsonValue = nil then
+    begin
+      raise EJsonInvalidSyntax.CreateFmt('Invalid json: "%s"', [AJSON]);
+    end;
+
+    vUnmarshal := TDBXJsonUnmarshal.Create;
+    try
+      Result := vUnmarshal.FromJson(AClassType.ClassInfo, vJsonValue).Cast(AClassType.ClassInfo).AsObject;
+    finally
+      vUnmarshal.Free;
+    end;
+    finally
+    vJsonValue.Free;
   end;
 end;
 

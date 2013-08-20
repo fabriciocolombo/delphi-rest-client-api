@@ -23,6 +23,10 @@ type
   EJsonInvalidValue = class(Exception);
   EJsonInvalidValueForField = class(Exception);
   EJsonInvalidSyntax = class(Exception);
+  ENoSerializableClass = class(Exception)
+  public
+    constructor Create(AClass: TClass);
+  end;
 
 function JavaToDelphiDateTime(const dt: int64): TDateTime;
 function DelphiToJavaDateTime(const dt: TDateTime): int64;
@@ -306,5 +310,12 @@ begin
   FName := AName;
 end;
 {$ENDIF}
+
+{ ENoSerializableClass }
+
+constructor ENoSerializableClass.Create(AClass: TClass);
+begin
+  inherited CreateFmt('Class "%s" has no RTTI (Run-time Type Information).', [AClass.ClassName]);
+end;
 
 end.
