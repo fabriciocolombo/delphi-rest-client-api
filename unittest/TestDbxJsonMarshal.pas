@@ -3,7 +3,7 @@
 interface
 
 uses TestFramework, DbxJsonMarshal, TypesToTest, RestJsonUtils,
-     Generics.Collections, SuperObject, Data.DbxJson, DBXJsonHelpers,
+     Generics.Collections, SuperObject, DbxJson, DBXJsonHelpers,
   DBXJsonUnMarshal;
 
 type
@@ -50,7 +50,7 @@ type
 
 implementation
 
-uses System.DateUtils, System.SysUtils;
+uses DateUtils, SysUtils;
 
 { TTestDbxJsonMarshal }
 

@@ -3,7 +3,7 @@
 interface
 
 uses TestFramework, DbxJsonUnMarshal, TypesToTest,
-     Generics.Collections, SuperObject, Data.DbxJson, DbxJsonUtils;
+     Generics.Collections, SuperObject, DbxJson, DbxJsonUtils;
 
 type
   TTestDbxJsonUnMarshal = class(TTestCase)
@@ -60,7 +60,7 @@ type
 
 implementation
 
-uses System.Math, System.SysUtils, System.DateUtils;
+uses Math, SysUtils, DateUtils, StrUtils;
 
 { TTestDbxJsonUnMarshal }
 
@@ -337,10 +337,10 @@ end;
 
 procedure TTestDbxJsonUnMarshal.valueString;
 begin
-  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : "marshal - 资"}');
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : "marshal - ç"}');
 
   CheckNotNull(FObject);
-  CheckEquals('marshal - 资', FObject.valueString);
+  CheckEquals('marshal - ç', FObject.valueString);
 end;
 
 procedure TTestDbxJsonUnMarshal.valueStringDefault;
@@ -439,7 +439,7 @@ begin
     vRoot.valueCurrency := 123456.78;
     vRoot.valueString := 'json object';
     vRoot.valueAnsiChar := 'F';
-    vRoot.valueChar := '资';
+    vRoot.valueChar := 'ç';
     vRoot.valueInt64 := 123456789;
     vRoot.valueSingle := 1234;
     vRoot.valueExtended := 123456789;

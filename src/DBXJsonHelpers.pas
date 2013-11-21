@@ -2,7 +2,9 @@ unit DBXJsonHelpers;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils;
+{$I DelphiRest.inc}
+
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils;
 
 type
   TJsonValueHelper = class helper for TJsonValue
@@ -22,12 +24,27 @@ type
     function AsJsonArray: TJSONArray;
   end;
 
+  {$IFDEF DELPHI_2010}
+  TJsonObjectHelper = class helper for TJsonObject
+  public
+    function Get(const PairName: UnicodeString): TJSONPair; overload;
+    class function ParseJSONValue(const Data: String): TJSONValue; overload; static;
+  end;
+
+  TJsonNumberHelper = class helper for TJsonNumber
+  public
+    function AsInt64: Int64;
+  end;
+  {$ENDIF}
+
   TRttiFieldHelper = class helper for TRttiField
   public
     function GetFieldName: string;
   end;
 
 implementation
+
+uses SysUtils;
 
 { TJsonValueHelper }
 
@@ -102,5 +119,48 @@ begin
 
   Result := Name;
 end;
+
+{$IFDEF DELPHI_2010}
+{ TJsonObjectHelper }
+
+function TJsonObjectHelper.Get(const PairName: UnicodeString): TJSONPair;
+var
+  Candidate: TJSONPair;
+  I: Integer;
+begin
+  for i := 0 to Size - 1 do
+  begin
+    Candidate := Get(i);
+    if (Candidate.JsonString.Value = PairName) then
+      Exit(Candidate);
+  end;
+  Result := nil;
+end;
+
+class function TJsonObjectHelper.ParseJSONValue(const Data: String): TJSONValue;
+
+  function Sanitize(AData: String): string;
+  begin
+    Result := AData;
+    Result := StringReplace(Result, '" : ', '":', [rfReplaceAll]);
+    Result := StringReplace(Result, '" :', '":', [rfReplaceAll]);
+  end;
+
+var
+  vJsonData: string;
+begin
+  vJsonData := Sanitize(Data);
+
+  Result := ParseJSONValue(TEncoding.Default.GetBytes(vJsonData), 0);
+end;
+
+{ TJsonNumberHelper }
+
+function TJsonNumberHelper.AsInt64: Int64;
+begin
+  Result := StrToInt64(ToString);
+end;
+
+{$ENDIF}
 
 end.

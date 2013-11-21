@@ -2,7 +2,7 @@ unit DBXJsonMarshal;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils, DBXJsonHelpers;
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers;
 
 type
   TDBXJsonMarshal = class
@@ -31,7 +31,7 @@ type
 
 implementation
 
-uses System.StrUtils;
+uses StrUtils;
 
 { TDBXJsonMarshal }
 

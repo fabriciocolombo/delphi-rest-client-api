@@ -1,0 +1,48 @@
+package D2010_RestApi;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl,
+  vcl,
+  dbrtl,
+  dsnap,
+  DbxCommonDriver;
+
+contains
+  RestClient in '..\..\src\RestClient.pas',
+  RestUtils in '..\..\src\RestUtils.pas',
+  superobject in '..\..\lib\superobject\superobject.pas',
+  superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
+  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
+  DataSetUtils in '..\..\src\DataSetUtils.pas',
+  HttpConnection in '..\..\src\HttpConnection.pas',
+  HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
+  RestRegister in '..\..\src\RestRegister.pas',
+  Wcrypt2 in '..\..\lib\Wcrypt2.pas';
+
+end.

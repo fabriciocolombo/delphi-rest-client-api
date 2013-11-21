@@ -63,7 +63,7 @@ var
   ctx: TSuperRttiContext;
   v: TValue;
 begin
-  Result := T(nil);
+  Result := Default(T);
   if text <> '' then
   begin
     ctx := TSuperRttiContext.Create;

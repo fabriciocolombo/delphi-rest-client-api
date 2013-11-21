@@ -2,12 +2,14 @@ unit DBXJsonUnMarshal;
 
 interface
 
-uses System.Rtti, System.TypInfo, Data.DBXJson, DbxJsonUtils, DBXJsonHelpers;
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers;
 
 type
   TDBXJsonUnmarshal = class
   private
     FContext: TRttiContext;
+
+    function GetPair(AJSONObject: TJSONObject;const APairName: UnicodeString): TJSONPair;
 
     function CreateInstance(ATypeInfo: PTypeInfo): TValue;
     function IsList(ATypeInfo: PTypeInfo): Boolean;
@@ -37,7 +39,7 @@ type
 
 implementation
 
-uses System.SysUtils, System.StrUtils;
+uses SysUtils, StrUtils;
 
 { TDBXJsonUnmarshal }
 
@@ -101,7 +103,7 @@ begin
       begin
         if f.FieldType <> nil then
         begin
-          vFieldPair := AJSONValue.AsJsonObject.Get(f.GetFieldName);
+          vFieldPair := GetPair(AJSONValue.AsJsonObject, f.GetFieldName);
 
           vJsonValue := GetFieldDefault(f, vFieldPair, vOwnedJsonValue);
 
@@ -356,13 +358,16 @@ var
   method: TRttiMethod;
   vJsonValue: TJSONValue;
   vItem: TValue;
+  i: Integer;
 begin
   Result := CreateInstance(ATypeInfo);
 
   method := FContext.GetType(ATypeInfo).GetMethod('Add');
 
-  for vJsonValue in AJSONValue.AsJsonArray do
+  for i := 0 to AJSONValue.AsJsonArray.Size - 1 do
   begin
+    vJsonValue := AJSONValue.AsJsonArray.Get(i);
+
     vItem := FromJson(GetParameterizedType(ATypeInfo).Handle, vJsonValue);
 
     if not vItem.IsEmpty then
@@ -428,7 +433,7 @@ begin
       if attr is JsonDefault then
       begin
         AOwned := True;
-        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name));
+        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name);
       end;
     end;
   end;
@@ -437,6 +442,25 @@ begin
 
   if Assigned(AJsonPair) then
     Result := AJsonPair.JsonValue;
+end;
+
+function TDBXJsonUnmarshal.GetPair(AJSONObject: TJSONObject;const APairName: UnicodeString): TJSONPair;
+{$IFDEF DELPHI_XE_UP}
+begin
+  Result := AJSONObject.Get(APairName);
+{$ELSE}
+var
+  Candidate: TJSONPair;
+  I: Integer;
+begin
+  for i := 0 to AJSONObject.Size - 1 do
+  begin
+    Candidate := AJSONObject.Get(i);
+    if (Candidate.JsonString.Value = APairName) then
+      Exit(Candidate);
+  end;
+  Result := nil;
+{$ENDIF}
 end;
 
 function TDBXJsonUnmarshal.GetParameterizedType(ATypeInfo: PTypeInfo): TRttiType;

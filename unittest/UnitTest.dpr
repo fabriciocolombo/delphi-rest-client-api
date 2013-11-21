@@ -11,11 +11,7 @@ program UnitTest;
 *)
 
 uses
-  {$IFDEF DELPHI_7}
-  FastMM4,
-  {$ENDIF}
   Forms,
-  TestFramework,
   GUITestRunner,
   TextTestRunner,
   SysUtils,
@@ -37,7 +33,9 @@ uses
   OldRttiMarshal in '..\src\OldRttiMarshal.pas',
   TestOldRttiUnmarshal in 'TestOldRttiUnmarshal.pas',
   OldRttiUnMarshal in '..\src\OldRttiUnMarshal.pas',
-  JsonListAdapter in '..\src\JsonListAdapter.pas';
+  JsonListAdapter in '..\src\JsonListAdapter.pas',
+  TestDbxJsonUnMarshal in 'TestDbxJsonUnMarshal.pas',
+  DbxJsonUnMarshal in '..\src\DbxJsonUnMarshal.pas';
 
 {$R *.RES}
 

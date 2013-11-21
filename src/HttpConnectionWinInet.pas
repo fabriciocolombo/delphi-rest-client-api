@@ -7,7 +7,7 @@ interface
 
 uses HttpConnection, Classes, SysUtils, Variants, ActiveX, AxCtrls, Wcrypt2;
 
-{$IFDEF DELPHI_7}
+{$IFNDEF DELPHI_XE_UP}
 const
   INTERNET_OPTION_FROM_CACHE_TIMEOUT          = 63;
   {$EXTERNALSYM INTERNET_OPTION_FROM_CACHE_TIMEOUT}
