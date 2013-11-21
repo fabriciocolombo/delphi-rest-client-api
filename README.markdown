@@ -5,14 +5,14 @@ A Delphi REST client API to consume REST services written in any programming lan
 
 The API was tested in Delphi 7, XE, XE2, XE3 and XE4. It is also compatible with Mac OSX and iOS.
 
-Connection Layer
----
+## Connection Layer
+
 There are a IHttpConnection interface to abstract the real Http conection. This interface currently have two implementations, using  [Indy 10](http://www.indyproject.org/index.en.aspx), [WinHTTP](http://msdn.microsoft.com/en-us/library/windows/desktop/aa382925.aspx) and [WinInet](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383630.aspx).
 
 Indy 9 does not handles HTTP response codes correctly, then if you are using Delphi 7, you must update your indy library to version 10 or use WinHttp (recommended). To disable indy support comment the compiler directive ``{.$DEFINE USE_INDY}`` in ``DelphiRest.inc`` file.
 
-Serialization/Desserialization
---	
+## Serialization/Desserialization
+
 The objects are transmitted in JSON format. To function properly, the object must be declared as follows, with public fields.
      
     TPerson = class(TObject)
@@ -28,8 +28,7 @@ The objects are transmitted in JSON format. To function properly, the object mus
 
 See more details about serialization here: [Serialization](https://github.com/fabriciocolombo/delphi-rest-client-api/wiki/Serialization)
 
-Samples
-----------------
+## Samples
 
  - **GET**
                 
@@ -120,11 +119,15 @@ Samples
             vDataSet.Free;
           end;
 				 
-Java Rest Server
-----------------
+## Java Rest Server
 	
 The java project is only for test purpose and has built using [Maven](http://maven.apache.org) and [Jersey](http://jersey.java.net), so it's needed have installed the JRE 6+ (Java Runtime Environment) and Maven 2 to build and run the application. The Maven bin directory must be included in Windows Path environment variable.
 
 After install Java and Maven just run 'start-java-server.bat' to start the application and 'stop-java-server.bat' to shut down them.
 	
 When 'start-java-server.bat' is first run maven dependencies will be downloaded, and it may take a while.
+
+## License
+The Delphi REST client API is released under version 2.0 of the [Apache License][].
+
+[Apache License]: http://www.apache.org/licenses/LICENSE-2.0
