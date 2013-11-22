@@ -50,6 +50,7 @@ type
     procedure valueEnumFromName;
     procedure valueSet;
     procedure valueSetFromString;
+    procedure WhiteSpaces;
   end;
 
   TTestDbxJsonUnMarshalCompatibility = class(TTestCase)
@@ -405,6 +406,21 @@ begin
       CheckTrue(E is EJsonInvalidValueForField);
     end;
   end;
+end;
+
+procedure TTestDbxJsonUnMarshal.WhiteSpaces;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueInteger" : 123456}');
+  CheckNotNull(FObject, 'Both');
+  FreeAndNil(FObject);
+
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueInteger": 123456}');
+  CheckNotNull(FObject, 'Right');
+  FreeAndNil(FObject);
+
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueInteger" :123456}');
+  CheckNotNull(FObject, 'Left');
+  FreeAndNil(FObject);
 end;
 
 { TTestDbxJsonUnMarshalCompatibility }

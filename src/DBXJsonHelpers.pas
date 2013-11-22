@@ -142,8 +142,8 @@ class function TJsonObjectHelper.ParseJSONValue(const Data: String): TJSONValue;
   function Sanitize(AData: String): string;
   begin
     Result := AData;
-    Result := StringReplace(Result, '" : ', '":', [rfReplaceAll]);
     Result := StringReplace(Result, '" :', '":', [rfReplaceAll]);
+    Result := StringReplace(Result, '": ', '":', [rfReplaceAll]);
   end;
 
 var
