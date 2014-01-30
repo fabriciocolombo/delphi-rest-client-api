@@ -24,7 +24,7 @@ type
     function AsJsonArray: TJSONArray;
   end;
 
-  {$IFDEF DELPHI_2010}
+  {$IF defined(DELPHI_2010) or defined(DELPHI_XE)}
   TJsonObjectHelper = class helper for TJsonObject
   public
     function Get(const PairName: UnicodeString): TJSONPair; overload;
@@ -35,7 +35,7 @@ type
   public
     function AsInt64: Int64;
   end;
-  {$ENDIF}
+  {$IFEND}
 
   TRttiFieldHelper = class helper for TRttiField
   public
@@ -120,7 +120,7 @@ begin
   Result := Name;
 end;
 
-{$IFDEF DELPHI_2010}
+{$IF defined(DELPHI_2010) or defined(DELPHI_XE) }
 { TJsonObjectHelper }
 
 function TJsonObjectHelper.Get(const PairName: UnicodeString): TJSONPair;
@@ -142,8 +142,8 @@ class function TJsonObjectHelper.ParseJSONValue(const Data: String): TJSONValue;
   function Sanitize(AData: String): string;
   begin
     Result := AData;
-    Result := StringReplace(Result, '" :', '":', [rfReplaceAll]);
-    Result := StringReplace(Result, '": ', '":', [rfReplaceAll]);
+    //Result := StringReplace(Result, '" : ', '":', [rfReplaceAll]);
+   // Result := StringReplace(Result, '": ', '":', [rfReplaceAll]);
   end;
 
 var
@@ -161,6 +161,6 @@ begin
   Result := StrToInt64(ToString);
 end;
 
-{$ENDIF}
+{$IFEND}
 
 end.
