@@ -24,7 +24,7 @@ type
     function AsJsonArray: TJSONArray;
   end;
 
-  {$IFDEF DELPHI_2010}
+  {$IFDEF DELPHI_2010_UP}
   TJsonObjectHelper = class helper for TJsonObject
   public
     function Get(const PairName: UnicodeString): TJSONPair; overload;
@@ -120,7 +120,7 @@ begin
   Result := Name;
 end;
 
-{$IFDEF DELPHI_2010}
+{$IFDEF DELPHI_2010_UP}
 { TJsonObjectHelper }
 
 function TJsonObjectHelper.Get(const PairName: UnicodeString): TJSONPair;
