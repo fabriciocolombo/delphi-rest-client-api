@@ -31,3 +31,4 @@ __history
 bin/*
 *.hpp
 *.rsm
+/src/*.~inc
