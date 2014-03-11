@@ -45,6 +45,8 @@ procedure THttpConnectionWinHttp.Configure;
 var
   i: Integer;
 begin
+  FWinHttpRequest.SetTimeouts(0, 60000, 300000, 300000);
+
   if FAcceptTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept', FAcceptTypes);
 
