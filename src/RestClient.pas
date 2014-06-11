@@ -609,8 +609,10 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    result := T(nil);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
@@ -621,7 +623,8 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -632,7 +635,8 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 
 function TResource.Patch<T>(Entity: TObject): T;
@@ -643,7 +647,8 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse);
 end;
 {$ELSE}
 function TResource.Get(AListClass, AItemClass: TClass): TObject;
@@ -659,42 +664,36 @@ function TResource.Post(Adapter: IJsonListAdapter): TObject;
 var
   vResponse: string;
 begin
-  if Adapter = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Adapter.UnWrapList);
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
 end;
 
 function TResource.Put(Adapter: IJsonListAdapter): TObject;
 var
   vResponse: string;
 begin
-  if Adapter = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Adapter.UnWrapList);
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-
-  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
 end;
 
 function TResource.Patch(Adapter: IJsonListAdapter): TObject;
 var
   vResponse: string;
 begin
-  if Adapter = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Adapter.UnWrapList);
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
 
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
-
-  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
 end;
 {$ENDIF}
 
@@ -752,28 +751,23 @@ function TResource.Post(Entity: TObject): TObject;
 var
   vResponse: string;
 begin
-  if Entity = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Entity);
-
+  if Entity <> nil then
+    SetContent(Entity);
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
 end;
 
 function TResource.Put(Entity: TObject): TObject;
 var
   vResponse: string;
 begin
-  if Entity = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-
-  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
 end;
 
 function TResource.Patch(Content: TStream): String;
@@ -796,14 +790,12 @@ function TResource.Patch(Entity: TObject): TObject;
 var
   vResponse: string;
 begin
-  if Entity = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
-
-  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
 end;
 
 function TResource.Patch(Content: string): string;
