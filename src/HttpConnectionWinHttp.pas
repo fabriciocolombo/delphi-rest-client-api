@@ -17,6 +17,9 @@ type
 
     procedure CopyResourceStreamToStream(AResponse: TStream);
   public
+    OnConnectionLost: THTTPConnectionLostEvent;
+    OnError: THTTPErrorEvent;
+
     constructor Create;
     destructor Destroy; override;
 
@@ -34,6 +37,12 @@ type
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
   end;
 
 implementation
@@ -116,6 +125,16 @@ begin
   Result := False;
 end;
 
+function THttpConnectionWinHttp.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := OnConnectionLost;
+end;
+
+function THttpConnectionWinHttp.GetOnError: THTTPErrorEvent;
+begin
+  result := OnError;
+end;
+
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
@@ -184,6 +203,17 @@ begin
   FHeaders.Assign(AHeaders);
 
   Result := Self;
+end;
+
+procedure THttpConnectionWinHttp.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure THttpConnectionWinHttp.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  OnError := AErrorEvent;
 end;
 
 end.

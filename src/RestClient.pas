@@ -76,6 +76,13 @@ type
     procedure SetEnabledCompression(const Value: Boolean);
 
     function DoCustomCreateConnection: IHttpConnection;
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+
   protected
     procedure Loaded; override;
   public
@@ -87,6 +94,9 @@ type
     function Resource(URL: String): TResource;
 
     function UnWrapConnection: IHttpConnection;
+
+    property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
+    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
@@ -228,6 +238,7 @@ var
   vResponse: TStringStream;
   vUrl: String;
   vResponseString: string;
+  vRetryMode: THTTPRetryMode;
 begin
   CheckConnection;
 
@@ -269,12 +280,22 @@ begin
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
-    if FHttpConnection.ResponseCode >= 400 then
-      raise EHTTPError.Create(
-        format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
-        Result,
-        FHttpConnection.ResponseCode
-      );
+    if (FHttpConnection.ResponseCode >= 400) and
+       (FHttpConnection.ResponseCode <> 404) then
+    begin
+      vRetryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+
+      if vRetryMode = hrmRaise then
+        raise EHTTPError.Create(
+          format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+          Result,
+          FHttpConnection.ResponseCode
+        )
+      else if vRetryMode = hrmReconnectExecute then
+        result := DoRequest(Method, ResourceRequest, AHandler);
+    end;
   finally
     vResponse.Free;
     FResources.Remove(ResourceRequest);
@@ -295,6 +316,16 @@ begin
   FTempHandler := nil;
 end;
 {$ENDIF}
+
+function TRestClient.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := FHttpConnection.OnConnectionLost;
+end;
+
+function TRestClient.GetOnError: THTTPErrorEvent;
+begin
+  result := FHttpConnection.OnError;
+end;
 
 function TRestClient.GetResponseCode: Integer;
 begin
@@ -360,6 +391,17 @@ begin
       FHttpConnection.EnabledCompression := FEnabledCompression;
     end;
   end;
+end;
+
+procedure TRestClient.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  FHttpConnection.OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure TRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  FHttpConnection.OnError := AErrorEvent;
 end;
 
 function TRestClient.UnWrapConnection: IHttpConnection;

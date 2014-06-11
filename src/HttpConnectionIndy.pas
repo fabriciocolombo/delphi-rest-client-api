@@ -3,7 +3,7 @@ unit HttpConnectionIndy;
 interface
 
 uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
-     IdSSLOpenSSL;
+     IdSSLOpenSSL, IdStack;
 
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
@@ -16,6 +16,10 @@ type
     FIdHttp: TIdHTTP;
     FEnabledCompression: Boolean;
   public
+
+    OnConnectionLost: THTTPConnectionLostEvent;
+    OnError: THTTPErrorEvent;
+
     constructor Create;
     destructor Destroy; override;
 
@@ -33,6 +37,12 @@ type
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
   end;
 
 implementation
@@ -48,10 +58,37 @@ begin
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
+var
+  retryMode: THTTPRetryMode;
 begin
-  FIdHttp.Request.Source := AContent;
-
-  FIdHttp.Delete(AUrl);
+  try
+    FIdHttp.Request.Source := AContent;
+    FIdHttp.Delete(AUrl);
+  except
+    on E: EIdHTTPProtocolException do
+    begin
+      if E.ErrorCode = 404 then
+        exit;
+      retryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
+      if retryMode = hrmRaise then
+        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
+      else if retryMode = hrmReconnectExecute then
+        Delete(AUrl, AContent);
+    end;
+    on E: EIdSocketError do
+    begin
+      FIdHttp.Disconnect(false);
+      retryMode := hrmRaise;
+      if assigned(OnConnectionLost) then
+        OnConnectionLost(e, retryMode);
+      if retryMode = hrmRaise then
+        raise
+      else if retryMode = hrmReconnectExecute then
+        Delete(AUrl, AContent);
+    end;
+  end;
 end;
 
 destructor THttpConnectionIndy.Destroy;
@@ -61,12 +98,35 @@ begin
 end;
 
 procedure THttpConnectionIndy.Get(AUrl: string; AResponse: TStream);
+var
+  retryMode: THTTPRetryMode;
 begin
   try
     FIdHttp.Get(AUrl, AResponse);
   except
     on E: EIdHTTPProtocolException do
-      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+    begin
+      if E.ErrorCode = 404 then
+        exit;
+      retryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
+      if retryMode = hrmRaise then
+        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
+      else if retryMode = hrmReconnectExecute then
+        Get(AUrl, AResponse);
+    end;
+    on E: EIdSocketError do
+    begin
+      FIdHttp.Disconnect(false);
+      retryMode := hrmRaise;
+      if assigned(OnConnectionLost) then
+        OnConnectionLost(e, retryMode);
+      if retryMode = hrmRaise then
+        raise
+      else if retryMode = hrmReconnectExecute then
+        Get(AUrl, AResponse);
+    end;
   end;
 end;
 
@@ -75,28 +135,84 @@ begin
   Result := FEnabledCompression;
 end;
 
+function THttpConnectionIndy.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := OnConnectionLost;
+end;
+
+function THttpConnectionIndy.GetOnError: THTTPErrorEvent;
+begin
+  result := OnError;
+end;
+
 function THttpConnectionIndy.GetResponseCode: Integer;
 begin
   Result := FIdHttp.ResponseCode;
 end;
 
 procedure THttpConnectionIndy.Post(AUrl: string; AContent, AResponse: TStream);
+var
+  retryMode: THTTPRetryMode;
 begin
   try
     FIdHttp.Post(AUrl, AContent, AResponse);
   except
     on E: EIdHTTPProtocolException do
-      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+    begin
+      if E.ErrorCode = 404 then
+        exit;
+      retryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
+      if retryMode = hrmRaise then
+        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
+      else if retryMode = hrmReconnectExecute then
+        Post(AUrl, AContent, AResponse);
+    end;
+    on E: EIdSocketError do
+    begin
+      FIdHttp.Disconnect(false);
+      retryMode := hrmRaise;
+      if assigned(OnConnectionLost) then
+        OnConnectionLost(e, retryMode);
+      if retryMode = hrmRaise then
+        raise
+      else if retryMode = hrmReconnectExecute then
+        Post(AUrl, AContent, AResponse);
+    end;
   end;
 end;
 
 procedure THttpConnectionIndy.Put(AUrl: string; AContent, AResponse: TStream);
+var
+  retryMode: THTTPRetryMode;
 begin
   try
     FIdHttp.Put(AUrl, AContent, AResponse);
   except
     on E: EIdHTTPProtocolException do
-      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
+    begin
+      if E.ErrorCode = 404 then
+        exit;
+      retryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
+      if retryMode = hrmRaise then
+        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
+      else if retryMode = hrmReconnectExecute then
+        Put(AUrl, AContent, AResponse);
+    end;
+    on E: EIdSocketError do
+    begin
+      FIdHttp.Disconnect(false);
+      retryMode := hrmRaise;
+      if assigned(OnConnectionLost) then
+        OnConnectionLost(e, retryMode);
+      if retryMode = hrmRaise then
+        raise
+      else if retryMode = hrmReconnectExecute then
+        Put(AUrl, AContent, AResponse);
+    end;
   end;
 end;
 
@@ -144,6 +260,17 @@ begin
   FIdHttp.Request.CustomHeaders.Clear;
   FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
   Result := Self;
+end;
+
+procedure THttpConnectionIndy.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  OnError := AErrorEvent;
 end;
 
 { TIdHTTP }

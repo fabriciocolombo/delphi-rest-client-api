@@ -17,6 +17,11 @@ type
       property ErrorCode: integer read FErrorCode;
   end;
 
+  THTTPRetryMode = (hrmRaise, hrmReconnect, hrmReconnectExecute);
+
+  THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
+  THTTPErrorEvent = procedure(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode) of object;
+
   IHttpConnection = interface
   ['{B9611100-5243-4874-A777-D91448517116}']
     function SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
@@ -36,6 +41,14 @@ type
 
     property ResponseCode: Integer read GetResponseCode;
     property EnabledCompression: Boolean read GetEnabledCompression write SetEnabledCompression;
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+    property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
+    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   end;
 
 implementation

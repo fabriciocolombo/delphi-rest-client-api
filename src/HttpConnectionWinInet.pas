@@ -111,6 +111,9 @@ type
   protected
     procedure DoRequest(sMethod,AUrl: string; AContent: TStream; AResponse: TStream);virtual;
   public
+    OnConnectionLost: THTTPConnectionLostEvent;
+    OnError: THTTPErrorEvent;
+
     constructor Create(ARaiseExceptionOnError: Boolean = True);
     destructor Destroy; override;
 
@@ -128,6 +131,12 @@ type
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -206,6 +215,16 @@ begin
   Result := False;
 end;
 
+function THttpConnectionWinInet.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := OnConnectionLost;
+end;
+
+function THttpConnectionWinInet.GetOnError: THTTPErrorEvent;
+begin
+  result := OnError;
+end;
+
 function THttpConnectionWinInet.GetResponseCode: Integer;
 begin
   Result := FResponseCode;
@@ -252,6 +271,17 @@ begin
   FHeaders.Assign(AHeaders);
 
   Result := Self;
+end;
+
+procedure THttpConnectionWinInet.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure THttpConnectionWinInet.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  OnError := AErrorEvent;
 end;
 
 procedure THttpConnectionWinInet.DoRequest(sMethod, AUrl: string; AContent,
