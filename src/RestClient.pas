@@ -302,7 +302,7 @@ begin
           Result,
           FHttpConnection.ResponseCode
         )
-      else if vRetryMode = hrmReconnectExecute then
+      else if vRetryMode = hrmRetry then
         result := DoRequest(Method, ResourceRequest, AHandler);
     end;
   finally

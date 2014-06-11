@@ -76,7 +76,7 @@ begin
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
       if retryMode = hrmRaise then
         raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Delete(AUrl, AContent);
     end;
     on E: EIdSocketError do
@@ -87,7 +87,7 @@ begin
         OnConnectionLost(e, retryMode);
       if retryMode = hrmRaise then
         raise
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Delete(AUrl, AContent);
     end;
   end;
@@ -115,7 +115,7 @@ begin
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
       if retryMode = hrmRaise then
         raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Get(AUrl, AResponse);
     end;
     on E: EIdSocketError do
@@ -126,7 +126,7 @@ begin
         OnConnectionLost(e, retryMode);
       if retryMode = hrmRaise then
         raise
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Get(AUrl, AResponse);
     end;
   end;
@@ -168,7 +168,7 @@ begin
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
       if retryMode = hrmRaise then
         raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Patch(AUrl, AContent, AResponse);
     end;
     on E: EIdSocketError do
@@ -179,7 +179,7 @@ begin
         OnConnectionLost(e, retryMode);
       if retryMode = hrmRaise then
         raise
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Patch(AUrl, AContent, AResponse);
     end;
   end;
@@ -201,7 +201,7 @@ begin
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
       if retryMode = hrmRaise then
         raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Post(AUrl, AContent, AResponse);
     end;
     on E: EIdSocketError do
@@ -212,7 +212,7 @@ begin
         OnConnectionLost(e, retryMode);
       if retryMode = hrmRaise then
         raise
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Post(AUrl, AContent, AResponse);
     end;
   end;
@@ -234,7 +234,7 @@ begin
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
       if retryMode = hrmRaise then
         raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Put(AUrl, AContent, AResponse);
     end;
     on E: EIdSocketError do
@@ -245,7 +245,7 @@ begin
         OnConnectionLost(e, retryMode);
       if retryMode = hrmRaise then
         raise
-      else if retryMode = hrmReconnectExecute then
+      else if retryMode = hrmRetry then
         Put(AUrl, AContent, AResponse);
     end;
   end;
