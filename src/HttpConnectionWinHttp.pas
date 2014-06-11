@@ -31,6 +31,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
+    procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
@@ -138,6 +139,23 @@ end;
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
+end;
+
+procedure THttpConnectionWinHttp.Patch(AUrl: string; AContent,
+  AResponse: TStream);
+var
+  vAdapter: IStream;
+begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
+  FWinHttpRequest.Open('PATCH', AUrl, false);
+
+  Configure;
+
+  vAdapter := TStreamAdapter.Create(AContent, soReference);
+
+  FWinHttpRequest.Send(vAdapter);
+
+  CopyResourceStreamToStream(AResponse);
 end;
 
 procedure THttpConnectionWinHttp.Post(AUrl: string; AContent, AResponse: TStream);

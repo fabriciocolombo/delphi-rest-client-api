@@ -125,6 +125,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
+    procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
@@ -228,6 +229,12 @@ end;
 function THttpConnectionWinInet.GetResponseCode: Integer;
 begin
   Result := FResponseCode;
+end;
+
+procedure THttpConnectionWinInet.Patch(AUrl: string; AContent,
+  AResponse: TStream);
+begin
+  DoRequest('PATCH', AUrl, AContent,AResponse);
 end;
 
 procedure THttpConnectionWinInet.Post(AUrl: string; AContent, AResponse: TStream);

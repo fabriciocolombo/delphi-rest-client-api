@@ -32,6 +32,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent, AResponse: TStream);
     procedure Put(AUrl: string; AContent, AResponse: TStream);
+    procedure Patch(AUrl: string; AContent, AResponse: TStream);
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;

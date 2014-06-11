@@ -9,6 +9,7 @@ type
   TIdHTTP = class(idHTTP.TIdHTTP)
   public
     procedure Delete(AURL: string);
+    procedure Patch(AURL: string; ASource, AResponseContent: TStream);
   end;
 
   THttpConnectionIndy = class(TInterfacedObject, IHttpConnection)
@@ -31,6 +32,7 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
+    procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
@@ -148,6 +150,39 @@ end;
 function THttpConnectionIndy.GetResponseCode: Integer;
 begin
   Result := FIdHttp.ResponseCode;
+end;
+
+procedure THttpConnectionIndy.Patch(AUrl: string; AContent, AResponse: TStream);
+var
+  retryMode: THTTPRetryMode;
+begin
+  try
+    FIdHttp.Patch(AUrl, AContent, AResponse);
+  except
+    on E: EIdHTTPProtocolException do
+    begin
+      if E.ErrorCode = 404 then
+        exit;
+      retryMode := hrmRaise;
+      if assigned(OnError) then
+        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
+      if retryMode = hrmRaise then
+        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
+      else if retryMode = hrmReconnectExecute then
+        Patch(AUrl, AContent, AResponse);
+    end;
+    on E: EIdSocketError do
+    begin
+      FIdHttp.Disconnect(false);
+      retryMode := hrmRaise;
+      if assigned(OnConnectionLost) then
+        OnConnectionLost(e, retryMode);
+      if retryMode = hrmRaise then
+        raise
+      else if retryMode = hrmReconnectExecute then
+        Patch(AUrl, AContent, AResponse);
+    end;
+  end;
 end;
 
 procedure THttpConnectionIndy.Post(AUrl: string; AContent, AResponse: TStream);
@@ -283,6 +318,11 @@ begin
     on E: EIdHTTPProtocolException do
       raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
   end;
+end;
+
+procedure TIdHTTP.Patch(AURL: string; ASource, AResponseContent: TStream);
+begin
+  DoRequest('PATCH', AURL, ASource, AResponseContent, []);
 end;
 
 end.
