@@ -2454,7 +2454,11 @@ end;
 
 function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 begin
-  Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(TValueData(value).FAsDouble));
+  {IFDEF ISO8601}
+    Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(TValueData(value).FAsDouble));
+  {ELSE}
+    Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
+  {IFEND}
 end;
 
 function serialtoguid(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
@@ -7128,36 +7132,36 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stString:
       begin
-        GetLocaleFormatSettings(GetSystemDefaultLCID, fmtSettings);
-        fmtSettings.DateSeparator := '-';
-        fmtSettings.TimeSeparator := ':';
-        fmtSettings.ShortDateFormat := 'yyyy-mm-dd';
-        fmtSettings.LongDateFormat := 'yyyy-mm-dd';
-        fmtSettings.ShortTimeFormat := 'hh:nn:ss';
-        fmtSettings.LongTimeFormat := 'hh:nn:ss';
-        if TypeInfo.name = 'TDate' then
-        begin
-          value := TValue.from<TDate>(StrToDate(obj.AsString, fmtSettings));
-          result := true;
-        end
-        else if TypeInfo.name = 'TTime' then
-        begin
-          value := TValue.from<TTime>(StrToTime(obj.AsString, fmtSettings));
-          result := true;
-        end
-        else if TypeInfo.name = 'TDateTime' then
-        begin
-          ISO8601DateToDelphiDateTime(SOString(obj.AsString), dt);
-          value := TValue.From<TDateTime>(dt);
-          result := true;
-        end
-        else
-        begin
-          o := SO(obj.AsString);
-          if not ObjectIsType(o, stString) then
-            FromFloat(o) else
-            Result := False;
-        end;
+        {$IFDEF ISO8601}
+          fmtSettings.DateSeparator := '-';
+          fmtSettings.TimeSeparator := ':';
+          fmtSettings.ShortDateFormat := 'yyyy-mm-dd';
+          fmtSettings.LongDateFormat := 'yyyy-mm-dd';
+          fmtSettings.ShortTimeFormat := 'hh:nn:ss';
+          fmtSettings.LongTimeFormat := 'hh:nn:ss';
+          if TypeInfo.name = 'TDate' then
+          begin
+            value := TValue.from<TDate>(StrToDate(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TTime' then
+          begin
+            value := TValue.from<TTime>(StrToTime(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TDateTime' then
+          begin
+            ISO8601DateToDelphiDateTime(SOString(obj.AsString), dt);
+            value := TValue.From<TDateTime>(dt);
+            result := true;
+          end;
+          if result then
+            exit;
+        {$ENDIF}
+        o := SO(obj.AsString);
+        if not ObjectIsType(o, stString) then
+          FromFloat(o) else
+          Result := False;
       end
     else
        Result := False;
@@ -7525,14 +7529,16 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
   procedure ToFloat;
   begin
     result := nil;
-    if value.TypeInfo.Name = 'TTime' then
-      result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
-    else if value.TypeInfo.Name = 'TDate' then
-      result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 1, 10)) // 2013-12-17
-    else if value.TypeInfo.Name = 'TDateTime' then
-      result := TSuperObject.create(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble));
-    if assigned(result) then
-      exit;
+    {$IFDEF ISO8601}
+      if value.TypeInfo.Name = 'TTime' then
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
+      else if value.TypeInfo.Name = 'TDate' then
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 1, 10)) // 2013-12-17
+      else if value.TypeInfo.Name = 'TDateTime' then
+        result := TSuperObject.create(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble));
+      if assigned(result) then
+        exit;
+    {$ENDIF}
     case Value.TypeData.FloatType of
       ftSingle: Result := TSuperObject.Create(TValueData(Value).FAsSingle);
       ftDouble: Result := TSuperObject.Create(TValueData(Value).FAsDouble);

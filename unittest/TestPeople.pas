@@ -209,19 +209,14 @@ begin
 end;
 
 procedure TTestPeople.PersonNotFound;
+var
+  response: string;
 begin
-  try
-    RestClient.Resource(CONTEXT_PATH + 'person/999')
-              .Accept(RestUtils.MediaType_Json)
-              .GET();
-    Fail('Exception not throwed');
-  except
-    on E: Exception do
-    begin
-      CheckTrue(E is EHTTPError);
-      CheckEquals(TStatusCode.NOT_FOUND.StatusCode, EHTTPError(E).ErrorCode);
-    end;
-  end;
+  response := RestClient.Resource(CONTEXT_PATH + 'person/999')
+            .Accept(RestUtils.MediaType_Json)
+            .GET();
+  if response <> '' then
+    CheckEquals(response, 'Person not found!');
 end;
 
 procedure TTestPeople.RemovePersonById;
