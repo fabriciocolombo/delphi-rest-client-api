@@ -433,7 +433,7 @@ begin
       if attr is JsonDefault then
       begin
         AOwned := True;
-        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name);
+        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name));
       end;
     end;
   end;
