@@ -2454,11 +2454,11 @@ end;
 
 function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 begin
-  {IFDEF ISO8601}
+  {$IFDEF ISO8601}
     Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(TValueData(value).FAsDouble));
-  {ELSE}
+  {$ELSE}
     Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
-  {IFEND}
+  {$IFEND}
 end;
 
 function serialtoguid(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
