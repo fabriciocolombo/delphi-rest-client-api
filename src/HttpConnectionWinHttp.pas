@@ -17,6 +17,9 @@ type
 
     procedure CopyResourceStreamToStream(AResponse: TStream);
   public
+    OnConnectionLost: THTTPConnectionLostEvent;
+    OnError: THTTPErrorEvent;
+
     constructor Create;
     destructor Destroy; override;
 
@@ -28,12 +31,19 @@ type
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
+    procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
   end;
 
 implementation
@@ -116,9 +126,36 @@ begin
   Result := False;
 end;
 
+function THttpConnectionWinHttp.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := OnConnectionLost;
+end;
+
+function THttpConnectionWinHttp.GetOnError: THTTPErrorEvent;
+begin
+  result := OnError;
+end;
+
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
+end;
+
+procedure THttpConnectionWinHttp.Patch(AUrl: string; AContent,
+  AResponse: TStream);
+var
+  vAdapter: IStream;
+begin
+  FWinHttpRequest := CoWinHttpRequest.Create;
+  FWinHttpRequest.Open('PATCH', AUrl, false);
+
+  Configure;
+
+  vAdapter := TStreamAdapter.Create(AContent, soReference);
+
+  FWinHttpRequest.Send(vAdapter);
+
+  CopyResourceStreamToStream(AResponse);
 end;
 
 procedure THttpConnectionWinHttp.Post(AUrl: string; AContent, AResponse: TStream);
@@ -184,6 +221,17 @@ begin
   FHeaders.Assign(AHeaders);
 
   Result := Self;
+end;
+
+procedure THttpConnectionWinHttp.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure THttpConnectionWinHttp.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  OnError := AErrorEvent;
 end;
 
 end.

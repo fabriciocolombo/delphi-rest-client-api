@@ -108,7 +108,7 @@ unit superobject;
 
 interface
 uses
-  Classes, DateUtils
+  Classes
 {$IFDEF HAVE_RTTI}
   ,Generics.Collections, RTTI, TypInfo
 {$ENDIF}
@@ -800,7 +800,7 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     function FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject; var Value: TValue): Boolean; virtual;
-    function ToJson(var value: TValue; const index: ISuperObject): ISuperObject; virtual;
+    function ToJson(var value: TValue; const index: ISuperObject; _listCount: integer=-1): ISuperObject; virtual;
     function AsType<T>(const obj: ISuperObject): T;
     function AsJson<T>(const obj: T; const index: ISuperObject = nil): ISuperObject;
   end;
@@ -1980,16 +1980,23 @@ var
   sign: SOChar;
   bias: Integer;
 begin
-  DecodeDate(dt, year, month, day);
-  DecodeTime(dt, hour, min, sec, msec);
-  bias := GetTimeBias;
-  tzh := Abs(bias) div 60;
-  tzm := Abs(bias) - tzh * 60;
-  if Bias > 0 then
-    sign := '-' else
-    sign := '+';
-  Result := Format('%.4d-%.2d-%.2dT%.2d:%.2d:%.2d,%d%s%.2d:%.2d',
-    [year, month, day, hour, min, sec, msec, sign, tzh, tzm]);
+  try
+    DecodeDate(dt, year, month, day);
+    DecodeTime(dt, hour, min, sec, msec);
+    bias := GetTimeBias;
+    tzh := Abs(bias) div 60;
+    tzm := Abs(bias) - tzh * 60;
+    if Bias > 0 then
+      sign := '-' else
+      sign := '+';
+    Result := Format('%.4d-%.2d-%.2dT%.2d:%.2d:%.2d.%d%s%.2d:%.2d',
+      [year, month, day, hour, min, sec, msec, sign, tzh, tzm]);
+  except
+    if dt = 0 then
+      raise
+    else
+      DelphiDateTimeToISO8601Date(0);
+  end;
 end;
 
 function TryObjectToDate(const obj: ISuperObject; var dt: TDateTime): Boolean;
@@ -2010,6 +2017,10 @@ begin
         Result := True;
       end else
         Result := TryStrToDateTime(obj.AsString, dt);
+    end;
+  stNull:
+    begin
+      Result := True;
     end;
   else
     Result := False;
@@ -2443,7 +2454,11 @@ end;
 
 function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 begin
-  Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
+  {$IFDEF ISO8601}
+    Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(TValueData(value).FAsDouble));
+  {$ELSE}
+    Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
+  {$IFEND}
 end;
 
 function serialtoguid(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
@@ -2511,6 +2526,10 @@ begin
         Result := True;
       end else
         Result := False;
+    end;
+  stNull:
+    begin
+      result := true;
     end;
   else
     Result := False;
@@ -2680,15 +2699,19 @@ var
   vTypeName: String;
 begin
   Result := nil;
+  vTypeName := string(typeinfo.name);
+  startPos := AnsiPos('<', vTypeName);
 
-  startPos := AnsiPos('<', String(TypeInfo.Name));
+  if startPos < 1 then
+  begin
+    vTypeName := RttiContext.GetType(TypeInfo).BaseType.ToString;
+    startPos := AnsiPos('<', vTypeName);
+  end;
 
   if startPos > 0 then
   begin
-    endPos := Pos('>', String(TypeInfo.Name));
-
-    vTypeName := Copy(String(TypeInfo.Name), startPos + 1, endPos - Succ(startPos));
-
+    endPos := Pos('>', vTypeName);
+    vTypeName := Copy(vTypeName, startPos + 1, endPos - Succ(startPos));
     Result := RttiContext.FindType(vTypeName);
   end;
 end;
@@ -6958,7 +6981,8 @@ var
   ret: TValue;
 begin
   if FromJson(TypeInfo(T), obj, ret) then
-    Result := ret.AsType<T> else
+    Result := ret.AsType<T>
+  else
     raise exception.Create('Marshalling error');
 end;
 
@@ -7016,6 +7040,12 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end else
           Result := False;
       end;
+    stNull:
+      begin
+        TValue.Make(nil, TypeInfo, Value);
+        TValueData(Value).FAsSInt64 := -1;
+        result := true;
+      end;
     else
       Result := False;
     end;
@@ -7044,6 +7074,11 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         if not ObjectIsType(o, stString) then
           FromInt(o) else
           Result := False;
+      end;
+    stNull:
+      begin
+        TValue.Make(-1, TypeInfo, Value);
+        result := true;
       end;
     else
       Result := False;
@@ -7079,6 +7114,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
   procedure FromFloat(const obj: ISuperObject);
   var
     o: ISuperObject;
+    dt: TDateTime;
+    fmtSettings: TFormatSettings;
   begin
     case ObjectGetType(obj) of
     stInt, stDouble, stCurrency:
@@ -7095,6 +7132,32 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stString:
       begin
+        {$IFDEF ISO8601}
+          fmtSettings.DateSeparator := '-';
+          fmtSettings.TimeSeparator := ':';
+          fmtSettings.ShortDateFormat := 'yyyy-mm-dd';
+          fmtSettings.LongDateFormat := 'yyyy-mm-dd';
+          fmtSettings.ShortTimeFormat := 'hh:nn:ss';
+          fmtSettings.LongTimeFormat := 'hh:nn:ss';
+          if TypeInfo.name = 'TDate' then
+          begin
+            value := TValue.from<TDate>(StrToDate(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TTime' then
+          begin
+            value := TValue.from<TTime>(StrToTime(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TDateTime' then
+          begin
+            ISO8601DateToDelphiDateTime(SOString(obj.AsString), dt);
+            value := TValue.From<TDateTime>(dt);
+            result := true;
+          end;
+          if result then
+            exit;
+        {$ENDIF}
         o := SO(obj.AsString);
         if not ObjectIsType(o, stString) then
           FromFloat(o) else
@@ -7149,7 +7212,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         begin
           Result := False;
 
-          if IsList(Context, TypeInfo) and IsGenericType(TypeInfo) then
+
+          if IsList(Context, TypeInfo) then
           begin
             Result := True;
 
@@ -7414,7 +7478,6 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 var
   Serial: TSerialFromJson;
 begin
-
   if TypeInfo <> nil then
   begin
     if not SerialFromJson.TryGetValue(TypeInfo, Serial) then
@@ -7435,7 +7498,9 @@ begin
         tkDynArray: FromDynArray;
         tkClassRef: FromClassRef;
       else
-        FromUnknown
+      begin
+        FromUnknown;
+      end
       end else
       begin
         TValue.Make(nil, TypeInfo, Value);
@@ -7445,7 +7510,7 @@ begin
     Result := False;
 end;
 
-function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject): ISuperObject;
+function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; _listCount: integer): ISuperObject;
   procedure ToInt64;
   begin
     Result := TSuperObject.Create(SuperInt(Value.AsInt64));
@@ -7463,6 +7528,17 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
 
   procedure ToFloat;
   begin
+    result := nil;
+    {$IFDEF ISO8601}
+      if value.TypeInfo.Name = 'TTime' then
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
+      else if value.TypeInfo.Name = 'TDate' then
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 1, 10)) // 2013-12-17
+      else if value.TypeInfo.Name = 'TDateTime' then
+        result := TSuperObject.create(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble));
+      if assigned(result) then
+        exit;
+    {$ENDIF}
     case Value.TypeData.FloatType of
       ftSingle: Result := TSuperObject.Create(TValueData(Value).FAsSingle);
       ftDouble: Result := TSuperObject.Create(TValueData(Value).FAsDouble);
@@ -7481,7 +7557,8 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
   var
     o: ISuperObject;
     f: TRttiField;
-    v: TValue;
+    v, items, count: TValue;
+    LObject: TSuperTableString;
   begin
     if TValueData(Value).FAsObject <> nil then
     begin
@@ -7498,7 +7575,11 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
             begin
               if (GetFieldName(f) = 'FItems') then
               begin
-                Result := ToJson(v, index);
+                items := v;
+              end
+              else if (GetFieldName(f) = 'FCount') then
+              begin
+                Result := ToJson(items, index, v.AsInteger);
               end;
               Continue;
             end;
@@ -7587,9 +7668,18 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
   var
     i: Integer;
     v: TValue;
+    count: integer;
   begin
     Result := TSuperObject.Create(stArray);
-    for i := 0 to Value.GetArrayLength - 1 do
+    count := Value.GetArrayLength;
+    // if the array is a TList the `Value.GetArrayLength` will give the wrong value.
+    // `Value.GetArrayLength` will return the TList's capacity.
+    // Fx. if the TList has 1/2 elements `Value.GetArrayLength` will return 1/2.
+    // If add a 3. `Value.GetArrayLength` will then return 4.
+    // There for will need to now the count size before calling this function.
+    if _listCount > -1 then
+      count := _listCount;
+    for i := 0 to count - 1 do
     begin
       v := Value.GetArrayElement(i);
       if not v.IsEmpty then

@@ -41,12 +41,22 @@ type
     procedure Get(AUrl: string; AResponse: TStream);virtual;abstract;
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Put(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
+    procedure Patch(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Delete(AUrl: string; AContent: TStream);virtual;abstract;
 
     function GetResponseCode: Integer;virtual;abstract;
     function GetEnabledCompression: Boolean;virtual;abstract;
 
     procedure SetEnabledCompression(const Value: Boolean);virtual;abstract;
+
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+    property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
+    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   end;
 
 { TTestRestClient }
@@ -110,6 +120,29 @@ begin
 
   CheckTrue(FCustomCreateConnectionCalled);
   CheckTrue(Supports(FRest.UnWrapConnection, IStubConnection));
+end;
+
+{ TStubConnection }
+
+function TStubConnection.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+
+end;
+
+function TStubConnection.GetOnError: THTTPErrorEvent;
+begin
+
+end;
+
+procedure TStubConnection.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+
+end;
+
+procedure TStubConnection.SetOnError(AConnectionLostEvent: THTTPErrorEvent);
+begin
+
 end;
 
 initialization
