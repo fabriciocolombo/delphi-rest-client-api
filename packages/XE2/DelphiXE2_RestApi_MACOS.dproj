@@ -45,6 +45,12 @@
 			<CfgParent>Base</CfgParent>
 			<Base>true</Base>
 		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Cfg_2)'=='true') or '$(Cfg_2_OSX32)'!=''">
+			<Cfg_2_OSX32>true</Cfg_2_OSX32>
+			<CfgParent>Cfg_2</CfgParent>
+			<Cfg_2>true</Cfg_2>
+			<Base>true</Base>
+		</PropertyGroup>
 		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
 			<Cfg_2_Win32>true</Cfg_2_Win32>
 			<CfgParent>Cfg_2</CfgParent>
@@ -94,6 +100,7 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_OSX32)'!=''">
+			<VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName)</VerInfo_Keys>
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -101,6 +108,9 @@
 			<DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
 			<DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
 			<DCC_DebugInformation>false</DCC_DebugInformation>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Cfg_2_OSX32)'!=''">
+			<VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName)</VerInfo_Keys>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
 			<DCC_UnitSearchPath>..\..\lib;..\..\lib\SuperObject;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
@@ -122,10 +132,15 @@
 			<DCCReference Include="..\..\src\HttpConnectionFactory.pas"/>
 			<DCCReference Include="..\..\src\RestClient.pas"/>
 			<DCCReference Include="..\..\src\RestJsonGenerics.pas"/>
-			<DCCReference Include="..\..\src\RestJsonOldRTTI.pas"/>
 			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
 			<DCCReference Include="..\..\src\RestUtils.pas"/>
 			<DCCReference Include="..\..\src\RestRegister.pas"/>
+			<DCCReference Include="..\..\src\HttpConnectionIndy.pas"/>
+			<DCCReference Include="..\..\src\DBXJsonHelpers.pas"/>
+			<DCCReference Include="..\..\src\DbxJsonMarshal.pas"/>
+			<DCCReference Include="..\..\src\DBXJsonUnMarshal.pas"/>
+			<DCCReference Include="..\..\src\DbxJsonUtils.pas"/>
+			<DCCReference Include="..\..\src\JsonListAdapter.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>

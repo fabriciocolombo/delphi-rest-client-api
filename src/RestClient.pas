@@ -11,7 +11,7 @@ uses Classes, SysUtils, HttpConnection,
      {$ELSE}
      Contnrs,
      {$ENDIF}
-     DB, JsonListAdapter, OldRttiUnMarshal;
+     DB, JsonListAdapter;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -612,7 +612,7 @@ begin
   if trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
-    result := T(nil);
+    result := Default(T);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
@@ -624,7 +624,9 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -636,7 +638,9 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
 end;
 
 function TResource.Patch<T>(Entity: TObject): T;
@@ -648,7 +652,9 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
 
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal<T>(vResponse);
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
 end;
 {$ELSE}
 function TResource.Get(AListClass, AItemClass: TClass): TObject;
@@ -669,7 +675,9 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
   if trim(vResponse) <> '' then
-    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Put(Adapter: IJsonListAdapter): TObject;
@@ -681,7 +689,9 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
   if trim(vResponse) <> '' then
-    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Patch(Adapter: IJsonListAdapter): TObject;
@@ -693,7 +703,9 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
   if trim(vResponse) <> '' then
-    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
 end;
 {$ENDIF}
 
@@ -755,7 +767,9 @@ begin
     SetContent(Entity);
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Put(Entity: TObject): TObject;
@@ -767,7 +781,9 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Patch(Content: TStream): String;
@@ -795,7 +811,9 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
   if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Patch(Content: string): string;

@@ -43,7 +43,6 @@ contains
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
   RestClient in '..\..\src\RestClient.pas',
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
-  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
   RestRegister in '..\..\src\RestRegister.pas';

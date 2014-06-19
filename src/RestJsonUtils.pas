@@ -4,8 +4,9 @@ interface
 
 {$I DelphiRest.inc}
 
-uses {$IFDEF USE_GENERICS}RestJsonGenerics, {$ENDIF}RestJsonOldRTTI, SysUtils,
-     DateUtils, TypInfo;
+uses {$IFDEF USE_GENERICS}RestJsonGenerics, {$ENDIF}
+     {$IFDEF USE_SUPER_OBJECT}RestJsonOldRTTI, {$ENDIF}
+     SysUtils, DateUtils, TypInfo;
 
 type
   TJsonUtil = class

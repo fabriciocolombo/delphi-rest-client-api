@@ -2458,7 +2458,7 @@ begin
     Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(TValueData(value).FAsDouble));
   {$ELSE}
     Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
-  {$IFEND}
+  {$ENDIF}
 end;
 
 function serialtoguid(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
@@ -7114,8 +7114,6 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
   procedure FromFloat(const obj: ISuperObject);
   var
     o: ISuperObject;
-    dt: TDateTime;
-    fmtSettings: TFormatSettings;
   begin
     case ObjectGetType(obj) of
     stInt, stDouble, stCurrency:
@@ -7557,8 +7555,7 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
   var
     o: ISuperObject;
     f: TRttiField;
-    v, items, count: TValue;
-    LObject: TSuperTableString;
+    v, items: TValue;
   begin
     if TValueData(Value).FAsObject <> nil then
     begin
