@@ -10,17 +10,17 @@ type
     FContext: TRttiContext;
 
     function IsList(ATypeInfo: PTypeInfo): Boolean;
-    
-    function ToJson(var AValue: TValue): TJSONValue;overload;
+
+    function ToJson(field: TRttiField; var AValue: TValue): TJSONValue;overload;
 
     function ToClass(AValue: TValue): TJSONValue;
     function ToInteger(AValue: TValue): TJSONValue;
     function ToInt64(AValue: TValue): TJSONValue;
     function ToChar(AValue: TValue): TJSONValue;
-    function ToFloat(AValue: TValue): TJSONValue;
+    function ToFloat(field: TRttiField; AValue: TValue): TJSONValue;
     function ToJsonString(AValue: TValue): TJSONValue;
     function ToWideChar(AValue: TValue): TJSONValue;
-    function ToDynArray(AValue: TValue): TJSONValue;
+    function ToDynArray(field: TRttiField; AValue: TValue): TJSONValue;
   public
     constructor Create;
     destructor Destroy; override;
@@ -57,20 +57,20 @@ begin
             (Length(method.GetParameters) = 1)
 end;
 
-function TDBXJsonMarshal.ToJson(var AValue: TValue): TJSONValue;
+function TDBXJsonMarshal.ToJson(field: TRttiField; var AValue: TValue): TJSONValue;
 begin
   case AValue.Kind of
     tkInt64: Result := ToInt64(AValue);
     tkChar: Result := ToChar(AValue);
     tkSet, tkInteger, tkEnumeration: Result := ToInteger(AValue);
-    tkFloat: Result := ToFloat(AValue);
+    tkFloat: Result := ToFloat(field, AValue);
     tkString, tkLString, tkUString, tkWString: Result := ToJsonString(AValue);
     tkClass: Result := ToClass(AValue);
     tkWChar: Result := ToWideChar(AValue);
 //    tkVariant: ToVariant;
 //    tkRecord: ToRecord;
 //    tkArray: ToArray;
-    tkDynArray: Result := ToDynArray(AValue);
+    tkDynArray: Result := ToDynArray(field, AValue);
 //    tkClassRef: ToClassRef;
 //    tkInterface: ToInterface;
   else
@@ -118,12 +118,12 @@ begin
         begin
           if (f.Name = 'FItems') then
           begin
-            Exit(ToJson(fieldValue));
+            Exit(ToJson(f, fieldValue));
           end;
           Continue;
         end;
         
-        vJsonValue := ToJson(fieldValue);
+        vJsonValue := ToJson(f, fieldValue);
 
         if vJsonValue <> nil then
         begin
@@ -135,7 +135,7 @@ begin
   end;
 end;
 
-function TDBXJsonMarshal.ToDynArray(AValue: TValue): TJSONValue;
+function TDBXJsonMarshal.ToDynArray(field: TRttiField; AValue: TValue): TJSONValue;
 var
   i: Integer;
   v: TValue;
@@ -147,16 +147,23 @@ begin
     if not v.IsEmpty then
     begin
     
-      Result.AsJsonArray.AddElement(toJSon(v));
+      Result.AsJsonArray.AddElement(toJSon(field, v));
     end;
   end;
 end;
 
-function TDBXJsonMarshal.ToFloat(AValue: TValue): TJSONValue;
+function TDBXJsonMarshal.ToFloat(field: TRttiField; AValue: TValue): TJSONValue;
 begin
+  Result := nil;
   if AValue.TypeInfo = TypeInfo(TDateTime) then
   begin
-    Result := TJSONNumber.Create(DelphiToJavaDateTime(AValue.AsType<TDateTime>));
+    if TValueData(AValue).FAsDouble > 0 then
+    begin
+      if field.FormatUsingISO8601 then
+        Result := TJSONString.Create(DelphiDateTimeToISO8601Date(AValue.AsType<TDateTime>))
+      else
+        Result := TJSONNumber.Create(DelphiToJavaDateTime(AValue.AsType<TDateTime>));
+    end;
   end
   else
   begin 
@@ -166,8 +173,6 @@ begin
       ftExtended: Result := TJSONNumber.Create(TValueData(AValue).FAsExtended);
       ftComp: Result := TJSONNumber.Create(TValueData(AValue).FAsSInt64);
       ftCurr: Result := TJSONNumber.Create(TValueData(AValue).FAsCurr);    
-    else
-      Result := nil;
     end;
   end;
 end;
@@ -201,7 +206,7 @@ begin
   try
     v := AObject;
     
-    Result := vMarshal.ToJson(v);
+    Result := vMarshal.ToJson(nil, v);
   finally
     vMarshal.Free;
   end;

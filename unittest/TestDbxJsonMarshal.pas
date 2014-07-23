@@ -4,7 +4,7 @@ interface
 
 uses TestFramework, DbxJsonMarshal, TypesToTest, RestJsonUtils,
      Generics.Collections, SuperObject, DbxJson, DBXJsonHelpers,
-  DBXJsonUnMarshal;
+  DBXJsonUnMarshal, DbxJsonUtils;
 
 type
   TTestDbxJsonMarshal = class(TTestCase)
@@ -30,6 +30,8 @@ type
     procedure valueBooleanTrue;
     procedure valueBooleanFalse;
     procedure valueDateTime;
+    procedure valueDateTimeISO8601;
+    procedure valueDateTimeZero;
     procedure valueEnum;
     procedure valueSet;
     procedure valueObject;
@@ -149,7 +151,30 @@ begin
 
   CheckNotNull(FJson);
   CheckEquals(vJavaDate, FJson.AsJsonObject.Get('valueDateTime').JsonValue.AsJsonNumber.AsInt64);
+end;
 
+procedure TTestDbxJsonMarshal.valueDateTimeISO8601;
+var
+  vISODate: string;
+begin
+  FObject.valueDateTimeISO := Now;
+
+  vISODate := DelphiDateTimeToISO8601Date(FObject.valueDateTimeISO);
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckEquals(vISODate, FJson.AsJsonObject.Get('valueDateTimeISO').JsonValue.AsJsonString.Value);
+end;
+
+procedure TTestDbxJsonMarshal.valueDateTimeZero;
+begin
+  FObject.valueDateTime := 0;
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckNull(FJson.AsJsonObject.Get('valueDateTime'));
 end;
 
 procedure TTestDbxJsonMarshal.valueDouble;
@@ -322,7 +347,12 @@ begin
   vRestored := TDBXJsonUnmarshal.FromJson<TAllTypes>(vMyJson);
   try
     CheckNotNull(vRestored);
-    CheckEquals(vRoot.ToJson.AsJSon, vRestored.ToJson().AsJSon());
+
+    Status(DateTimeToStr(vRoot.valueDateTimeISO));
+    Status(DateTimeToStr(vRestored.valueDateTimeISO));
+    CheckEquals(DateTimeToStr(vRoot.valueDateTimeISO), DateTimeToStr(vRestored.valueDateTimeISO));
+
+    CheckEquals(vRoot.ToJson.AsJSon, vRestored.ToJson().AsJSon(), 'SuperObject x SuperObject');
   finally
     vRestored.Free;
   end;
@@ -362,6 +392,7 @@ begin
   vRoot.fieldDefaultValue := 'default';
   vRoot.valueBoolean := True;
   vRoot.valueDateTime := Now;
+  vRoot.valueDateTimeISO := Now;
   vRoot.valueEnum := etThree;
   vRoot.valueSet := [etOne, etThree];
 

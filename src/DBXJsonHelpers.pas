@@ -40,6 +40,7 @@ type
   TRttiFieldHelper = class helper for TRttiField
   public
     function GetFieldName: string;
+    function FormatUsingISO8601: Boolean;
   end;
 
 implementation
@@ -104,6 +105,21 @@ begin
 end;
 
 { TRttiFieldHelper }
+
+function TRttiFieldHelper.FormatUsingISO8601: Boolean;
+var
+  attr: TCustomAttribute;
+begin
+  for attr in GetAttributes do
+  begin
+    if attr is JsonISO8601 then
+    begin
+      Exit(True);
+    end;
+  end;
+
+  Result := False;
+end;
 
 function TRttiFieldHelper.GetFieldName: string;
 var

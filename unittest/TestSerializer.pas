@@ -137,7 +137,7 @@ end;
 
 procedure TTestSerializer.person;
 const
-  sJson = '{"age":30,"father":null,"name":"Helbert","phones":null}';
+  sJson = '{"age":30,"name":"Helbert"}';
 var
   vPerson: TPerson;
 begin

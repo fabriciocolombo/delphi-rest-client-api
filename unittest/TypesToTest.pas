@@ -45,6 +45,8 @@ type
     valueList: TList<TAllTypes>;
     valueObjectList: TObjectList<TAllTypes>;
     valueDateTime: TDateTime;
+    [JsonISO8601]
+    valueDateTimeISO: TDateTime;
     valueEnum: TEnumType;
     valueSet: TEnumTypeSet;
 

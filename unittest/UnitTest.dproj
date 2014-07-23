@@ -77,6 +77,8 @@
 			<DCCReference Include="..\src\JsonListAdapter.pas"/>
 			<DCCReference Include="TestDbxJsonUnMarshal.pas"/>
 			<DCCReference Include="..\src\DbxJsonUnMarshal.pas"/>
+			<DCCReference Include="TestDBXJsonUtils.pas"/>
+			<DCCReference Include="TestDbxJsonMarshal.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
@@ -126,9 +128,17 @@
 						<Source Name="MainSource">UnitTest.dpr</Source>
 					</Source>
 					<Excluded_Packages>
+						<Excluded_Packages Name="c:\users\public\documents\rad studio\9.0\bpl\DelphiLogger_XE2.bpl">(untitled)</Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\DelphiXE2_RestApi.bpl">(untitled)</Excluded_Packages>
 						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\JclDebugExpert160.bpl">JCL Debug IDE extension</Excluded_Packages>
 						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\JclProjectAnalysisExpert160.bpl">JCL Project Analyzer</Excluded_Packages>
-						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\DelphiXE2_RestApi.bpl">(untitled)</Excluded_Packages>
+						<Excluded_Packages Name="C:\Users\Public\Documents\RAD Studio\9.0\Bpl\SQLiteWrap_Design.bpl">File C:\Users\Public\Documents\RAD Studio\9.0\Bpl\SQLiteWrap_Design.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfs16.bpl">File C:\Program Files (x86)\FastReports\LibD16\dclfs16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrx16.bpl">File C:\Program Files (x86)\FastReports\LibD16\dclfrx16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfsDB16.bpl">File C:\Program Files (x86)\FastReports\LibD16\dclfsDB16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl">File C:\Program Files (x86)\FastReports\LibD16\dclfrxDB16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\FastReports\LibD16\dclfrxe16.bpl">File C:\Program Files (x86)\FastReports\LibD16\dclfrxe16.bpl not found</Excluded_Packages>
+						<Excluded_Packages Name="C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design160.bpl">File C:\Program Files (x86)\Raize\CS5\Bin\CodeSiteExpressPkg_Design160.bpl not found</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl160.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\bcbofficexp160.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>

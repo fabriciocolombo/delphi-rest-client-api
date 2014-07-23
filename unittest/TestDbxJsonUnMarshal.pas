@@ -59,6 +59,43 @@ type
      procedure CompareResultWithSuperObject;
   end;
 
+  TJiraIssueStatus = class
+  public
+    name: string;
+  end;
+
+  TJiraIssueType = class
+  public
+    name: string;
+  end;
+
+  TJiraIssueFields = class
+  public
+    summary: string;
+    issuetype: TJiraIssueType;
+    status: TJiraIssueStatus;
+    labels: TList<string>;
+    updated: TDateTime;
+    created: TDateTime;
+
+    destructor Destroy; override;
+  end;
+
+  TJiraIssueResponse = class
+  public
+    id: Integer;
+    key: string;
+    fields: TJiraIssueFields;
+    destructor Destroy; override;
+  end;
+
+  TTestJiraReponse = class(TTestCase)
+  private
+    function GetJsonIssueResponse: string;
+  published
+    procedure ParseIssueResponse;
+  end;
+
 implementation
 
 uses Math, SysUtils, DateUtils, StrUtils;
@@ -492,8 +529,137 @@ begin
   end;
 end;
 
+{ TTestJiraReponse }
+
+function TTestJiraReponse.GetJsonIssueResponse: string;
+begin
+  Result := '{' + sLineBreak +
+            '    "expand": "renderedFields,names,schema,transitions,editmeta,changelog",' + sLineBreak +
+            '    "id": "10000",' + sLineBreak +
+            '    "self": "http://localhost:8090/jira/rest/api/2/issue/10000",' + sLineBreak +
+            '    "key": "MKY-1",' + sLineBreak +
+            '    "fields": {' + sLineBreak +
+            '        "summary": "First Test Issue",' + sLineBreak +
+            '        "issuetype": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/issuetype/1",' + sLineBreak +
+            '            "id": "1",' + sLineBreak +
+            '            "description": "A problem which impairs or prevents the functions of the product.",' + sLineBreak +
+            '            "iconUrl": "http://localhost:8090/jira/images/icons/bug.gif",' + sLineBreak +
+            '            "name": "Bug",' + sLineBreak +
+            '            "subtask": false' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "status": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/status/1",' + sLineBreak +
+            '            "description": "The issue is open and ready for the assignee to start work on it.",' + sLineBreak +
+            '            "iconUrl": "http://localhost:8090/jira/images/icons/status_open.gif",' + sLineBreak +
+            '            "name": "Open",' + sLineBreak +
+            '            "id": "1"' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "labels": ["label1", "label2"],' + sLineBreak +
+            '        "votes": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/issue/MKY-1/votes",' + sLineBreak +
+            '            "votes": 0,' + sLineBreak +
+            '            "hasVoted": false' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "workratio": -1,' + sLineBreak +
+            '        "assignee": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/user?username=admin",' + sLineBreak +
+            '            "name": "admin",' + sLineBreak +
+            '            "emailAddress": "admin@example.com",' + sLineBreak +
+            '            "avatarUrls": {' + sLineBreak +
+            '                "16x16": "http://localhost:8090/jira/secure/useravatar?size=small&avatarId=10062",' + sLineBreak +
+            '                "48x48": "http://localhost:8090/jira/secure/useravatar?avatarId=10062"' + sLineBreak +
+            '            },' + sLineBreak +
+            '            "displayName": "Administrator",' + sLineBreak +
+            '            "active": true' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "fixVersions": [],' + sLineBreak +
+            '        "resolution": null,' + sLineBreak +
+            '        "attachment": [],' + sLineBreak +
+            '        "resolutiondate": null,' + sLineBreak +
+            '        "project": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/project/MKY",' + sLineBreak +
+            '            "id": "10001",' + sLineBreak +
+            '            "key": "MKY",' + sLineBreak +
+            '            "name": "monkey",' + sLineBreak +
+            '            "avatarUrls": {' + sLineBreak +
+            '                "16x16": "http://localhost:8090/jira/secure/projectavatar?size=small&pid=10001&avatarId=10011",' + sLineBreak +
+            '                "48x48": "http://localhost:8090/jira/secure/projectavatar?pid=10001&avatarId=10011"' + sLineBreak +
+            '            }' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "versions": [],' + sLineBreak +
+            '        "environment": null,' + sLineBreak +
+            '        "updated": "2011-11-22T09:23:02.302-0300",' + sLineBreak +
+            '        "created": "2011-11-22T09:22:59.899-0300",' + sLineBreak +
+            '        "priority": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/priority/3",' + sLineBreak +
+            '            "iconUrl": "http://localhost:8090/jira/images/icons/priority_major.gif",' + sLineBreak +
+            '            "name": "Major",' + sLineBreak +
+            '            "id": "3"' + sLineBreak +
+            '        },' + sLineBreak +
+            '        "description": null,' + sLineBreak +
+            '        "duedate": null,' + sLineBreak +
+            '        "components": [],' + sLineBreak +
+            '        "watches": {' + sLineBreak +
+            '            "self": "http://localhost:8090/jira/rest/api/2/issue/MKY-1/watchers",' + sLineBreak +
+            '            "watchCount": 0,' + sLineBreak +
+            '            "isWatching": false' + sLineBreak +
+            '        }' + sLineBreak +
+            '    }' + sLineBreak +
+            '}';
+end;
+
+procedure TTestJiraReponse.ParseIssueResponse;
+var
+  vIssue: TJiraIssueResponse;
+begin
+  vIssue := TDbxJsonUnMarshal.FromJson<TJiraIssueResponse>(Self.GetJsonIssueResponse);
+  try
+    CheckNotNull(vIssue);
+
+    CheckEquals(10000, vIssue.Id, 'Issue.Id');
+    CheckEquals('MKY-1', vIssue.Key, 'Issue.Key');
+
+    CheckNotNull(vIssue.Fields, 'Issue.Fields');
+    CheckEquals('First Test Issue', vIssue.Fields.Summary, 'Fields.Summary');
+
+    CheckNotNull(vIssue.Fields.Labels, 'Fields.Labels');
+    CheckEquals(2, vIssue.Fields.Labels.Count, 'Fields.Labels.Count');
+    CheckEquals('label1', vIssue.Fields.Labels.First, 'Fields.Labels.First');
+
+    CheckEquals(EncodeDate(2011, 11, 22), DateOf(vIssue.Fields.Created), 'Fields.Created');
+
+    CheckNotNull(vIssue.Fields.IssueType, 'Fields.IssueType');
+    CheckEquals('Bug', vIssue.Fields.IssueType.Name, 'Fields.IssueType.Name');
+
+    CheckNotNull(vIssue.Fields.Status, 'Fields.Status');
+    CheckEquals('Open', vIssue.Fields.Status.Name, 'Fields.Status.Name');
+  finally
+    vIssue.Free;
+  end;
+end;
+
+{ TJiraIssueResponse }
+
+destructor TJiraIssueResponse.Destroy;
+begin
+  Fields.Free;
+  inherited;
+end;
+
+{ TJiraIssueFields }
+
+destructor TJiraIssueFields.Destroy;
+begin
+  IssueType.Free;
+  Status.Free;
+  Labels.Free;
+  inherited;
+end;
+
 initialization
   RegisterTest(TTestDbxJsonUnMarshal.Suite);
   RegisterTest(TTestDbxJsonUnMarshalCompatibility.Suite);
+  RegisterTest(TTestJiraReponse.Suite);
 
 end.

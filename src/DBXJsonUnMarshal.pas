@@ -159,6 +159,7 @@ end;
 function TDBXJsonUnmarshal.FromFloat(ATypeInfo: PTypeInfo; const AJSONValue: TJSONValue): TValue;
 var
   vTemp: TJSONValue;
+  vJavaDateTime: Int64;
 begin
   if AJSONValue.IsJsonNumber then
   begin
@@ -181,14 +182,21 @@ begin
   end
   else if AJSONValue.IsJsonString then
   begin
-    vTemp := TJSONObject.ParseJSONValue(AJSONValue.AsJsonString.Value);
-    try
-      if vTemp.IsJsonNumber then
-        Result := FromFloat(ATypeInfo, vTemp)
-      else
-        Result := TValue.Empty;
-    finally
-      vTemp.Free;
+    if ISO8601DateToJavaDateTime(AJSONValue.AsJsonString.Value, vJavaDateTime) then
+    begin
+      Result := JavaToDelphiDateTime(vJavaDateTime);
+    end
+    else
+    begin
+      vTemp := TJSONObject.ParseJSONValue(AJSONValue.AsJsonString.Value);
+      try
+        if vTemp.IsJsonNumber then
+          Result := FromFloat(ATypeInfo, vTemp)
+        else
+          Result := TValue.Empty;
+      finally
+        vTemp.Free;
+      end;
     end;
   end
   else
@@ -456,7 +464,7 @@ begin
   for i := 0 to AJSONObject.Size - 1 do
   begin
     Candidate := AJSONObject.Get(i);
-    if (Candidate.JsonString.Value = APairName) then
+    if SameStr(Candidate.JsonString.Value, APairName) then
       Exit(Candidate);
   end;
   Result := nil;
