@@ -12,6 +12,9 @@ type
     FAcceptedLanguages: string;
     FContentTypes: string;
     FHeaders: TStrings;
+    FConnectTimeout: Integer;
+    FSendTimeout: Integer;
+    FReceiveTimeout: Integer;
 
     procedure Configure;
 
@@ -44,6 +47,7 @@ type
 
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+    function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
   end;
 
 implementation
@@ -68,6 +72,18 @@ begin
   begin
     FWinHttpRequest.SetRequestHeader(FHeaders.Names[i], FHeaders.ValueFromIndex[i]);
   end;
+
+  FWinHttpRequest.SetTimeouts(0,
+                              FConnectTimeout,
+                              FSendTimeout,
+                              FReceiveTimeout);
+end;
+
+function THttpConnectionWinHttp.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+begin
+  FConnectTimeout := ATimeOut.ConnectTimeout;
+  FReceiveTimeout := ATimeOut.ReceiveTimeout;
+  FSendTimeout    := ATimeOut.SendTimeout;
 end;
 
 procedure THttpConnectionWinHttp.CopyResourceStreamToStream(AResponse: TStream);

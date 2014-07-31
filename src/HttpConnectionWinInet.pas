@@ -104,10 +104,12 @@ type
 
     FCertificateCheckHostName: boolean;
     FCertificateCheckDate: Boolean;
-    FTimeOut : Integer;
     FResponseCode : Integer;
     FResponseErrorStatusText : string;
     FRaiseExceptionOnError : Boolean;
+    FConnectTimeout: Integer;
+    FSendTimeout: Integer;
+    FReceiveTimeout: Integer;
   protected
     procedure DoRequest(sMethod,AUrl: string; AContent: TStream; AResponse: TStream);virtual;
   public
@@ -138,6 +140,7 @@ type
 
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+    function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -148,7 +151,6 @@ type
     property CertificateCheckHostName : boolean read FCertificateCheckHostName write FCertificateCheckHostName  default true;
     property CertificateCheckAuthority : boolean read FCertificateCheckAuthority  write FCertificateCheckAuthority  default true;
     property CertificateIgnoreRevocation : boolean read FCertificateIgnoreRevocation write FCertificateIgnoreRevocation  default true;
-    property TimeOut : Integer read FTimeOut write FTimeOut  default -1;
     property RaiseExceptionOnError : Boolean read FRaiseExceptionOnError write FRaiseExceptionOnError  default true;
   end;
 
@@ -173,15 +175,30 @@ const
   BUFSIZE = 4096;
 
 constructor EInetException.Create;
+var
+  vErrorMessage: string;
 begin
   iFErrorCode := GetLastError;
-  inherited CreateFmt('%s (%d)', [SysErrorMessage(iFErrorCode), iFErrorCode]);
+
+  case iFErrorCode of
+    ERROR_INTERNET_TIMEOUT: vErrorMessage := 'The request has timed out.';
+  else
+    vErrorMessage := SysErrorMessage(iFErrorCode);
+  end;
+  Create(vErrorMessage, iFErrorCode);
 end;
 
 constructor EInetException.Create(const AErrorMessage: string; const AErrorCode: Integer);
 begin
   iFErrorCode := AErrorCode;
   inherited CreateFmt('%s (%d)', [AErrorMessage, iFErrorCode]);
+end;
+
+function THttpConnectionWinInet.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+begin
+  FConnectTimeout := ATimeOut.ConnectTimeout;
+  FReceiveTimeout := ATimeOut.ReceiveTimeout;
+  FSendTimeout    := ATimeOut.SendTimeout;
 end;
 
 constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = True);
@@ -191,7 +208,6 @@ begin
   FCertificateIgnoreRevocation:=True;
   FCertificateCheckHostName:=True;
   FCertificateCheckDate:=True;
-  FTimeOut:=-1;
   FRaiseExceptionOnError:=ARaiseExceptionOnError;
 end;
 
@@ -380,14 +396,10 @@ begin
                   if (InternetSetOption(iRequestHandle, INTERNET_OPTION_CLIENT_CERT_CONTEXT, CertificateContext, Sizeof(CERT_CONTEXT)) = False) then
                     raise EInetException.Create(Format('Internal error when installing the certificate using InternetSetOption: %s', [SysErrorMessage(GetLastError)]));
                 end;
-                if TimeOut > 0 then begin
-                  InternetSetOption(iRequestHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @TimeOut, SizeOf(TimeOut));
 
-                  //The connection has already an time out and if you set a timout for the connection you will get a
-                  //different error message (timout and not can not connect) so do not set this timout properity
-                  //InternetSetOption(AData,INTERNET_OPTION_CONNECT_TIMEOUT,@iFCCTimeOut, SizeOf(iFCCTimeOut));
-                  InternetSetOption(iRequestHandle, INTERNET_OPTION_SEND_TIMEOUT, @TimeOut, SizeOf(TimeOut));
-                end;
+                InternetSetOption(iRequestHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @FReceiveTimeout, SizeOf(FReceiveTimeout));
+                InternetSetOption(iRequestHandle, INTERNET_OPTION_SEND_TIMEOUT, @FSendTimeout, SizeOf(FSendTimeout));
+                InternetSetOption(iRequestHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @FConnectTimeout, SizeOf(FConnectTimeout));
 
                 if FAcceptTypes <> EmptyStr then
                   SetRequestHeader('Accept', FAcceptTypes);

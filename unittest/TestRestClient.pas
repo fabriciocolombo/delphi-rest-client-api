@@ -37,6 +37,7 @@ type
     function SetContentTypes(AContentTypes: string): IHttpConnection;virtual;abstract;
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;virtual;abstract;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;virtual;abstract;
+    function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;virtual;abstract;
 
     procedure Get(AUrl: string; AResponse: TStream);virtual;abstract;
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
@@ -57,6 +58,7 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+  public
   end;
 
 { TTestRestClient }

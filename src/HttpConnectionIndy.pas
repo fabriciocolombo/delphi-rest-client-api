@@ -45,11 +45,18 @@ type
 
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+    function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
   end;
 
 implementation
 
 { THttpConnectionIndy }
+
+function THttpConnectionIndy.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+begin
+  FIdHttp.ConnectTimeout := ATimeOut.ConnectTimeout;
+  FIdHttp.ReadTimeout := ATimeOut.ReceiveTimeout;
+end;
 
 constructor THttpConnectionIndy.Create;
 begin

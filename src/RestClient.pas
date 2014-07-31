@@ -57,6 +57,7 @@ type
     FConnectionType: THttpConnectionType;
     FEnabledCompression: Boolean;
     FOnCustomCreateConnection: TCustomCreateConnection;
+    FTimeOut: TTimeOut;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -101,6 +102,7 @@ type
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
+    property TimeOut: TTimeOut read FTimeOut;
   end;
 
   TCookie = class
@@ -214,6 +216,10 @@ begin
   FResources := TObjectList.Create;
   {$ENDIF}
 
+  FTimeOut := TTimeOut.Create(Self);
+  FTimeOut.Name := 'TimeOut';
+  FTimeOut.SetSubComponent(True);
+
   FEnabledCompression := True;
 end;
 
@@ -255,7 +261,8 @@ begin
     FHttpConnection.SetAcceptTypes(ResourceRequest.GetAcceptTypes)
                    .SetContentTypes(ResourceRequest.GetContentTypes)
                    .SetHeaders(ResourceRequest.GetHeaders)
-                   .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages);
+                   .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
+                   .ConfigureTimeout(FTimeOut);
 
     vUrl := ResourceRequest.GetURL;
 
