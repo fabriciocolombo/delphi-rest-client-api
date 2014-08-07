@@ -413,6 +413,18 @@ begin
   begin
     Result := AJSONValue.AsJsonString.Value;
   end
+  else if AJSONValue.IsJsonNumber then
+  begin
+    Result := AJSONValue.AsJsonNumber.Value;
+  end
+  else if AJSONValue.IsJsonTrue then
+  begin
+    Result := 'true';
+  end
+  else if AJSONValue.IsJsonFalse then
+  begin
+    Result := 'false';
+  end
   else
     raise EJsonInvalidValue.CreateFmt('Invalid value "%s".', [AJSONValue.ToString]);
 end;

@@ -31,6 +31,9 @@ type
     procedure valueStringDefault;
     procedure valueStringDefaultFromEmpty;
     procedure valueStringDefaultFromNull;
+    procedure valueStringFromInteger;
+    procedure valueStringFromTrue;
+    procedure valueStringFromFalse;
     procedure valueChar;
     procedure valueAnsiChar;
     procedure valueSingle;
@@ -403,6 +406,30 @@ begin
 
   CheckNotNull(FObject);
   CheckEquals('default', FObject.fieldDefaultValue);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueStringFromFalse;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : false}');
+
+  CheckNotNull(FObject);
+  CheckEquals('false', FObject.valueString);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueStringFromInteger;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : 123}');
+
+  CheckNotNull(FObject);
+  CheckEquals('123', FObject.valueString);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueStringFromTrue;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueString" : true}');
+
+  CheckNotNull(FObject);
+  CheckEquals('true', FObject.valueString);
 end;
 
 procedure TTestDbxJsonUnMarshal.valueStringNull;
