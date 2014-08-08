@@ -14,6 +14,7 @@ type
     function ToJson(field: TRttiField; var AValue: TValue): TJSONValue;overload;
 
     function ToClass(AValue: TValue): TJSONValue;
+    function ToRecord(AValue: TValue): TJSONValue;
     function ToInteger(AValue: TValue): TJSONValue;
     function ToInt64(AValue: TValue): TJSONValue;
     function ToChar(AValue: TValue): TJSONValue;
@@ -68,7 +69,7 @@ begin
     tkClass: Result := ToClass(AValue);
     tkWChar: Result := ToWideChar(AValue);
 //    tkVariant: ToVariant;
-//    tkRecord: ToRecord;
+    tkRecord: Result := ToRecord(AValue);
 //    tkArray: ToArray;
     tkDynArray: Result := ToDynArray(field, AValue);
 //    tkClassRef: ToClassRef;
@@ -221,6 +222,46 @@ begin
     Result := vJson.ToString;
   finally
     vJson.Free;
+  end;
+end;
+
+function TDBXJsonMarshal.ToRecord(AValue: TValue): TJSONValue;
+var
+  f: TRttiField;
+  fieldValue: TValue;
+  vJsonObject: TJSONObject;
+  vJsonValue: TJSONValue;
+begin
+  Result := nil;
+
+  if AValue.Kind = tkRecord then
+  begin
+    vJsonObject := TJSONObject.Create;
+
+    for f in FContext.GetType(AValue.TypeInfo).GetFields do
+    begin
+      if (f.FieldType <> nil) then
+      begin
+        {$IFDEF VER210}
+          fieldValue := f.GetValue(IValueData(TValueData(AValue).FHeapData).GetReferenceToRawData);
+        {$ELSE}
+          fieldValue := f.GetValue(TValueData(AValue).FValueData.GetReferenceToRawData);
+        {$ENDIF}
+
+        if fieldValue.IsObject and (fieldValue.AsObject = nil) then
+        begin
+          Continue;
+        end;
+
+        vJsonValue := ToJson(f, fieldValue);
+
+        if vJsonValue <> nil then
+        begin
+          vJsonObject.AddPair(TJSONPair.Create(f.GetFieldName, vJsonValue));
+        end;
+      end;
+    end;
+    Result := vJsonObject;
   end;
 end;
 

@@ -53,6 +53,7 @@ type
     procedure valueEnumFromName;
     procedure valueSet;
     procedure valueSetFromString;
+    procedure valueRecord;
     procedure WhiteSpaces;
   end;
 
@@ -338,6 +339,15 @@ begin
   CheckEquals(2, FObject.valueObjectList.Count);
   CheckEquals('one', FObject.valueObjectList[0].valueString);
   CheckEquals('two', FObject.valueObjectList[1].valueString);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueRecord;
+begin
+  FObject := TDbxJsonUnMarshal.FromJson<TAllTypes>('{"valueTRecord" : {"vString" : "teste", "vInteger" : 123}}');
+
+  CheckNotNull(FObject);
+  CheckEquals('teste', FObject.valueTRecord.vString);
+  CheckEquals(123, FObject.valueTRecord.vInteger);
 end;
 
 procedure TTestDbxJsonUnMarshal.valueSet;

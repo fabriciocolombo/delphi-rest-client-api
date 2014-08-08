@@ -37,6 +37,7 @@ type
     procedure valueObject;
     procedure valueList;
     procedure valueObjectList;
+    procedure valueRecord;
   end;
 
   TTestDbxJsonMarshalCompatibility = class(TTestCase)
@@ -292,6 +293,25 @@ begin
   CheckTrue(vObject.IsJsonArray);
   CheckEquals(1, vObject.AsJsonArray.Size);
   CheckEquals(456, vObject.AsJsonArray.Get(0).AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+end;
+
+procedure TTestDbxJsonMarshal.valueRecord;
+var
+  vObject: TJSONValue;
+begin
+  FObject.valueTRecord.vString  := 'abc';
+  FObject.valueTRecord.vInteger := 456;
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckNotNull(FJson.AsJsonObject.Get('valueTRecord'), 'Pair valueTRecord was not found');
+
+  vObject := FJson.AsJsonObject.Get('valueTRecord').JsonValue;
+  CheckNotNull(vObject);
+  CheckTrue(vObject.IsJsonObject);
+  CheckEquals('abc', vObject.AsJsonObject.Get('vString').JsonValue.AsJsonString.Value);
+  CheckEquals(456, vObject.AsJsonObject.Get('vInteger').JsonValue.AsJsonNumber.AsInt);
 end;
 
 procedure TTestDbxJsonMarshal.valueSet;

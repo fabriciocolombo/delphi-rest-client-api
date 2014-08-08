@@ -20,6 +20,7 @@ type
     function FromJson(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;overload;
 
     function FromClass(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
+    function FromRecord(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
     function FromList(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
     function FromString(const AJSONValue: TJSONValue): TValue;
     function FromInt(ATypeInfo: PTypeInfo; const AJSONValue: TJSONValue): TValue;
@@ -295,7 +296,7 @@ begin
       tkMethod: ;
       tkPointer: ;
       tkWChar: Result := FromWideChar(AJSONValue);
-  //    tkRecord: Result := FromRecord;
+      tkRecord: Result := FromRecord(ATypeInfo, AJSONValue);
   //    tkInterface: Result := FromInterface;
   //    tkArray: Result := FromArray;
   //    tkDynArray: Result := FromDynArray;
@@ -383,6 +384,63 @@ begin
       method.Invoke(Result.AsObject, [vItem])
     end;
   end;
+end;
+
+function TDBXJsonUnmarshal.FromRecord(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
+var
+  f: TRttiField;
+  v: TValue;
+  vFieldPair: TJSONPair;
+  vJsonValue: TJSONValue;
+  vOwnedJsonValue: Boolean;
+  vInstance: Pointer;
+begin
+  if AJSONValue.IsJsonObject then
+  begin
+    TValue.Make(nil, ATypeInfo, Result);
+
+    {$IFDEF VER210}
+      vInstance := IValueData(TValueData(Result).FHeapData).GetReferenceToRawData;
+    {$ELSE}
+      vInstance := TValueData(Result).FValueData.GetReferenceToRawData;
+    {$ENDIF}
+    try
+      for f in FContext.GetType(ATypeInfo).GetFields do
+      begin
+        if f.FieldType <> nil then
+        begin
+          vFieldPair := GetPair(AJSONValue.AsJsonObject, f.GetFieldName);
+
+          vJsonValue := GetFieldDefault(f, vFieldPair, vOwnedJsonValue);
+
+          if Assigned(vJsonValue) then
+          begin
+            try
+              try
+                v := FromJson(f.FieldType.Handle, vJsonValue);
+              except
+                on E: Exception do
+                begin
+                  raise EJsonInvalidValueForField.CreateFmt('UnMarshalling error for field "%s.%s" : %s',
+                                                            [Result.AsObject.ClassName, f.Name, E.Message]);
+                end;
+              end;
+
+              if not v.IsEmpty then
+              begin
+                f.SetValue(vInstance, v);
+              end;
+            finally
+              if vOwnedJsonValue then
+                vJsonValue.Free;
+            end;
+          end;
+        end;
+      end;
+    except
+      raise;
+    end;
+  end
 end;
 
 function TDBXJsonUnmarshal.FromSet(ATypeInfo: PTypeInfo;const AJSONValue: TJSONValue): TValue;
