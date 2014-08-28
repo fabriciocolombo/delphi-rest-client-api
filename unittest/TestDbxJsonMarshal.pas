@@ -2,9 +2,13 @@
 
 interface
 
+{$I DelphiRest.inc}
+
 uses TestFramework, DbxJsonMarshal, TypesToTest, RestJsonUtils,
      Generics.Collections, SuperObject, DbxJson, DBXJsonHelpers,
-  DBXJsonUnMarshal, DbxJsonUtils;
+     DBXJsonUnMarshal, DbxJsonUtils
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+     ;
 
 type
   TTestDbxJsonMarshal = class(TTestCase)
@@ -248,8 +252,8 @@ begin
   vObject := FJson.AsJsonObject.Get('valueList').JsonValue;
   CheckNotNull(vObject);
   CheckTrue(vObject.IsJsonArray);
-  CheckEquals(1, vObject.AsJsonArray.Size);
-  CheckEquals(456, vObject.AsJsonArray.Get(0).AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+  CheckEquals(1, vObject.AsJsonArray.Count);
+  CheckEquals(456, vObject.AsJsonArray.Items[0].AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
 end;
 
 procedure TTestDbxJsonMarshal.valueObject;
@@ -291,8 +295,8 @@ begin
   vObject := FJson.AsJsonObject.Get('valueObjectList').JsonValue;
   CheckNotNull(vObject);
   CheckTrue(vObject.IsJsonArray);
-  CheckEquals(1, vObject.AsJsonArray.Size);
-  CheckEquals(456, vObject.AsJsonArray.Get(0).AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+  CheckEquals(1, vObject.AsJsonArray.Count);
+  CheckEquals(456, vObject.AsJsonArray.Items[0].AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
 end;
 
 procedure TTestDbxJsonMarshal.valueRecord;

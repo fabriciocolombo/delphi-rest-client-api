@@ -1,11 +1,11 @@
-package DelphiXE2_RestApi;
+package DelphiXE6_RestApi;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
+{$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
@@ -28,14 +28,14 @@ package DelphiXE2_RestApi;
 {$IMPLICITBUILD ON}
 
 requires
+  vcl,
   rtl,
   dsnap,
   dbrtl,
-  DbxCommonDriver,
-  IndyCore,
   IndySystem,
-  vcl,
-  IndyProtocols;
+  IndyProtocols,
+  IndyCore,
+  DbxCommonDriver;
 
 contains
   DataSetUtils in '..\..\src\DataSetUtils.pas',
@@ -46,10 +46,11 @@ contains
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
   RestRegister in '..\..\src\RestRegister.pas',
-  JsonListAdapter in '..\..\src\JsonListAdapter.pas',
   DBXJsonHelpers in '..\..\src\DBXJsonHelpers.pas',
   DBXJsonMarshal in '..\..\src\DBXJsonMarshal.pas',
   DBXJsonUnMarshal in '..\..\src\DBXJsonUnMarshal.pas',
-  DbxJsonUtils in '..\..\src\DbxJsonUtils.pas';
+  DbxJsonUtils in '..\..\src\DbxJsonUtils.pas',
+  JsonListAdapter in '..\..\src\JsonListAdapter.pas';
 
 end.
+

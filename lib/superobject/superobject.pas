@@ -80,6 +80,8 @@
   {$MODE OBJFPC}{$H+}
 {$ENDIF}
 
+{$I DelphiRest.inc}
+
 {$DEFINE SUPER_METHOD}
 {$DEFINE WINDOWSNT_COMPATIBILITY}
 {.$DEFINE DEBUG} // track memory leack
@@ -89,13 +91,13 @@
   {$DEFINE HAVE_INLINE}
 {$ifend}
 
-{$if defined(VER210) or defined(VER220) or defined(VER230) or defined(VER240) or defined(VER250) or defined(VER260)}
+{$IFDEF DELPHI_2010_UP}
   {$define HAVE_RTTI}
-{$ifend}
+{$ENDIF}
 
-{$if defined(VER230) or defined(VER240) or defined(VER250) or defined(VER260)}
+{$IFDEF DELPHI_XE2_UP}
   {$define NEED_FORMATSETTINGS}
-{$ifend}
+{$ENDIF}
 
 {$if defined(FPC) and defined(VER2_6)}
   {$define NEED_FORMATSETTINGS}
@@ -108,9 +110,9 @@ unit superobject;
 
 interface
 uses
-  Classes,
+  Classes
 {$IFDEF HAVE_RTTI}
-  Generics.Collections, RTTI, TypInfo, DbxJsonUtils, DBXJsonHelpers
+  , Generics.Collections, RTTI, TypInfo, DbxJsonUtils, DBXJsonHelpers
 {$ENDIF}
   ;
 

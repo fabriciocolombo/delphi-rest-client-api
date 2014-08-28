@@ -2,7 +2,11 @@ unit DBXJsonMarshal;
 
 interface
 
-uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers;
+{$I DelphiRest.inc}
+
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    ;
 
 type
   TDBXJsonMarshal = class

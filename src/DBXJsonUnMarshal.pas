@@ -2,7 +2,11 @@ unit DBXJsonUnMarshal;
 
 interface
 
-uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers;
+{$I DelphiRest.inc}
+
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    ;
 
 type
   TDBXJsonUnmarshal = class
@@ -373,9 +377,9 @@ begin
 
   method := FContext.GetType(ATypeInfo).GetMethod('Add');
 
-  for i := 0 to AJSONValue.AsJsonArray.Size - 1 do
+  for i := 0 to AJSONValue.AsJsonArray.Count - 1 do
   begin
-    vJsonValue := AJSONValue.AsJsonArray.Get(i);
+    vJsonValue := AJSONValue.AsJsonArray.Items[i];
 
     vItem := FromJson(GetParameterizedType(ATypeInfo).Handle, vJsonValue);
 

@@ -4,7 +4,9 @@ interface
 
 {$I DelphiRest.inc}
 
-uses Rtti, TypInfo, DBXJson, DbxJsonUtils;
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    ;
 
 type
   TJsonValueHelper = class helper for TJsonValue
@@ -34,6 +36,16 @@ type
   TJsonNumberHelper = class helper for TJsonNumber
   public
     function AsInt64: Int64;
+  end;
+  {$IFEND}
+
+  {$IF defined(DELPHI_2010_UP) and not defined(DELPHI_XE6_UP)}
+  TJsonArrayHelper = class helper for TJsonArray
+  private
+    function GetValue(const Index: Integer): TJSONValue;
+  public
+    function Count: Integer;
+    property Items[const Index: Integer]: TJSONValue read GetValue;
   end;
   {$IFEND}
 
@@ -177,6 +189,20 @@ begin
   Result := StrToInt64(ToString);
 end;
 
+{$IFEND}
+
+{ TJsonArrayHelper }
+
+{$IF defined(DELPHI_2010_UP) and not defined(DELPHI_XE6_UP)}
+function TJsonArrayHelper.Count: Integer;
+begin
+  Result := Self.Size;
+end;
+
+function TJsonArrayHelper.GetValue(const Index: Integer): TJSONValue;
+begin
+  Result := Self.Get(Index);
+end;
 {$IFEND}
 
 end.

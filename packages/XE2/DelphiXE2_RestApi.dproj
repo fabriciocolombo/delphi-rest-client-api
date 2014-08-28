@@ -150,6 +150,11 @@
 			<DCCReference Include="..\..\src\RestJsonUtils.pas"/>
 			<DCCReference Include="..\..\src\RestUtils.pas"/>
 			<DCCReference Include="..\..\src\RestRegister.pas"/>
+			<DCCReference Include="..\..\src\JsonListAdapter.pas"/>
+			<DCCReference Include="..\..\src\DBXJsonHelpers.pas"/>
+			<DCCReference Include="..\..\src\DBXJsonMarshal.pas"/>
+			<DCCReference Include="..\..\src\DBXJsonUnMarshal.pas"/>
+			<DCCReference Include="..\..\src\DbxJsonUtils.pas"/>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
