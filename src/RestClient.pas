@@ -58,6 +58,8 @@ type
     FEnabledCompression: Boolean;
     FOnCustomCreateConnection: TCustomCreateConnection;
     FTimeOut: TTimeOut;
+    FLogin: String;
+    FPassword: String;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -95,6 +97,8 @@ type
     function Resource(URL: String): TResource;
 
     function UnWrapConnection: IHttpConnection;
+
+    procedure SetCredentials(const ALogin, APassword: String);
 
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
@@ -220,6 +224,9 @@ begin
   FTimeOut.Name := 'TimeOut';
   FTimeOut.SetSubComponent(True);
 
+  FLogin := '';
+  FPassword := '';
+
   FEnabledCompression := True;
 end;
 
@@ -262,7 +269,8 @@ begin
                    .SetContentTypes(ResourceRequest.GetContentTypes)
                    .SetHeaders(ResourceRequest.GetHeaders)
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
-                   .ConfigureTimeout(FTimeOut);
+                   .ConfigureTimeout(FTimeOut)
+                   .SetCredentials(FLogin, FPassword);
 
     vUrl := ResourceRequest.GetURL;
 
@@ -394,6 +402,12 @@ begin
 
     RecreateConnection;
   end;
+end;
+
+procedure TRestClient.SetCredentials(const ALogin, APassword: String);
+begin
+  FLogin := ALogin;
+  FPassword := APassword;
 end;
 
 procedure TRestClient.SetEnabledCompression(const Value: Boolean);

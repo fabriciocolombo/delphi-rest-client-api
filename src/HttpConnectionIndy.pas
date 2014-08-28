@@ -28,6 +28,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
+    function SetCredentials(const ALogin, APassword: String): IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -315,6 +316,15 @@ end;
 procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   OnError := AErrorEvent;
+end;
+
+function THttpConnectionIndy.SetCredentials(const ALogin, APassword: String):IHttpConnection;
+begin
+  FIdHttp.Request.Username := ALogin;
+  FIdHttp.Request.Password := APassword;
+  FIdHttp.Request.BasicAuthentication:=True;
+
+  Result := Self;
 end;
 
 { TIdHTTP }
