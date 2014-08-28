@@ -194,6 +194,7 @@ type
     {$IFDEF USE_SUPER_OBJECT}
     procedure GetAsDataSet(ADataSet: TDataSet);overload;
     function GetAsDataSet(): TDataSet;overload;
+    function GetAsDataSet(const RootElement: String): TDataSet;overload;
     {$ENDIF}
   end;
 
@@ -717,6 +718,19 @@ end;
 {$ENDIF}
 
 {$IFDEF USE_SUPER_OBJECT}
+function TResource.GetAsDataSet(const RootElement: String): TDataSet;
+var
+  vJson: ISuperObject;
+begin
+  if RootElement <> EmptyStr then begin
+    vJson := SuperObject.SO(Get);
+    Result := TJsonToDataSetConverter.CreateDataSetMetadata(vJson[RootElement]);
+    TJsonToDataSetConverter.UnMarshalToDataSet(Result, vJson[RootElement]);
+  end else begin
+    Result:=GetasDataSet();
+  end;
+end;
+
 function TResource.GetAsDataSet: TDataSet;
 var
   vJson: ISuperObject;
