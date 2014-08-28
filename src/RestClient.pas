@@ -9,7 +9,7 @@ uses Classes, SysUtils, HttpConnection,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
      {$ELSE}
-     Contnrs,
+     Contnrs, OldRttiUnMarshal,
      {$ENDIF}
      DB, JsonListAdapter;
 
@@ -301,7 +301,7 @@ begin
     begin
       vRetryMode := hrmRaise;
       if assigned(OnError) then
-        OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+       // OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
 
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(

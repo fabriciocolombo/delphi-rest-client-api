@@ -2,7 +2,7 @@ unit OldRttiMarshal;
 
 interface
 
-uses TypInfo, SuperObject, DbxJsonUtils, Classes;
+uses TypInfo, SuperObject, Classes;
 
 type
   TOldRttiMarshal = class
@@ -20,7 +20,7 @@ type
 
 implementation
 
-uses Variants, JsonListAdapter, SysUtils;
+uses Variants, JsonListAdapter, SysUtils, RestJsonUtils;
 
 { TOldRttiMarshal }
 

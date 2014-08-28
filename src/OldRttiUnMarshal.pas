@@ -2,7 +2,7 @@ unit OldRttiUnMarshal;
 
 interface
 
-uses TypInfo, SuperObject, Variants, SysUtils, Math, DbxJsonUtils, Classes;
+uses TypInfo, SuperObject, Variants, SysUtils, Math, Classes;
 
 type
   TOldRttiUnMarshal = class
@@ -22,6 +22,8 @@ type
   end;
 
 implementation
+
+uses RestJsonUtils;
 
 { TOldRttiUnMarshal }
 
