@@ -22,7 +22,8 @@
 
 interface
 
-uses superobject, classes, supertypes;
+uses superobject, classes;
+
 
 type
   TOnProcessingInstruction = procedure(const PI, PIParent: ISuperObject);
