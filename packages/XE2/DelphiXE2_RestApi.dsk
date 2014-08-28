@@ -10,13 +10,13 @@ File_7=TSourceModule,'C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-
 
 [Modules]
 Module0=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DBXJsonHelpers.pas
-Module1=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj
-Module2=c:\program files (x86)\embarcadero\rad studio\9.0\source\data\dbx\Data.DBXJSON.pas
-Module3=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestJsonUtils.pas
-Module4=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\JsonListAdapter.pas
-Module5=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas
-Module6=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
-Module7=default.htm
+Module1=default.htm
+Module2=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj
+Module3=c:\program files (x86)\embarcadero\rad studio\9.0\source\data\dbx\Data.DBXJSON.pas
+Module4=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestJsonUtils.pas
+Module5=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\JsonListAdapter.pas
+Module6=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\HttpConnectionFactory.pas
+Module7=C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas
 Count=8
 EditWindowCount=1
 
@@ -24,6 +24,9 @@ EditWindowCount=1
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
+
+[default.htm]
+ModuleType=TURLModule
 
 [C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\packages\XE2\DelphiXE2_RestApi.dproj]
 ModuleType=TBaseProject
@@ -50,21 +53,6 @@ FormOnTop=0
 
 [C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\RestClient.pas]
 ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[default.htm]
-ModuleType=TURLModule
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DBXJsonMarshal.pas]
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DBXJsonUnMarshal.pas]
-FormState=0
-FormOnTop=0
-
-[C:\Desenvolvimento\OpenSource\fabricio\delphi-rest-client-api\src\DbxJsonUtils.pas]
 FormState=0
 FormOnTop=0
 
@@ -97,13 +85,13 @@ BorlandEditorCodeExplorer=BorlandEditorCodeExplorer@EditWindow0
 TopPanelSize=0
 LeftPanelSize=1464
 LeftPanelClients=PropertyInspector,DockSite3
-LeftPanelData=000008000101000000005B0D00000000000001B8050000000000000100000000580E000009000000446F636B53697465330100000000C11700001100000050726F7065727479496E73706563746F72FFFFFFFF
+LeftPanelData=00000800010100000000280F00000000000001B8050000000000000100000000580E000009000000446F636B53697465330100000000F51A00001100000050726F7065727479496E73706563746F72FFFFFFFF
 RightPanelSize=1720
 RightPanelClients=DockSite2,DockSite4
-RightPanelData=000008000101000000005B0D00000000000001B80600000000000001000000004212000009000000446F636B53697465320100000000C117000009000000446F636B5369746534FFFFFFFF
-BottomPanelSize=2370
+RightPanelData=00000800010100000000280F00000000000001B80600000000000001000000004212000009000000446F636B53697465320100000000F51A000009000000446F636B5369746534FFFFFFFF
+BottomPanelSize=1549
 BottomPanelClients=DockSite1,MessageView
-BottomPanelData=0000080001020100000009000000446F636B53697465317A4500000000000002420900000000000001000000007A4500000F0000004D65737361676556696577466F726DFFFFFFFF
+BottomPanelData=0000080001020100000009000000446F636B53697465317A45000000000000020D0600000000000001000000007A4500000F0000004D65737361676556696577466F726DFFFFFFFF
 BottomMiddlePanelSize=0
 BottomMiddlePanelClients=DockSite0
 BottomMiddelPanelData=0000080001020100000009000000446F636B53697465309A1D00000000000002EB06000000000000FFFFFFFF
@@ -273,12 +261,12 @@ State=0
 Left=0
 Top=23
 Width=10000
-Height=2184
+Height=1319
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=10000
-ClientHeight=2184
-TBDockHeight=2184
+ClientHeight=1319
+TBDockHeight=1319
 LRDockWidth=2767
 Dockable=1
 StayOnTop=0
@@ -292,11 +280,11 @@ State=0
 Left=0
 Top=0
 Width=1720
-Height=1168
+Height=2033
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1720
-ClientHeight=1168
+ClientHeight=2033
 TBDockHeight=7157
 LRDockWidth=1999
 Dockable=1
@@ -311,11 +299,11 @@ State=0
 Left=0
 Top=305
 Width=1464
-Height=2225
+Height=3091
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1464
-ClientHeight=2225
+ClientHeight=3091
 TBDockHeight=8613
 LRDockWidth=1464
 Dockable=1
@@ -815,11 +803,11 @@ State=0
 Left=0
 Top=382
 Width=1720
-Height=1168
+Height=2033
 MaxLeft=-1
 MaxTop=-1
 ClientWidth=1720
-ClientHeight=1168
+ClientHeight=2033
 TBDockHeight=8613
 LRDockWidth=1720
 Dockable=1
