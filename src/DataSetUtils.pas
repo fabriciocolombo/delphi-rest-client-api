@@ -7,7 +7,7 @@ uses DB, SysUtils;
 type
   TDataSetUtils = class
   public
-    class function CreateField(DataSet: TDataSet; FieldType: TFieldType; const FieldName: string = '';ASize: Integer=0): TField;
+    class function CreateField(DataSet: TDataSet; FieldType: TFieldType; const FieldName: string = ''; ASize: Integer=0; ADisplayWidth: Integer = 30): TField;
     class function CreateDataSetField(DataSet: TDataSet; const FieldName: string): TDataSetField;
   end;
 
@@ -21,7 +21,7 @@ begin
 end;
 
 class function TDataSetUtils.CreateField(DataSet: TDataSet;
-  FieldType: TFieldType; const FieldName: string; ASize: Integer): TField;
+  FieldType: TFieldType; const FieldName: string; ASize: Integer; ADisplayWidth: Integer): TField;
 begin
     Result:= DefaultFieldClasses[FieldType].Create(DataSet);
     Result.FieldName:= FieldName;
@@ -31,6 +31,8 @@ begin
     Result.DataSet:= DataSet;
     Result.Name:= DataSet.Name + Result.FieldName;
     Result.Size := ASize;
+    if (FieldType = ftString) then
+      Result.DisplayWidth := ADisplayWidth;
 
     if (FieldType = ftString) and (ASize <= 0) then
       raise Exception.CreateFmt('Size não definido para o campo "%s".',[FieldName]);
