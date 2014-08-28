@@ -301,7 +301,7 @@ begin
     begin
       vRetryMode := hrmRaise;
       if assigned(OnError) then
-       // OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+        FHttpConnection.OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
 
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(
