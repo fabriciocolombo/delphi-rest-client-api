@@ -72,6 +72,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+    function SetCredentials(const ALogin, APassword: String): IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent, AResponse: TStream);

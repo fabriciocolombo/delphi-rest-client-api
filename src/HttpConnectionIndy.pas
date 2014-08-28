@@ -28,6 +28,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
+    function SetCredentials(const ALogin, APassword: String): IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -56,6 +57,8 @@ function THttpConnectionIndy.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpCo
 begin
   FIdHttp.ConnectTimeout := ATimeOut.ConnectTimeout;
   FIdHttp.ReadTimeout := ATimeOut.ReceiveTimeout;
+
+  Result := Self;
 end;
 
 constructor THttpConnectionIndy.Create;
@@ -313,6 +316,15 @@ end;
 procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   OnError := AErrorEvent;
+end;
+
+function THttpConnectionIndy.SetCredentials(const ALogin, APassword: String):IHttpConnection;
+begin
+  FIdHttp.Request.Username := ALogin;
+  FIdHttp.Request.Password := APassword;
+  FIdHttp.Request.BasicAuthentication:=True;
+
+  Result := Self;
 end;
 
 { TIdHTTP }

@@ -123,6 +123,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
+    function SetCredentials(const ALogin, APassword: String):IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -199,6 +200,8 @@ begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+
+  Result := Self;
 end;
 
 constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = True);
@@ -292,6 +295,13 @@ end;
 function THttpConnectionWinInet.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
   FHeaders.Assign(AHeaders);
+
+  Result := Self;
+end;
+function THttpConnectionWinInet.SetCredentials(const ALogin, APassword: String): IHttpConnection;
+begin
+  FBasicAuthentication_UserName := ALogin;
+  FBasicAuthentication_Password := APassword;
 
   Result := Self;
 end;

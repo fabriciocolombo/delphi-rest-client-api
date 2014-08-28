@@ -15,6 +15,8 @@ type
     FConnectTimeout: Integer;
     FSendTimeout: Integer;
     FReceiveTimeout: Integer;
+    FLogin: String;
+    FPassword: String;
 
     procedure Configure;
 
@@ -30,6 +32,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
+    function SetCredentials(const ALogin, APassword: String):IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -59,14 +62,18 @@ procedure THttpConnectionWinHttp.Configure;
 var
   i: Integer;
 begin
+  FWinHttpRequest.SetAutoLogonPolicy(0);
   if FAcceptTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept', FAcceptTypes);
 
-  if FAcceptedLanguages <> EmptyStr then  
+  if FAcceptedLanguages <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept-Language', FAcceptedLanguages);
 
-  if FContentTypes <> EmptyStr then  
+  if FContentTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Content-Type', FContentTypes);
+
+  if (FPassword <> EmptyStr) and (FLogin <> EmptyStr) then
+    FWinHttpRequest.SetCredentials(FLogin, FPassword, 0);
 
   for i := 0 to FHeaders.Count-1 do
   begin
@@ -84,6 +91,8 @@ begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+
+  Result := Self;
 end;
 
 procedure THttpConnectionWinHttp.CopyResourceStreamToStream(AResponse: TStream);
@@ -106,6 +115,8 @@ end;
 constructor THttpConnectionWinHttp.Create;
 begin
   FHeaders := TStringList.Create;
+  FLogin:='';
+  FPassword:='';
 end;
 
 procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
@@ -209,14 +220,14 @@ end;
 function THttpConnectionWinHttp.SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
 begin
   FAcceptedLanguages := AAcceptedLanguages;
-  
+
   Result := Self;
 end;
 
 function THttpConnectionWinHttp.SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
 begin
   FAcceptTypes := AAcceptTypes;
-  
+
   Result := Self;
 end;
 
@@ -250,4 +261,11 @@ begin
   OnError := AErrorEvent;
 end;
 
+function THttpConnectionWinHttp.SetCredentials(const ALogin, APassword: String):IHttpConnection;
+begin
+  FLogin:= ALogin;
+  FPassword:=APassword;
+
+  Result:= Self;
+end;
 end.
