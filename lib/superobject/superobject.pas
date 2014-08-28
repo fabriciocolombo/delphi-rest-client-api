@@ -863,7 +863,7 @@ function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue 
 {$ENDIF}
 
 implementation
-uses sysutils,
+uses sysutils, RestJsonUtils,
 {$IFDEF UNIX}
   baseunix, unix, DateUtils
 {$ELSE}

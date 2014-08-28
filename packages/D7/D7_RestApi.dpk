@@ -28,8 +28,7 @@ requires
   rtl,
   vcl,
   dbrtl,
-  dsnap,
-  indy;
+  dsnap;
 
 contains
   RestClient in '..\..\src\RestClient.pas',
@@ -43,6 +42,9 @@ contains
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
   JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
   RestRegister in '..\..\src\RestRegister.pas',
-  wcrypt2 in '..\..\lib\Wcrypt2.pas';
+  wcrypt2 in '..\..\lib\Wcrypt2.pas',
+  OldRttiMarshal in '..\..\src\OldRttiMarshal.pas',
+  OldRttiUnMarshal in '..\..\src\OldRttiUnMarshal.pas',
+  JsonListAdapter in '..\..\src\JsonListAdapter.pas';
 
 end.

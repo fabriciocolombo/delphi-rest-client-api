@@ -3,7 +3,7 @@
 interface
 
 uses TestFramework, DbxJsonUnMarshal, TypesToTest,
-     Generics.Collections, SuperObject, DbxJson, DbxJsonUtils;
+     Generics.Collections, SuperObject, DbxJson, DbxJsonUtils, RestJsonUtils;
 
 type
   TTestDbxJsonUnMarshal = class(TTestCase)
