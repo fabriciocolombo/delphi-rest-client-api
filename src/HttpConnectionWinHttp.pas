@@ -84,6 +84,8 @@ begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+
+  Result := Self;
 end;
 
 procedure THttpConnectionWinHttp.CopyResourceStreamToStream(AResponse: TStream);

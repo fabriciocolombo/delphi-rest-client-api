@@ -56,6 +56,8 @@ function THttpConnectionIndy.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpCo
 begin
   FIdHttp.ConnectTimeout := ATimeOut.ConnectTimeout;
   FIdHttp.ReadTimeout := ATimeOut.ReceiveTimeout;
+
+  Result := Self;
 end;
 
 constructor THttpConnectionIndy.Create;

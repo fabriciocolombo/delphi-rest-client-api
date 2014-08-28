@@ -199,6 +199,8 @@ begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+
+  Result := Self;
 end;
 
 constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = True);
