@@ -2,7 +2,11 @@ unit DBXJsonUnMarshal;
 
 interface
 
-uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers;
+{$I DelphiRest.inc}
+
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    ;
 
 type
   TDBXJsonUnmarshal = class
@@ -20,6 +24,7 @@ type
     function FromJson(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;overload;
 
     function FromClass(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
+    function FromRecord(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
     function FromList(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
     function FromString(const AJSONValue: TJSONValue): TValue;
     function FromInt(ATypeInfo: PTypeInfo; const AJSONValue: TJSONValue): TValue;
@@ -39,7 +44,7 @@ type
 
 implementation
 
-uses SysUtils, StrUtils;
+uses SysUtils, StrUtils, RestJsonUtils;
 
 { TDBXJsonUnmarshal }
 
@@ -159,6 +164,7 @@ end;
 function TDBXJsonUnmarshal.FromFloat(ATypeInfo: PTypeInfo; const AJSONValue: TJSONValue): TValue;
 var
   vTemp: TJSONValue;
+  vJavaDateTime: Int64;
 begin
   if AJSONValue.IsJsonNumber then
   begin
@@ -181,14 +187,21 @@ begin
   end
   else if AJSONValue.IsJsonString then
   begin
-    vTemp := TJSONObject.ParseJSONValue(AJSONValue.AsJsonString.Value);
-    try
-      if vTemp.IsJsonNumber then
-        Result := FromFloat(ATypeInfo, vTemp)
-      else
-        Result := TValue.Empty;
-    finally
-      vTemp.Free;
+    if ISO8601DateToJavaDateTime(AJSONValue.AsJsonString.Value, vJavaDateTime) then
+    begin
+      Result := JavaToDelphiDateTime(vJavaDateTime);
+    end
+    else
+    begin
+      vTemp := TJSONObject.ParseJSONValue(AJSONValue.AsJsonString.Value);
+      try
+        if vTemp.IsJsonNumber then
+          Result := FromFloat(ATypeInfo, vTemp)
+        else
+          Result := TValue.Empty;
+      finally
+        vTemp.Free;
+      end;
     end;
   end
   else
@@ -287,7 +300,7 @@ begin
       tkMethod: ;
       tkPointer: ;
       tkWChar: Result := FromWideChar(AJSONValue);
-  //    tkRecord: Result := FromRecord;
+      tkRecord: Result := FromRecord(ATypeInfo, AJSONValue);
   //    tkInterface: Result := FromInterface;
   //    tkArray: Result := FromArray;
   //    tkDynArray: Result := FromDynArray;
@@ -364,9 +377,9 @@ begin
 
   method := FContext.GetType(ATypeInfo).GetMethod('Add');
 
-  for i := 0 to AJSONValue.AsJsonArray.Size - 1 do
+  for i := 0 to AJSONValue.AsJsonArray.Count - 1 do
   begin
-    vJsonValue := AJSONValue.AsJsonArray.Get(i);
+    vJsonValue := AJSONValue.AsJsonArray.Items[i];
 
     vItem := FromJson(GetParameterizedType(ATypeInfo).Handle, vJsonValue);
 
@@ -375,6 +388,63 @@ begin
       method.Invoke(Result.AsObject, [vItem])
     end;
   end;
+end;
+
+function TDBXJsonUnmarshal.FromRecord(ATypeInfo: PTypeInfo; AJSONValue: TJSONValue): TValue;
+var
+  f: TRttiField;
+  v: TValue;
+  vFieldPair: TJSONPair;
+  vJsonValue: TJSONValue;
+  vOwnedJsonValue: Boolean;
+  vInstance: Pointer;
+begin
+  if AJSONValue.IsJsonObject then
+  begin
+    TValue.Make(nil, ATypeInfo, Result);
+
+    {$IFDEF VER210}
+      vInstance := IValueData(TValueData(Result).FHeapData).GetReferenceToRawData;
+    {$ELSE}
+      vInstance := TValueData(Result).FValueData.GetReferenceToRawData;
+    {$ENDIF}
+    try
+      for f in FContext.GetType(ATypeInfo).GetFields do
+      begin
+        if f.FieldType <> nil then
+        begin
+          vFieldPair := GetPair(AJSONValue.AsJsonObject, f.GetFieldName);
+
+          vJsonValue := GetFieldDefault(f, vFieldPair, vOwnedJsonValue);
+
+          if Assigned(vJsonValue) then
+          begin
+            try
+              try
+                v := FromJson(f.FieldType.Handle, vJsonValue);
+              except
+                on E: Exception do
+                begin
+                  raise EJsonInvalidValueForField.CreateFmt('UnMarshalling error for field "%s.%s" : %s',
+                                                            [Result.AsObject.ClassName, f.Name, E.Message]);
+                end;
+              end;
+
+              if not v.IsEmpty then
+              begin
+                f.SetValue(vInstance, v);
+              end;
+            finally
+              if vOwnedJsonValue then
+                vJsonValue.Free;
+            end;
+          end;
+        end;
+      end;
+    except
+      raise;
+    end;
+  end
 end;
 
 function TDBXJsonUnmarshal.FromSet(ATypeInfo: PTypeInfo;const AJSONValue: TJSONValue): TValue;
@@ -405,6 +475,18 @@ begin
   begin
     Result := AJSONValue.AsJsonString.Value;
   end
+  else if AJSONValue.IsJsonNumber then
+  begin
+    Result := AJSONValue.AsJsonNumber.Value;
+  end
+  else if AJSONValue.IsJsonTrue then
+  begin
+    Result := 'true';
+  end
+  else if AJSONValue.IsJsonFalse then
+  begin
+    Result := 'false';
+  end
   else
     raise EJsonInvalidValue.CreateFmt('Invalid value "%s".', [AJSONValue.ToString]);
 end;
@@ -433,7 +515,7 @@ begin
       if attr is JsonDefault then
       begin
         AOwned := True;
-        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name);
+        Exit(TJSONObject.ParseJSONValue(JsonDefault(attr).Name));
       end;
     end;
   end;
@@ -456,7 +538,7 @@ begin
   for i := 0 to AJSONObject.Size - 1 do
   begin
     Candidate := AJSONObject.Get(i);
-    if (Candidate.JsonString.Value = APairName) then
+    if SameStr(Candidate.JsonString.Value, APairName) then
       Exit(Candidate);
   end;
   Result := nil;

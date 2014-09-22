@@ -18,18 +18,8 @@ type
 
   JsonName = class(TJsonAttribute);
   JsonDefault = class(TJsonAttribute);
+  JsonISO8601 = class(TCustomAttribute);
 {$ENDIF}  
-
-  EJsonInvalidValue = class(Exception);
-  EJsonInvalidValueForField = class(Exception);
-  EJsonInvalidSyntax = class(Exception);
-  ENoSerializableClass = class(Exception)
-  public
-    constructor Create(AClass: TClass);
-  end;
-
-function JavaToDelphiDateTime(const dt: int64): TDateTime;
-function DelphiToJavaDateTime(const dt: TDateTime): int64;
 
 implementation
 
@@ -264,44 +254,6 @@ function SystemTimeToTzSpecificLocalTime(
 {$ENDIF WINDOWSNT_COMPATIBILITY}
 {$ENDIF MACOS}
 
-{$IFDEF DELPHI_XE_UP}
-function JavaToDelphiDateTime(const dt: int64): TDateTime;
-var
-  univTime: TDateTime;
-begin
-  univTime := UnixDateDelta + (dt / 86400000);
-
-  Result := TTimeZone.Local.ToLocalTime(univTime);
-end;
-
-function DelphiToJavaDateTime(const dt: TDateTime): int64;
-var
-  univTime: TDateTime;
-begin
-  univTime := TTimeZone.Local.ToUniversalTime(dt);
-
-  Result := Round((univTime - UnixDateDelta) * 86400000);
-end;
-{$ELSE}
-function JavaToDelphiDateTime(const dt: int64): TDateTime;
-var
-  t: TSystemTime;
-begin
-  DateTimeToSystemTime(25569 + (dt / 86400000), t);
-  SystemTimeToTzSpecificLocalTime(nil, @t, @t);
-  Result := SystemTimeToDateTime(t);
-end;
-
-function DelphiToJavaDateTime(const dt: TDateTime): int64;
-var
-  t: TSystemTime;
-begin
-  DateTimeToSystemTime(dt, t);
-  TzSpecificLocalTimeToSystemTime(nil, @t, @t);
-  Result := Round((SystemTimeToDateTime(t) - 25569) * 86400000)
-end;
-{$ENDIF}
-
 {$IFDEF USE_GENERICS}
 { TJsonAttribute }
 
@@ -310,12 +262,5 @@ begin
   FName := AName;
 end;
 {$ENDIF}
-
-{ ENoSerializableClass }
-
-constructor ENoSerializableClass.Create(AClass: TClass);
-begin
-  inherited CreateFmt('Class "%s" has no RTTI (Run-time Type Information).', [AClass.ClassName]);
-end;
 
 end.

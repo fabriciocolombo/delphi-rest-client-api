@@ -5,25 +5,25 @@ package DelphiXE2_RestApi;
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO OFF}
+{$DEBUGINFO ON}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS OFF}
+{$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
-{$REFERENCEINFO OFF}
+{$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE RELEASE}
+{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
@@ -43,9 +43,13 @@ contains
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
   RestClient in '..\..\src\RestClient.pas',
   RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
-  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
-  RestRegister in '..\..\src\RestRegister.pas';
+  RestRegister in '..\..\src\RestRegister.pas',
+  JsonListAdapter in '..\..\src\JsonListAdapter.pas',
+  DBXJsonHelpers in '..\..\src\DBXJsonHelpers.pas',
+  DBXJsonMarshal in '..\..\src\DBXJsonMarshal.pas',
+  DBXJsonUnMarshal in '..\..\src\DBXJsonUnMarshal.pas',
+  DbxJsonUtils in '..\..\src\DbxJsonUtils.pas';
 
 end.

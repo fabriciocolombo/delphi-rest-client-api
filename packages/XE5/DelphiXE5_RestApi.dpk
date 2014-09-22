@@ -1,6 +1,7 @@
-package D7_RestApi;
+package DelphiXE5_RestApi;
 
 {$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
@@ -11,40 +12,45 @@ package D7_RestApi;
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$IMPLICITBUILD OFF}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
 
 requires
-  rtl,
   vcl,
+  rtl,
+  dsnap,
   dbrtl,
-  dsnap;
+  IndySystem,
+  IndyProtocols,
+  IndyCore,
+  DbxCommonDriver;
 
 contains
-  RestClient in '..\..\src\RestClient.pas',
-  RestUtils in '..\..\src\RestUtils.pas',
   superobject in '..\..\lib\superobject\superobject.pas',
   superxmlparser in '..\..\lib\superobject\superxmlparser.pas',
-  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
-  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
   DataSetUtils in '..\..\src\DataSetUtils.pas',
   HttpConnection in '..\..\src\HttpConnection.pas',
   HttpConnectionFactory in '..\..\src\HttpConnectionFactory.pas',
+  HttpConnectionIndy in '..\..\src\HttpConnectionIndy.pas',
+  HttpConnectionWinHttp in '..\..\src\HttpConnectionWinHttp.pas',
   JsonToDataSetConverter in '..\..\src\JsonToDataSetConverter.pas',
-  RestRegister in '..\..\src\RestRegister.pas',
-  wcrypt2 in '..\..\lib\Wcrypt2.pas',
-  OldRttiMarshal in '..\..\src\OldRttiMarshal.pas',
-  OldRttiUnMarshal in '..\..\src\OldRttiUnMarshal.pas',
-  JsonListAdapter in '..\..\src\JsonListAdapter.pas';
+  RestClient in '..\..\src\RestClient.pas',
+  RestJsonGenerics in '..\..\src\RestJsonGenerics.pas',
+  RestJsonOldRTTI in '..\..\src\RestJsonOldRTTI.pas',
+  RestJsonUtils in '..\..\src\RestJsonUtils.pas',
+  RestUtils in '..\..\src\RestUtils.pas',
+  RestRegister in '..\..\src\RestRegister.pas';
 
 end.

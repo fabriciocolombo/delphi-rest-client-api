@@ -10,8 +10,8 @@ type
   TEnumTypeSet = set of TEnumType;
 
   TRecordTypes = record
-    one: string;
-    two: Integer;
+    vString: string;
+    vInteger: Integer;
   end;
 
   TAllTypes = class;
@@ -45,11 +45,14 @@ type
     valueList: TList<TAllTypes>;
     valueObjectList: TObjectList<TAllTypes>;
     valueDateTime: TDateTime;
+    [JsonISO8601]
+    valueDateTimeISO: TDateTime;
     valueEnum: TEnumType;
     valueSet: TEnumTypeSet;
 
-{
     valueTRecord: TRecordTypes;
+
+    {
     valueTObjectArray: TAllTypesArray;
     valueArray: Array[1..3] of Integer;
     valueDynArray: TIntegerDynArray;

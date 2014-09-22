@@ -2,9 +2,13 @@
 
 interface
 
+{$I DelphiRest.inc}
+
 uses TestFramework, DbxJsonMarshal, TypesToTest, RestJsonUtils,
      Generics.Collections, SuperObject, DbxJson, DBXJsonHelpers,
-  DBXJsonUnMarshal;
+     DBXJsonUnMarshal, DbxJsonUtils
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+     ;
 
 type
   TTestDbxJsonMarshal = class(TTestCase)
@@ -30,11 +34,14 @@ type
     procedure valueBooleanTrue;
     procedure valueBooleanFalse;
     procedure valueDateTime;
+    procedure valueDateTimeISO8601;
+    procedure valueDateTimeZero;
     procedure valueEnum;
     procedure valueSet;
     procedure valueObject;
     procedure valueList;
     procedure valueObjectList;
+    procedure valueRecord;
   end;
 
   TTestDbxJsonMarshalCompatibility = class(TTestCase)
@@ -149,7 +156,30 @@ begin
 
   CheckNotNull(FJson);
   CheckEquals(vJavaDate, FJson.AsJsonObject.Get('valueDateTime').JsonValue.AsJsonNumber.AsInt64);
+end;
 
+procedure TTestDbxJsonMarshal.valueDateTimeISO8601;
+var
+  vISODate: string;
+begin
+  FObject.valueDateTimeISO := Now;
+
+  vISODate := DelphiDateTimeToISO8601Date(FObject.valueDateTimeISO);
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckEquals(vISODate, FJson.AsJsonObject.Get('valueDateTimeISO').JsonValue.AsJsonString.Value);
+end;
+
+procedure TTestDbxJsonMarshal.valueDateTimeZero;
+begin
+  FObject.valueDateTime := 0;
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckNull(FJson.AsJsonObject.Get('valueDateTime'));
 end;
 
 procedure TTestDbxJsonMarshal.valueDouble;
@@ -222,8 +252,8 @@ begin
   vObject := FJson.AsJsonObject.Get('valueList').JsonValue;
   CheckNotNull(vObject);
   CheckTrue(vObject.IsJsonArray);
-  CheckEquals(1, vObject.AsJsonArray.Size);
-  CheckEquals(456, vObject.AsJsonArray.Get(0).AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+  CheckEquals(1, vObject.AsJsonArray.Count);
+  CheckEquals(456, vObject.AsJsonArray.Items[0].AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
 end;
 
 procedure TTestDbxJsonMarshal.valueObject;
@@ -265,8 +295,27 @@ begin
   vObject := FJson.AsJsonObject.Get('valueObjectList').JsonValue;
   CheckNotNull(vObject);
   CheckTrue(vObject.IsJsonArray);
-  CheckEquals(1, vObject.AsJsonArray.Size);
-  CheckEquals(456, vObject.AsJsonArray.Get(0).AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+  CheckEquals(1, vObject.AsJsonArray.Count);
+  CheckEquals(456, vObject.AsJsonArray.Items[0].AsJsonObject.Get('valueInteger').JsonValue.AsJsonNumber.AsInt);
+end;
+
+procedure TTestDbxJsonMarshal.valueRecord;
+var
+  vObject: TJSONValue;
+begin
+  FObject.valueTRecord.vString  := 'abc';
+  FObject.valueTRecord.vInteger := 456;
+
+  FJson := TDBXJsonMarshal.ToJson(FObject);
+
+  CheckNotNull(FJson);
+  CheckNotNull(FJson.AsJsonObject.Get('valueTRecord'), 'Pair valueTRecord was not found');
+
+  vObject := FJson.AsJsonObject.Get('valueTRecord').JsonValue;
+  CheckNotNull(vObject);
+  CheckTrue(vObject.IsJsonObject);
+  CheckEquals('abc', vObject.AsJsonObject.Get('vString').JsonValue.AsJsonString.Value);
+  CheckEquals(456, vObject.AsJsonObject.Get('vInteger').JsonValue.AsJsonNumber.AsInt);
 end;
 
 procedure TTestDbxJsonMarshal.valueSet;
@@ -322,7 +371,12 @@ begin
   vRestored := TDBXJsonUnmarshal.FromJson<TAllTypes>(vMyJson);
   try
     CheckNotNull(vRestored);
-    CheckEquals(vRoot.ToJson.AsJSon, vRestored.ToJson().AsJSon());
+
+    Status(DateTimeToStr(vRoot.valueDateTimeISO));
+    Status(DateTimeToStr(vRestored.valueDateTimeISO));
+    CheckEquals(DateTimeToStr(vRoot.valueDateTimeISO), DateTimeToStr(vRestored.valueDateTimeISO));
+
+    CheckEquals(vRoot.ToJson.AsJSon, vRestored.ToJson().AsJSon(), 'SuperObject x SuperObject');
   finally
     vRestored.Free;
   end;
@@ -362,6 +416,7 @@ begin
   vRoot.fieldDefaultValue := 'default';
   vRoot.valueBoolean := True;
   vRoot.valueDateTime := Now;
+  vRoot.valueDateTimeISO := Now;
   vRoot.valueEnum := etThree;
   vRoot.valueSet := [etOne, etThree];
 

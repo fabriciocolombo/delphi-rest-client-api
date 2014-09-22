@@ -35,7 +35,9 @@ uses
   OldRttiUnMarshal in '..\src\OldRttiUnMarshal.pas',
   JsonListAdapter in '..\src\JsonListAdapter.pas',
   TestDbxJsonUnMarshal in 'TestDbxJsonUnMarshal.pas',
-  DbxJsonUnMarshal in '..\src\DbxJsonUnMarshal.pas';
+  DbxJsonUnMarshal in '..\src\DbxJsonUnMarshal.pas',
+  TestDBXJsonUtils in 'TestDBXJsonUtils.pas',
+  TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas';
 
 {$R *.RES}
 

@@ -80,6 +80,8 @@
   {$MODE OBJFPC}{$H+}
 {$ENDIF}
 
+{$I DelphiRest.inc}
+
 {$DEFINE SUPER_METHOD}
 {$DEFINE WINDOWSNT_COMPATIBILITY}
 {.$DEFINE DEBUG} // track memory leack
@@ -89,13 +91,13 @@
   {$DEFINE HAVE_INLINE}
 {$ifend}
 
-{$if defined(VER210) or defined(VER220) or defined(VER230) or defined(VER240) or defined(VER250)}
+{$IFDEF DELPHI_2010_UP}
   {$define HAVE_RTTI}
-{$ifend}
+{$ENDIF}
 
-{$if defined(VER230) or defined(VER240) or defined(VER250)}
+{$IFDEF DELPHI_XE2_UP}
   {$define NEED_FORMATSETTINGS}
-{$ifend}
+{$ENDIF}
 
 {$if defined(FPC) and defined(VER2_6)}
   {$define NEED_FORMATSETTINGS}
@@ -108,9 +110,9 @@ unit superobject;
 
 interface
 uses
-  Classes, DateUtils
+  Classes
 {$IFDEF HAVE_RTTI}
-  ,Generics.Collections, RTTI, TypInfo
+  , Generics.Collections, RTTI, TypInfo, DbxJsonUtils, DBXJsonHelpers
 {$ENDIF}
   ;
 
@@ -800,7 +802,7 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     function FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject; var Value: TValue): Boolean; virtual;
-    function ToJson(var value: TValue; const index: ISuperObject): ISuperObject; virtual;
+    function ToJson(var value: TValue; const index: ISuperObject; _listCount: integer=-1; field: TRttiField = nil): ISuperObject; virtual;
     function AsType<T>(const obj: ISuperObject): T;
     function AsJson<T>(const obj: T; const index: ISuperObject = nil): ISuperObject;
   end;
@@ -837,9 +839,6 @@ function SA(const Args: array of const): ISuperObject; overload;
 function JavaToDelphiDateTime(const dt: int64): TDateTime;
 function DelphiToJavaDateTime(const dt: TDateTime): int64;
 function TryObjectToDate(const obj: ISuperObject; var dt: TDateTime): Boolean;
-function ISO8601DateToJavaDateTime(const str: SOString; var ms: Int64): Boolean;
-function ISO8601DateToDelphiDateTime(const str: SOString; var dt: TDateTime): Boolean;
-function DelphiDateTimeToISO8601Date(dt: TDateTime): SOString;
 function UUIDToString(const g: TGUID): SOString;
 function StringToUUID(const str: SOString; var g: TGUID): Boolean;
 
@@ -864,7 +863,7 @@ function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue 
 {$ENDIF}
 
 implementation
-uses sysutils,
+uses sysutils, RestJsonUtils,
 {$IFDEF UNIX}
   baseunix, unix, DateUtils
 {$ELSE}
@@ -1332,666 +1331,6 @@ begin
 end;
 {$ENDIF}
 
-function ISO8601DateToJavaDateTime(const str: SOString; var ms: Int64): Boolean;
-type
-  TState = (
-    stStart, stYear, stMonth, stWeek, stWeekDay, stDay, stDayOfYear,
-    stHour, stMin, stSec, stMs, stUTC, stGMTH, stGMTM,
-    stGMTend, stEnd);
-
-  TPerhaps = (yes, no, perhaps);
-  TDateTimeInfo = record
-    year: Word;
-    month: Word;
-    week: Word;
-    weekday: Word;
-    day: Word;
-    dayofyear: Integer;
-    hour: Word;
-    minute: Word;
-    second: Word;
-    ms: Word;
-    bias: Integer;
-  end;
-
-var
-  p: PSOChar;
-  state: TState;
-  pos, v: Word;
-  sep: TPerhaps;
-  inctz, havetz, havedate: Boolean;
-  st: TDateTimeInfo;
-  DayTable: PDayTable;
-
-  function get(var v: Word; c: SOChar): Boolean; {$IFDEF HAVE_INLINE} inline;{$ENDIF}
-  begin
-    if (c < #256) and (AnsiChar(c) in ['0'..'9']) then
-    begin
-      Result := True;
-      v := v * 10 + Ord(c) - Ord('0');
-    end else
-      Result := False;
-  end;
-
-label
-  error;
-begin
-  p := PSOChar(str);
-  sep := perhaps;
-  state := stStart;
-  pos := 0;
-  FillChar(st, SizeOf(st), 0);
-  havedate := True;
-  inctz := False;
-  havetz := False;
-
-  while true do
-  case state of
-    stStart:
-      case p^ of
-        '0'..'9': state := stYear;
-        'T', 't':
-          begin
-            state := stHour;
-            pos := 0;
-            inc(p);
-            havedate := False;
-          end;
-      else
-        goto error;
-      end;
-    stYear:
-      case pos of
-        0..1,3:
-              if get(st.year, p^) then
-              begin
-                Inc(pos);
-                Inc(p);
-              end else
-                goto error;
-        2:    case p^ of
-                '0'..'9':
-                  begin
-                    st.year := st.year * 10 + ord(p^) - ord('0');
-                    Inc(pos);
-                    Inc(p);
-                  end;
-                ':':
-                  begin
-                    havedate := false;
-                    st.hour := st.year;
-                    st.year := 0;
-                    inc(p);
-                    pos := 0;
-                    state := stMin;
-                    sep := yes;
-                  end;
-              else
-                goto error;
-              end;
-        4: case p^ of
-             '-': begin
-                    pos := 0;
-                    Inc(p);
-                    sep := yes;
-                    state := stMonth;
-                  end;
-             '0'..'9':
-                  begin
-                    sep := no;
-                    pos := 0;
-                    state := stMonth;
-                  end;
-             'W', 'w' :
-                  begin
-                    pos := 0;
-                    Inc(p);
-                    state := stWeek;
-                  end;
-             'T', 't', ' ':
-                  begin
-                    state := stHour;
-                    pos := 0;
-                    inc(p);
-                    st.month := 1;
-                    st.day := 1;
-                  end;
-             #0:
-                  begin
-                    st.month := 1;
-                    st.day := 1;
-                    state := stEnd;
-                  end;
-           else
-             goto error;
-           end;
-      end;
-    stMonth:
-      case pos of
-        0:  case p^ of
-              '0'..'9':
-                begin
-                  st.month := ord(p^) - ord('0');
-                  Inc(pos);
-                  Inc(p);
-                end;
-              'W', 'w':
-                begin
-                  pos := 0;
-                  Inc(p);
-                  state := stWeek;
-                end;
-            else
-              goto error;
-            end;
-        1:  if get(st.month, p^) then
-            begin
-              Inc(pos);
-              Inc(p);
-            end else
-              goto error;
-        2: case p^ of
-             '-':
-                  if (sep in [yes, perhaps])  then
-                  begin
-                    pos := 0;
-                    Inc(p);
-                    state := stDay;
-                    sep := yes;
-                  end else
-                    goto error;
-             '0'..'9':
-                  if sep in [no, perhaps] then
-                  begin
-                    pos := 0;
-                    state := stDay;
-                    sep := no;
-                  end else
-                  begin
-                    st.dayofyear := st.month * 10 + Ord(p^) - Ord('0');
-                    st.month := 0;
-                    inc(p);
-                    pos := 3;
-                    state := stDayOfYear;
-                  end;
-             'T', 't', ' ':
-                  begin
-                    state := stHour;
-                    pos := 0;
-                    inc(p);
-                    st.day := 1;
-                 end;
-             #0:
-               begin
-                 st.day := 1;
-                 state := stEnd;
-               end;
-           else
-             goto error;
-           end;
-      end;
-    stDay:
-      case pos of
-        0:  if get(st.day, p^) then
-            begin
-              Inc(pos);
-              Inc(p);
-            end else
-              goto error;
-        1:  if get(st.day, p^) then
-            begin
-              Inc(pos);
-              Inc(p);
-            end else
-            if sep in [no, perhaps] then
-            begin
-              st.dayofyear := st.month * 10 + st.day;
-              st.day := 0;
-              st.month := 0;
-              state := stDayOfYear;
-            end else
-              goto error;
-
-        2: case p^ of
-             'T', 't', ' ':
-                  begin
-                    pos := 0;
-                    Inc(p);
-                    state := stHour;
-                  end;
-             #0:  state := stEnd;
-           else
-             goto error;
-           end;
-      end;
-    stDayOfYear:
-      begin
-        if (st.dayofyear <= 0) then goto error;
-        case p^ of
-          'T', 't', ' ':
-               begin
-                 pos := 0;
-                 Inc(p);
-                 state := stHour;
-               end;
-          #0:  state := stEnd;
-        else
-          goto error;
-        end;
-      end;
-    stWeek:
-      begin
-        case pos of
-          0..1: if get(st.week, p^) then
-                begin
-                  inc(pos);
-                  inc(p);
-                end else
-                  goto error;
-          2: case p^ of
-               '-': if (sep in [yes, perhaps]) then
-                    begin
-                      Inc(p);
-                      state := stWeekDay;
-                      sep := yes;
-                    end else
-                      goto error;
-               '1'..'7':
-                    if sep in [no, perhaps] then
-                    begin
-                      state := stWeekDay;
-                      sep := no;
-                    end else
-                      goto error;
-             else
-               goto error;
-             end;
-        end;
-      end;
-    stWeekDay:
-      begin
-        if (st.week > 0) and get(st.weekday, p^) then
-        begin
-          inc(p);
-          v := st.year - 1;
-          v := ((v * 365) + (v div 4) - (v div 100) + (v div 400)) mod 7 + 1;
-          st.dayofyear := (st.weekday - v) + ((st.week) * 7) + 1;
-          if v <= 4 then dec(st.dayofyear, 7);
-          case p^ of
-            'T', 't', ' ':
-                 begin
-                   pos := 0;
-                   Inc(p);
-                   state := stHour;
-                 end;
-            #0:  state := stEnd;
-          else
-            goto error;
-          end;
-        end else
-          goto error;
-      end;
-    stHour:
-      case pos of
-        0:    case p^ of
-                '0'..'9':
-                    if get(st.hour, p^) then
-                    begin
-                      inc(pos);
-                      inc(p);
-                      end else
-                        goto error;
-                '-':
-                  begin
-                    inc(p);
-                    state := stMin;
-                  end;
-              else
-                goto error;
-              end;
-        1:    if get(st.hour, p^) then
-              begin
-                inc(pos);
-                inc(p);
-              end else
-                goto error;
-        2: case p^ of
-             ':': if sep in [yes, perhaps] then
-                  begin
-                    sep := yes;
-                    pos := 0;
-                    Inc(p);
-                    state := stMin;
-                  end else
-                    goto error;
-             ',', '.':
-                begin
-                  Inc(p);
-                  state := stMs;
-                end;
-             '+':
-               if havedate then
-               begin
-                 state := stGMTH;
-                 pos := 0;
-                 v := 0;
-                 inc(p);
-               end else
-                 goto error;
-             '-':
-               if havedate then
-               begin
-                 state := stGMTH;
-                 pos := 0;
-                 v := 0;
-                 inc(p);
-                 inctz := True;
-               end else
-                 goto error;
-             'Z', 'z':
-                  if havedate then
-                    state := stUTC else
-                    goto error;
-             '0'..'9':
-                  if sep in [no, perhaps] then
-                  begin
-                    pos := 0;
-                    state := stMin;
-                    sep := no;
-                  end else
-                    goto error;
-             #0:  state := stEnd;
-           else
-             goto error;
-           end;
-      end;
-    stMin:
-      case pos of
-        0: case p^ of
-             '0'..'9':
-                if get(st.minute, p^) then
-                begin
-                  inc(pos);
-                  inc(p);
-                end else
-                  goto error;
-             '-':
-                begin
-                  inc(p);
-                  state := stSec;
-                end;
-           else
-             goto error;
-           end;
-        1: if get(st.minute, p^) then
-           begin
-             inc(pos);
-             inc(p);
-           end else
-             goto error;
-        2: case p^ of
-             ':': if sep in [yes, perhaps] then
-                  begin
-                    pos := 0;
-                    Inc(p);
-                    state := stSec;
-                    sep := yes;
-                  end else
-                    goto error;
-             ',', '.':
-                begin
-                  Inc(p);
-                  state := stMs;
-                end;
-             '+':
-               if havedate then
-               begin
-                 state := stGMTH;
-                 pos := 0;
-                 v := 0;
-                 inc(p);
-               end else
-                 goto error;
-             '-':
-               if havedate then
-               begin
-                 state := stGMTH;
-                 pos := 0;
-                 v := 0;
-                 inc(p);
-                 inctz := True;
-               end else
-                 goto error;
-             'Z', 'z':
-                  if havedate then
-                    state := stUTC else
-                    goto error;
-             '0'..'9':
-                  if sep in [no, perhaps] then
-                  begin
-                    pos := 0;
-                    state := stSec;
-                  end else
-                    goto error;
-             #0:  state := stEnd;
-           else
-             goto error;
-           end;
-      end;
-    stSec:
-      case pos of
-        0..1: if get(st.second, p^) then
-              begin
-                inc(pos);
-                inc(p);
-              end else
-                goto error;
-        2:    case p^ of
-               ',', '.':
-                  begin
-                    Inc(p);
-                    state := stMs;
-                  end;
-               '+':
-                 if havedate then
-                 begin
-                   state := stGMTH;
-                   pos := 0;
-                   v := 0;
-                   inc(p);
-                 end else
-                   goto error;
-               '-':
-                 if havedate then
-                 begin
-                   state := stGMTH;
-                   pos := 0;
-                   v := 0;
-                   inc(p);
-                   inctz := True;
-                 end else
-                   goto error;
-               'Z', 'z':
-                    if havedate then
-                      state := stUTC else
-                      goto error;
-               #0: state := stEnd;
-              else
-               goto error;
-              end;
-      end;
-    stMs:
-      case p^ of
-        '0'..'9':
-        begin
-          st.ms := st.ms * 10 + ord(p^) - ord('0');
-          inc(p);
-        end;
-        '+':
-          if havedate then
-          begin
-            state := stGMTH;
-            pos := 0;
-            v := 0;
-            inc(p);
-          end else
-            goto error;
-        '-':
-          if havedate then
-          begin
-            state := stGMTH;
-            pos := 0;
-            v := 0;
-            inc(p);
-            inctz := True;
-          end else
-            goto error;
-        'Z', 'z':
-             if havedate then
-               state := stUTC else
-               goto error;
-        #0: state := stEnd;
-      else
-        goto error;
-      end;
-    stUTC: // = GMT 0
-      begin
-        havetz := True;
-        inc(p);
-        if p^ = #0 then
-          Break else
-          goto error;
-      end;
-    stGMTH:
-      begin
-        havetz := True;
-        case pos of
-          0..1: if get(v, p^) then
-                begin
-                  inc(p);
-                  inc(pos);
-                end else
-                  goto error;
-          2:
-            begin
-              st.bias := v * 60;
-              case p^ of
-                ':': if sep in [yes, perhaps] then
-                     begin
-                       state := stGMTM;
-                       inc(p);
-                       pos := 0;
-                       v := 0;
-                       sep := yes;
-                     end else
-                       goto error;
-                '0'..'9':
-                     if sep in [no, perhaps] then
-                     begin
-                       state := stGMTM;
-                       pos := 1;
-                       sep := no;
-                       inc(p);
-                       v := ord(p^) - ord('0');
-                     end else
-                       goto error;
-                #0: state := stGMTend;
-              else
-                goto error;
-              end;
-
-            end;
-        end;
-      end;
-    stGMTM:
-      case pos of
-        0..1:  if get(v, p^) then
-               begin
-                 inc(p);
-                 inc(pos);
-               end else
-                 goto error;
-        2:  case p^ of
-              #0:
-                begin
-                  state := stGMTend;
-                  inc(st.Bias, v);
-                end;
-            else
-              goto error;
-            end;
-      end;
-    stGMTend:
-      begin
-        if not inctz then
-          st.Bias := -st.bias;
-        Break;
-      end;
-    stEnd:
-    begin
-
-      Break;
-    end;
-  end;
-
-  if (st.hour >= 24) or (st.minute >= 60) or (st.second >= 60) or (st.ms >= 1000) or (st.week > 53)
-    then goto error;
-
-  if not havetz then
-    st.bias := GetTimeBias;
-
-  ms := st.ms + st.second * 1000 + (st.minute + st.bias) * 60000 + st.hour * 3600000;
-  if havedate then
-  begin
-    DayTable := @MonthDays[IsLeapYear(st.year)];
-    if st.month <> 0 then
-    begin
-      if not (st.month in [1..12]) or (DayTable^[st.month] < st.day) then
-        goto error;
-
-      for v := 1 to  st.month - 1 do
-        Inc(ms, DayTable^[v] * 86400000);
-    end;
-    dec(st.year);
-    ms := ms + (int64((st.year * 365) + (st.year div 4) - (st.year div 100) +
-      (st.year div 400) + st.day + st.dayofyear - 719163) * 86400000);
-  end;
-
- Result := True;
- Exit;
-error:
-  Result := False;
-end;
-
-function ISO8601DateToDelphiDateTime(const str: SOString; var dt: TDateTime): Boolean;
-var
-  ms: Int64;
-begin
-  Result := ISO8601DateToJavaDateTime(str, ms);
-  if Result then
-    dt := JavaToDelphiDateTime(ms)
-end;
-
-function DelphiDateTimeToISO8601Date(dt: TDateTime): SOString;
-var
-  year, month, day, hour, min, sec, msec: Word;
-  tzh: SmallInt;
-  tzm: Word;
-  sign: SOChar;
-  bias: Integer;
-begin
-  DecodeDate(dt, year, month, day);
-  DecodeTime(dt, hour, min, sec, msec);
-  bias := GetTimeBias;
-  tzh := Abs(bias) div 60;
-  tzm := Abs(bias) - tzh * 60;
-  if Bias > 0 then
-    sign := '-' else
-    sign := '+';
-  Result := Format('%.4d-%.2d-%.2dT%.2d:%.2d:%.2d,%d%s%.2d:%.2d',
-    [year, month, day, hour, min, sec, msec, sign, tzh, tzm]);
-end;
-
 function TryObjectToDate(const obj: ISuperObject; var dt: TDateTime): Boolean;
 var
   i: Int64;
@@ -2010,6 +1349,10 @@ begin
         Result := True;
       end else
         Result := TryStrToDateTime(obj.AsString, dt);
+    end;
+  stNull:
+    begin
+      Result := True;
     end;
   else
     Result := False;
@@ -2441,11 +1784,6 @@ begin
   Result := TSuperObject.Create(TValueData(value).FAsSLong <> 0);
 end;
 
-function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
-begin
-  Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
-end;
-
 function serialtoguid(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 var
   g: TGUID;
@@ -2480,36 +1818,6 @@ begin
       o := SO(obj.AsString);
       if not ObjectIsType(o, stString) then
         Result := serialfromboolean(ctx, SO(obj.AsString), Value) else
-        Result := False;
-    end;
-  else
-    Result := False;
-  end;
-end;
-
-function serialfromdatetime(ctx: TSuperRttiContext; const obj: ISuperObject; var Value: TValue): Boolean;
-var
-  dt: TDateTime;
-  i: Int64;
-begin
-  case ObjectGetType(obj) of
-  stInt:
-    begin
-      TValueData(Value).FAsDouble := JavaToDelphiDateTime(obj.AsInteger);
-      Result := True;
-    end;
-  stString:
-    begin
-      if ISO8601DateToJavaDateTime(obj.AsString, i) then
-      begin
-        TValueData(Value).FAsDouble := JavaToDelphiDateTime(i);
-        Result := True;
-      end else
-      if TryStrToDateTime(obj.AsString, dt) then
-      begin
-        TValueData(Value).FAsDouble := dt;
-        Result := True;
-      end else
         Result := False;
     end;
   else
@@ -2680,15 +1988,19 @@ var
   vTypeName: String;
 begin
   Result := nil;
+  vTypeName := string(typeinfo.name);
+  startPos := AnsiPos('<', vTypeName);
 
-  startPos := AnsiPos('<', String(TypeInfo.Name));
+  if startPos < 1 then
+  begin
+    vTypeName := RttiContext.GetType(TypeInfo).BaseType.ToString;
+    startPos := AnsiPos('<', vTypeName);
+  end;
 
   if startPos > 0 then
   begin
-    endPos := Pos('>', String(TypeInfo.Name));
-
-    vTypeName := Copy(String(TypeInfo.Name), startPos + 1, endPos - Succ(startPos));
-
+    endPos := Pos('>', vTypeName);
+    vTypeName := Copy(vTypeName, startPos + 1, endPos - Succ(startPos));
     Result := RttiContext.FindType(vTypeName);
   end;
 end;
@@ -6918,10 +6230,9 @@ begin
   SerialToJson := TDictionary<PTypeInfo, TSerialToJson>.Create;
 
   SerialFromJson.Add(TypeInfo(Boolean), serialfromboolean);
-  SerialFromJson.Add(TypeInfo(TDateTime), serialfromdatetime);
   SerialFromJson.Add(TypeInfo(TGUID), serialfromguid);
   SerialToJson.Add(TypeInfo(Boolean), serialtoboolean);
-  SerialToJson.Add(TypeInfo(TDateTime), serialtodatetime);
+
   SerialToJson.Add(TypeInfo(TGUID), serialtoguid);
 end;
 
@@ -6958,7 +6269,8 @@ var
   ret: TValue;
 begin
   if FromJson(TypeInfo(T), obj, ret) then
-    Result := ret.AsType<T> else
+    Result := ret.AsType<T>
+  else
     raise exception.Create('Marshalling error');
 end;
 
@@ -7016,6 +6328,12 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end else
           Result := False;
       end;
+    stNull:
+      begin
+        TValue.Make(nil, TypeInfo, Value);
+        TValueData(Value).FAsSInt64 := -1;
+        result := true;
+      end;
     else
       Result := False;
     end;
@@ -7044,6 +6362,11 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         if not ObjectIsType(o, stString) then
           FromInt(o) else
           Result := False;
+      end;
+    stNull:
+      begin
+        TValue.Make(-1, TypeInfo, Value);
+        result := true;
       end;
     else
       Result := False;
@@ -7079,6 +6402,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
   procedure FromFloat(const obj: ISuperObject);
   var
     o: ISuperObject;
+    fmtSettings: TFormatSettings;
+    dt: TDateTime;
   begin
     case ObjectGetType(obj) of
     stInt, stDouble, stCurrency:
@@ -7095,6 +6420,32 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stString:
       begin
+          fmtSettings.DateSeparator := '-';
+          fmtSettings.TimeSeparator := ':';
+          fmtSettings.ShortDateFormat := 'yyyy-mm-dd';
+          fmtSettings.LongDateFormat := 'yyyy-mm-dd';
+          fmtSettings.ShortTimeFormat := 'hh:nn:ss';
+          fmtSettings.LongTimeFormat := 'hh:nn:ss';
+          if TypeInfo.name = 'TDate' then
+          begin
+            value := TValue.from<TDate>(StrToDate(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TTime' then
+          begin
+            value := TValue.from<TTime>(StrToTime(obj.AsString, fmtSettings));
+            result := true;
+          end
+          else if TypeInfo.name = 'TDateTime' then
+          begin
+            if ISO8601DateToDelphiDateTime(SOString(obj.AsString), dt) then
+            begin
+              value := TValue.From<TDateTime>(dt);
+              result := true;
+            end;
+          end;
+          if result then
+            exit;
         o := SO(obj.AsString);
         if not ObjectIsType(o, stString) then
           FromFloat(o) else
@@ -7149,7 +6500,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         begin
           Result := False;
 
-          if IsList(Context, TypeInfo) and IsGenericType(TypeInfo) then
+
+          if IsList(Context, TypeInfo) then
           begin
             Result := True;
 
@@ -7414,7 +6766,6 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 var
   Serial: TSerialFromJson;
 begin
-
   if TypeInfo <> nil then
   begin
     if not SerialFromJson.TryGetValue(TypeInfo, Serial) then
@@ -7435,7 +6786,9 @@ begin
         tkDynArray: FromDynArray;
         tkClassRef: FromClassRef;
       else
-        FromUnknown
+      begin
+        FromUnknown;
+      end
       end else
       begin
         TValue.Make(nil, TypeInfo, Value);
@@ -7445,7 +6798,7 @@ begin
     Result := False;
 end;
 
-function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject): ISuperObject;
+function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; _listCount: integer; field: TRttiField): ISuperObject;
   procedure ToInt64;
   begin
     Result := TSuperObject.Create(SuperInt(Value.AsInt64));
@@ -7462,13 +6815,45 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
   end;
 
   procedure ToFloat;
+  var
+    vUsingISO8601: Boolean;
   begin
-    case Value.TypeData.FloatType of
-      ftSingle: Result := TSuperObject.Create(TValueData(Value).FAsSingle);
-      ftDouble: Result := TSuperObject.Create(TValueData(Value).FAsDouble);
-      ftExtended: Result := TSuperObject.Create(TValueData(Value).FAsExtended);
-      ftComp: Result := TSuperObject.Create(TValueData(Value).FAsSInt64);
-      ftCurr: Result := TSuperObject.CreateCurrency(TValueData(Value).FAsCurr);
+    result := nil;
+    vUsingISO8601 := Assigned(field) and field.FormatUsingISO8601;
+
+    if (vUsingISO8601) and (value.TypeInfo = TypeInfo(TTime)) then
+    begin
+      if TValueData(value).FAsDouble > 0 then
+      begin
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
+      end;
+    end
+    else if (vUsingISO8601) and (value.TypeInfo = TypeInfo(TDate)) then
+    begin
+      if TValueData(value).FAsDouble > 0 then
+      begin
+        result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 1, 10)) // 2013-12-17
+      end;
+    end
+    else if value.TypeInfo = TypeInfo(TDateTime) then
+    begin
+      if TValueData(value).FAsDouble > 0 then
+      begin
+        if vUsingISO8601 then
+          result := TSuperObject.create(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble))
+        else
+          result := TSuperObject.create(DelphiToJavaDateTime(TValueData(Value).FAsDouble));
+      end;
+    end
+    else
+    begin
+      case Value.TypeData.FloatType of
+        ftSingle: Result := TSuperObject.Create(TValueData(Value).FAsSingle);
+        ftDouble: Result := TSuperObject.Create(TValueData(Value).FAsDouble);
+        ftExtended: Result := TSuperObject.Create(TValueData(Value).FAsExtended);
+        ftComp: Result := TSuperObject.Create(TValueData(Value).FAsSInt64);
+        ftCurr: Result := TSuperObject.CreateCurrency(TValueData(Value).FAsCurr);
+      end;
     end;
   end;
 
@@ -7481,7 +6866,8 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
   var
     o: ISuperObject;
     f: TRttiField;
-    v: TValue;
+    v, items: TValue;
+    jsonValue: ISuperObject;
   begin
     if TValueData(Value).FAsObject <> nil then
     begin
@@ -7498,11 +6884,20 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
             begin
               if (GetFieldName(f) = 'FItems') then
               begin
-                Result := ToJson(v, index);
+                items := v;
+              end
+              else if (GetFieldName(f) = 'FCount') then
+              begin
+                Result := ToJson(items, index, v.AsInteger);
               end;
               Continue;
             end;
-            Result.AsObject[GetFieldName(f)] := ToJson(v, index);
+
+            jsonValue := ToJson(v, index, -1, f);
+            if jsonValue <> nil then
+            begin
+              Result.AsObject[GetFieldName(f)] := jsonValue;
+            end;
           end
       end else
         Result := o;
@@ -7587,9 +6982,18 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject):
   var
     i: Integer;
     v: TValue;
+    count: integer;
   begin
     Result := TSuperObject.Create(stArray);
-    for i := 0 to Value.GetArrayLength - 1 do
+    count := Value.GetArrayLength;
+    // if the array is a TList the `Value.GetArrayLength` will give the wrong value.
+    // `Value.GetArrayLength` will return the TList's capacity.
+    // Fx. if the TList has 1/2 elements `Value.GetArrayLength` will return 1/2.
+    // If add a 3. `Value.GetArrayLength` will then return 4.
+    // There for will need to now the count size before calling this function.
+    if _listCount > -1 then
+      count := _listCount;
+    for i := 0 to count - 1 do
     begin
       v := Value.GetArrayElement(i);
       if not v.IsEmpty then

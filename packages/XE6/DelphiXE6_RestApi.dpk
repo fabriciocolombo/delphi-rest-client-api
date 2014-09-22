@@ -1,4 +1,4 @@
-package DelphiXE2_RestApi_MACOS;
+package DelphiXE6_RestApi;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -9,32 +9,33 @@ package DelphiXE2_RestApi_MACOS;
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS OFF}
+{$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION ON}
+{$OPTIMIZATION OFF}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
-{$REFERENCEINFO OFF}
+{$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES OFF}
+{$STACKFRAMES ON}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE RELEASE}
+{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
 requires
+  vcl,
   rtl,
   dsnap,
   dbrtl,
-  DbxCommonDriver,
-  IndyCore,
   IndySystem,
-  IndyProtocols;
+  IndyProtocols,
+  IndyCore,
+  DbxCommonDriver;
 
 contains
   DataSetUtils in '..\..\src\DataSetUtils.pas',
@@ -45,11 +46,11 @@ contains
   RestJsonUtils in '..\..\src\RestJsonUtils.pas',
   RestUtils in '..\..\src\RestUtils.pas',
   RestRegister in '..\..\src\RestRegister.pas',
-  HttpConnectionIndy in '..\..\src\HttpConnectionIndy.pas',
   DBXJsonHelpers in '..\..\src\DBXJsonHelpers.pas',
-  DbxJsonMarshal in '..\..\src\DbxJsonMarshal.pas',
+  DBXJsonMarshal in '..\..\src\DBXJsonMarshal.pas',
   DBXJsonUnMarshal in '..\..\src\DBXJsonUnMarshal.pas',
   DbxJsonUtils in '..\..\src\DbxJsonUtils.pas',
   JsonListAdapter in '..\..\src\JsonListAdapter.pas';
 
 end.
+

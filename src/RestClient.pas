@@ -9,15 +9,15 @@ uses Classes, SysUtils, HttpConnection,
      {$IFDEF USE_GENERICS}
      Generics.Collections, Rtti,
      {$ELSE}
-     Contnrs,
+     Contnrs, OldRttiUnMarshal,
      {$ENDIF}
-     DB, JsonListAdapter, OldRttiUnMarshal;
+     DB, JsonListAdapter;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
 
 type
-  TRequestMethod = (METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_DELETE);
+  TRequestMethod = (METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_PATCH, METHOD_DELETE);
 
   {$IFDEF DELPHI_2009_UP}
   TRestResponseHandlerFunc = reference to procedure(ResponseContent: TStream);
@@ -57,6 +57,7 @@ type
     FConnectionType: THttpConnectionType;
     FEnabledCompression: Boolean;
     FOnCustomCreateConnection: TCustomCreateConnection;
+    FTimeOut: TTimeOut;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -76,6 +77,13 @@ type
     procedure SetEnabledCompression(const Value: Boolean);
 
     function DoCustomCreateConnection: IHttpConnection;
+
+    function GetOnConnectionLost: THTTPConnectionLostEvent;
+    procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    function GetOnError: THTTPErrorEvent;
+    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+
   protected
     procedure Loaded; override;
   public
@@ -87,10 +95,14 @@ type
     function Resource(URL: String): TResource;
 
     function UnWrapConnection: IHttpConnection;
+
+    property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
+    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
+    property TimeOut: TTimeOut read FTimeOut;
   end;
 
   TCookie = class
@@ -152,6 +164,11 @@ type
     procedure Put(Content: TStream; AHandler: TRestResponseHandler);overload;
     function Put(Entity: TObject): TObject;overload;
 
+    function Patch(Content: TStream): String;overload;
+    function Patch(Content: string): string;overload;
+    procedure Patch(Content: TStream; AHandler: TRestResponseHandler);overload;
+    function Patch(Entity: TObject): TObject;overload;
+
     procedure Delete();overload;
     procedure Delete(Entity: TObject);overload;
 
@@ -159,16 +176,19 @@ type
     procedure Get(AHandler: TRestResponseHandlerFunc);overload;
     procedure Post(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     procedure Put(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
+    procedure Patch(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     {$ENDIF}
 
     {$IFDEF USE_GENERICS}
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
+    function Patch<T>(Entity: TObject): T;overload;
     {$ELSE}
     function Get(AListClass, AItemClass: TClass): TObject;overload;
     function Post(Adapter: IJsonListAdapter): TObject;overload;
     function Put(Adapter: IJsonListAdapter): TObject;overload;
+    function Patch(Adapter: IJsonListAdapter): TObject;overload;
     {$ENDIF}
 
     {$IFDEF USE_SUPER_OBJECT}
@@ -195,6 +215,10 @@ begin
   {$ELSE}
   FResources := TObjectList.Create;
   {$ENDIF}
+
+  FTimeOut := TTimeOut.Create(Self);
+  FTimeOut.Name := 'TimeOut';
+  FTimeOut.SetSubComponent(True);
 
   FEnabledCompression := True;
 end;
@@ -228,6 +252,7 @@ var
   vResponse: TStringStream;
   vUrl: String;
   vResponseString: string;
+  vRetryMode: THTTPRetryMode;
 begin
   CheckConnection;
 
@@ -236,7 +261,8 @@ begin
     FHttpConnection.SetAcceptTypes(ResourceRequest.GetAcceptTypes)
                    .SetContentTypes(ResourceRequest.GetContentTypes)
                    .SetHeaders(ResourceRequest.GetHeaders)
-                   .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages);
+                   .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
+                   .ConfigureTimeout(FTimeOut);
 
     vUrl := ResourceRequest.GetURL;
 
@@ -246,6 +272,7 @@ begin
       METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
       METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
     end;
 
@@ -269,12 +296,22 @@ begin
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
-    if FHttpConnection.ResponseCode >= 400 then
-      raise EHTTPError.Create(
-        format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
-        Result,
-        FHttpConnection.ResponseCode
-      );
+    if (FHttpConnection.ResponseCode >= 400) and
+       (FHttpConnection.ResponseCode <> 404) then
+    begin
+      vRetryMode := hrmRaise;
+      if assigned(OnError) then
+        FHttpConnection.OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+
+      if vRetryMode = hrmRaise then
+        raise EHTTPError.Create(
+          format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+          Result,
+          FHttpConnection.ResponseCode
+        )
+      else if vRetryMode = hrmRetry then
+        result := DoRequest(Method, ResourceRequest, AHandler);
+    end;
   finally
     vResponse.Free;
     FResources.Remove(ResourceRequest);
@@ -295,6 +332,16 @@ begin
   FTempHandler := nil;
 end;
 {$ENDIF}
+
+function TRestClient.GetOnConnectionLost: THTTPConnectionLostEvent;
+begin
+  result := FHttpConnection.OnConnectionLost;
+end;
+
+function TRestClient.GetOnError: THTTPErrorEvent;
+begin
+  result := FHttpConnection.OnError;
+end;
 
 function TRestClient.GetResponseCode: Integer;
 begin
@@ -360,6 +407,17 @@ begin
       FHttpConnection.EnabledCompression := FEnabledCompression;
     end;
   end;
+end;
+
+procedure TRestClient.SetOnConnectionLost(
+  AConnectionLostEvent: THTTPConnectionLostEvent);
+begin
+  FHttpConnection.OnConnectionLost := AConnectionLostEvent;
+end;
+
+procedure TRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
+begin
+  FHttpConnection.OnError := AErrorEvent;
 end;
 
 function TRestClient.UnWrapConnection: IHttpConnection;
@@ -440,6 +498,14 @@ begin
   FContent.CopyFrom(Content, Content.Size);
 
   FRestClient.DoRequestFunc(METHOD_PUT, Self, AHandler );
+end;
+
+procedure TResource.Patch(Content: TStream; AHandler: TRestResponseHandlerFunc);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequestFunc(METHOD_PATCH, Self, AHandler );
 end;
 {$ENDIF}
 
@@ -550,8 +616,10 @@ var
   vResponse: string;
 begin
   vResponse := Self.Get;
-
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    result := Default(T);
 end;
 
 function TResource.Post<T>(Entity: TObject): T;
@@ -562,7 +630,10 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
@@ -573,7 +644,24 @@ begin
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
 
-  Result := TJsonUtil.UnMarshal<T>(vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
+end;
+
+function TResource.Patch<T>(Entity: TObject): T;
+var
+  vResponse: string;
+begin
+  SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
+
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
 end;
 {$ELSE}
 function TResource.Get(AListClass, AItemClass: TClass): TObject;
@@ -589,28 +677,42 @@ function TResource.Post(Adapter: IJsonListAdapter): TObject;
 var
   vResponse: string;
 begin
-  if Adapter = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Adapter.UnWrapList);
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
 
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Put(Adapter: IJsonListAdapter): TObject;
 var
   vResponse: string;
 begin
-  if Adapter = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Adapter.UnWrapList);
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
+end;
 
-  Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse);
+function TResource.Patch(Adapter: IJsonListAdapter): TObject;
+var
+  vResponse: string;
+begin
+  if Adapter <> nil then
+    SetContent(Adapter.UnWrapList);
+
+  vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
+  if trim(vResponse) <> '' then
+    Result := TOldRttiUnMarshal.FromJsonArray(Adapter.UnWrapList.ClassType, Adapter.ItemClass, vResponse)
+  else
+    Result := nil;
 end;
 {$ENDIF}
 
@@ -668,28 +770,69 @@ function TResource.Post(Entity: TObject): TObject;
 var
   vResponse: string;
 begin
-  if Entity = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Entity);
-
+  if Entity <> nil then
+    SetContent(Entity);
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-
-  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Put(Entity: TObject): TObject;
 var
   vResponse: string;
 begin
-  if Entity = nil then
-    raise Exception.Create('Entity can not be null');
-
-  SetContent(Entity);
+  if Entity <> nil then
+    SetContent(Entity);
 
   vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
+end;
 
-  Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse);
+function TResource.Patch(Content: TStream): String;
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  Result := FRestClient.DoRequest(METHOD_PATCH, Self);
+end;
+
+procedure TResource.Patch(Content: TStream; AHandler: TRestResponseHandler);
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  FRestClient.DoRequest(METHOD_PATCH, Self, AHandler);
+end;
+
+function TResource.Patch(Entity: TObject): TObject;
+var
+  vResponse: string;
+begin
+  if Entity <> nil then
+    SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
+end;
+
+function TResource.Patch(Content: string): string;
+var
+  vStringStream: TStringStream;
+begin
+  vStringStream := TStringStream.Create(Content);
+  try
+    Result := Patch(vStringStream);
+  finally
+    vStringStream.Free;
+  end;
 end;
 
 { TJsonListAdapter }

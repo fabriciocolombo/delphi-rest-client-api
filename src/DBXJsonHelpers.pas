@@ -4,7 +4,9 @@ interface
 
 {$I DelphiRest.inc}
 
-uses Rtti, TypInfo, DBXJson, DbxJsonUtils;
+uses Rtti, TypInfo, DBXJson, DbxJsonUtils
+    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    ;
 
 type
   TJsonValueHelper = class helper for TJsonValue
@@ -24,7 +26,7 @@ type
     function AsJsonArray: TJSONArray;
   end;
 
-  {$IFDEF DELPHI_2010}
+  {$IF defined(DELPHI_2010) or defined(DELPHI_XE)}
   TJsonObjectHelper = class helper for TJsonObject
   public
     function Get(const PairName: UnicodeString): TJSONPair; overload;
@@ -35,11 +37,22 @@ type
   public
     function AsInt64: Int64;
   end;
-  {$ENDIF}
+  {$IFEND}
+
+  {$IF defined(DELPHI_2010_UP) and not defined(DELPHI_XE6_UP)}
+  TJsonArrayHelper = class helper for TJsonArray
+  private
+    function GetValue(const Index: Integer): TJSONValue;
+  public
+    function Count: Integer;
+    property Items[const Index: Integer]: TJSONValue read GetValue;
+  end;
+  {$IFEND}
 
   TRttiFieldHelper = class helper for TRttiField
   public
     function GetFieldName: string;
+    function FormatUsingISO8601: Boolean;
   end;
 
 implementation
@@ -105,6 +118,21 @@ end;
 
 { TRttiFieldHelper }
 
+function TRttiFieldHelper.FormatUsingISO8601: Boolean;
+var
+  attr: TCustomAttribute;
+begin
+  for attr in GetAttributes do
+  begin
+    if attr is JsonISO8601 then
+    begin
+      Exit(True);
+    end;
+  end;
+
+  Result := False;
+end;
+
 function TRttiFieldHelper.GetFieldName: string;
 var
   attr: TCustomAttribute;
@@ -120,7 +148,7 @@ begin
   Result := Name;
 end;
 
-{$IFDEF DELPHI_2010}
+{$IF defined(DELPHI_2010) or defined(DELPHI_XE) }
 { TJsonObjectHelper }
 
 function TJsonObjectHelper.Get(const PairName: UnicodeString): TJSONPair;
@@ -142,8 +170,8 @@ class function TJsonObjectHelper.ParseJSONValue(const Data: String): TJSONValue;
   function Sanitize(AData: String): string;
   begin
     Result := AData;
-    Result := StringReplace(Result, '" :', '":', [rfReplaceAll]);
-    Result := StringReplace(Result, '": ', '":', [rfReplaceAll]);
+    //Result := StringReplace(Result, '" : ', '":', [rfReplaceAll]);
+   // Result := StringReplace(Result, '": ', '":', [rfReplaceAll]);
   end;
 
 var
@@ -161,6 +189,20 @@ begin
   Result := StrToInt64(ToString);
 end;
 
-{$ENDIF}
+{$IFEND}
+
+{ TJsonArrayHelper }
+
+{$IF defined(DELPHI_2010_UP) and not defined(DELPHI_XE6_UP)}
+function TJsonArrayHelper.Count: Integer;
+begin
+  Result := Self.Size;
+end;
+
+function TJsonArrayHelper.GetValue(const Index: Integer): TJSONValue;
+begin
+  Result := Self.Get(Index);
+end;
+{$IFEND}
 
 end.
