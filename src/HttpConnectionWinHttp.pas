@@ -19,6 +19,8 @@ type
     procedure Configure;
 
     procedure CopyResourceStreamToStream(AResponse: TStream);
+    function ProxyActive: Boolean;
+    function GetProxyServer: string;
   public
     OnConnectionLost: THTTPConnectionLostEvent;
     OnError: THTTPErrorEvent;
@@ -52,6 +54,9 @@ type
 
 implementation
 
+uses
+  System.Win.Registry, Winapi.Windows;
+
 
 { THttpConnectionWinHttp }
 
@@ -59,8 +64,6 @@ procedure THttpConnectionWinHttp.Configure;
 var
   i: Integer;
 begin
-  FWinHttpRequest.SetTimeouts(0, 60000, 300000, 300000);
-
   if FAcceptTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept', FAcceptTypes);
 
@@ -79,6 +82,9 @@ begin
                               FConnectTimeout,
                               FSendTimeout,
                               FReceiveTimeout);
+
+  if ProxyActive then
+    FWinHttpRequest.SetProxy(2, GetProxyServer, '');
 end;
 
 function THttpConnectionWinHttp.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
@@ -154,6 +160,25 @@ begin
   result := OnError;
 end;
 
+function THttpConnectionWinHttp.GetProxyServer: string;
+var
+  Reg: TRegistry;
+begin
+  try
+    Reg := TRegistry.Create;
+    try
+      Reg.RootKey := HKEY_CURRENT_USER;
+      Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Internet Settings', false);
+      Result := Reg.ReadString('ProxyServer');
+    finally
+      Reg.Free;
+    end
+  except
+    on E: ERegistryException do
+      Result := '';
+  end;
+end;
+
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
@@ -190,6 +215,25 @@ begin
   FWinHttpRequest.Send(vAdapter);
 
   CopyResourceStreamToStream(AResponse);
+end;
+
+function THttpConnectionWinHttp.ProxyActive: Boolean;
+var
+  Reg: TRegistry;
+begin
+  try
+    Reg := TRegistry.Create;
+    try
+      Reg.RootKey := HKEY_CURRENT_USER;
+      Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Internet Settings', false);
+      Result := Reg.ReadInteger('ProxyEnable') = 1;
+    finally
+      Reg.Free;
+    end;
+  except
+    on E: ERegistryException do
+      Result := false;
+  end;
 end;
 
 procedure THttpConnectionWinHttp.Put(AUrl: string; AContent,AResponse: TStream);
