@@ -2,9 +2,6 @@ unit ProxyUtils;
 
 interface
 
-const
-  HTTPREQUEST_PROXYSETTING_PROXY = 2;
-
   function ProxyActive: Boolean;
   function GetProxyServer: string;
   function GetProxyOverride: string;

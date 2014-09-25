@@ -55,6 +55,9 @@ implementation
 uses
   ProxyUtils;
 
+const
+  HTTPREQUEST_PROXYSETTING_PROXY = 2;
+
 { THttpConnectionWinHttp }
 
 procedure THttpConnectionWinHttp.Configure;
