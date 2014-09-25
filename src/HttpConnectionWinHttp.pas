@@ -52,6 +52,11 @@ type
 
 implementation
 
+uses
+  ProxyUtils;
+
+const
+  HTTPREQUEST_PROXYSETTING_PROXY = 2;
 
 { THttpConnectionWinHttp }
 
@@ -77,6 +82,9 @@ begin
                               FConnectTimeout,
                               FSendTimeout,
                               FReceiveTimeout);
+
+  if ProxyActive then
+    FWinHttpRequest.SetProxy(HTTPREQUEST_PROXYSETTING_PROXY, GetProxyServer, GetProxyOverride);
 end;
 
 function THttpConnectionWinHttp.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
