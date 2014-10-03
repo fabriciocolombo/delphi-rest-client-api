@@ -2,7 +2,7 @@ unit BaseTestRest;
 
 interface
 
-uses RestClient, TestFramework, HttpConnection, TestExtensions, TypInfo;
+uses RestClient, TestFramework, HttpConnection, TestExtensions, TypInfo, System.SysUtils;
 
 {$I DelphiRest.inc}
 
@@ -26,6 +26,7 @@ type
   protected
     procedure SetUp; override;
     procedure TearDown; override;
+    procedure CheckException(AProc: TProc; AExceptionClass: TClass; ExpectedMsg: string; Msg: string = '');
   public
     procedure SetHttpConnectionType(AHttpConnectionType: THttpConnectionType);
 
@@ -42,6 +43,28 @@ const
 implementation
 
 { TBaseTestRest }
+
+procedure TBaseTestRest.CheckException(AProc: TProc; AExceptionClass: TClass; ExpectedMsg, Msg: string);
+begin
+  FCheckCalled := True;
+  try
+    AProc;
+  except
+    on e: Exception do
+    begin
+      if not Assigned(AExceptionClass) then
+        raise
+      else if not e.ClassType.InheritsFrom(AExceptionClass) then
+        FailNotEquals(AExceptionClass.ClassName, e.ClassName, msg, ReturnAddress)
+      else if not SameText(E.Message, ExpectedMsg) then
+        FailNotEquals(ExpectedMsg, E.Message, msg, ReturnAddress)
+      else
+        AExceptionClass := nil;
+    end;
+  end;
+  if Assigned(AExceptionClass) then
+    FailNotEquals(AExceptionClass.ClassName, 'nothing', msg, ReturnAddress)
+end;
 
 constructor TBaseTestRest.Create(MethodName: string);
 begin

@@ -209,14 +209,12 @@ begin
 end;
 
 procedure TTestPeople.PersonNotFound;
-var
-  response: string;
 begin
-  response := RestClient.Resource(CONTEXT_PATH + 'person/999')
-            .Accept(RestUtils.MediaType_Json)
-            .GET();
-  if response <> '' then
-    CheckEquals(response, 'Person not found!');
+  CheckException(procedure
+    begin
+      RestClient.Resource(CONTEXT_PATH + 'person/999').Accept(RestUtils.MediaType_Json).GET();
+    end,
+    EHTTPError, 'HTTP Error: 404', 'Expects a HTTP Not Found (404)');
 end;
 
 procedure TTestPeople.RemovePersonById;

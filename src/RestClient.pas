@@ -296,8 +296,7 @@ begin
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
-    if (FHttpConnection.ResponseCode >= 400) and
-       (FHttpConnection.ResponseCode <> 404) then
+    if (FHttpConnection.ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode) then
     begin
       vRetryMode := hrmRaise;
       if assigned(OnError) then
