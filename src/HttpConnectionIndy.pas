@@ -76,6 +76,8 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
+      if E.ErrorCode = 404 then
+        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -113,6 +115,8 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
+      if E.ErrorCode = 404 then
+        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -164,6 +168,8 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
+      if E.ErrorCode = 404 then
+        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -195,6 +201,8 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
+      if E.ErrorCode = 404 then
+        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -226,6 +234,8 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
+      if E.ErrorCode = 404 then
+        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
