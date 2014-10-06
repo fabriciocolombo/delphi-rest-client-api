@@ -863,7 +863,7 @@ function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue 
 {$ENDIF}
 
 implementation
-uses sysutils, RestJsonUtils,
+uses sysutils, RestJsonUtils, variants,
 {$IFDEF UNIX}
   baseunix, unix, DateUtils
 {$ELSE}
@@ -1432,14 +1432,18 @@ function SO(const value: Variant): ISuperObject; overload;
 begin
   with TVarData(value) do
   case VType of
-    varNull:     Result := nil;
-    varEmpty:    Result := nil;
+    varNull:     Result := TSuperObject.Create(stNull);
+    varEmpty:    Result := TSuperObject.Create(stNull);
     varSmallInt: Result := TSuperObject.Create(VSmallInt);
     varInteger:  Result := TSuperObject.Create(VInteger);
     varSingle:   Result := TSuperObject.Create(VSingle);
     varDouble:   Result := TSuperObject.Create(VDouble);
     varCurrency: Result := TSuperObject.CreateCurrency(VCurrency);
+    {$IFDEF ISO8601}
+    varDate:     Result := TSuperObject.Create(DelphiDateTimeToISO8601Date(vDate));
+    {$ELSE}
     varDate:     Result := TSuperObject.Create(DelphiToJavaDateTime(vDate));
+    {$ENDIF}
     varOleStr:   Result := TSuperObject.Create(SOString(VOleStr));
     varBoolean:  Result := TSuperObject.Create(VBoolean);
     varShortInt: Result := TSuperObject.Create(VShortInt);
@@ -1820,9 +1824,102 @@ begin
         Result := serialfromboolean(ctx, SO(obj.AsString), Value) else
         Result := False;
     end;
+  stNull:
+    begin
+      value := TValue.From<boolean>(false);
+      result := true;
+    end;
   else
     Result := False;
   end;
+end;
+
+function serialfromvariant(ctx: TSuperRttiContext; const obj: ISuperObject; var Value: TValue): Boolean;
+begin
+  case ObjectGetType(obj) of
+    stNull:
+    begin
+      Value := TValue.from<variant>(null);
+    end;
+    stBoolean:
+      Value := obj.AsBoolean;
+    stDouble:
+      Value := obj.AsDouble;
+    stCurrency:
+      Value := obj.AsCurrency;
+    stInt:
+      Value := obj.AsInteger;
+    stString:
+      Value := obj.AsString;
+  end;
+  result := not value.IsEmpty;
+end;
+
+function serialfromdatetime(ctx: TSuperRttiContext; const obj: ISuperObject; var Value: TValue): Boolean;
+var
+  dt: TDateTime;
+  i: Int64;
+  fmtSettings: TFormatSettings;
+begin
+  case ObjectGetType(obj) of
+  stInt:
+    begin
+      TValueData(Value).FAsDouble := JavaToDelphiDateTime(obj.AsInteger);
+      Result := True;
+    end;
+  stString:
+    begin
+      fmtSettings.DateSeparator := '-';
+      fmtSettings.TimeSeparator := ':';
+      fmtSettings.ShortDateFormat := 'yyyy-mm-dd';
+      fmtSettings.LongDateFormat := 'yyyy-mm-dd';
+      fmtSettings.ShortTimeFormat := 'hh:nn:ss';
+      fmtSettings.LongTimeFormat := 'hh:nn:ss';
+      if value.TypeInfo = TypeInfo(TDate) then
+      begin
+        value := TValue.from<TDate>(StrToDate(obj.AsString, fmtSettings));
+        result := true;
+      end
+      else if value.TypeInfo = TypeInfo(TTime) then
+      begin
+        value := TValue.from<TTime>(StrToTime(obj.AsString, fmtSettings));
+        result := true;
+      end
+      else if (value.TypeInfo = TypeInfo(TDateTime)) and ISO8601DateToDelphiDateTime(SOString(obj.AsString), dt) then
+      begin
+        value := TValue.From<TDateTime>(dt);
+        result := true;
+      end else
+      if TryStrToDateTime(obj.AsString, dt, fmtSettings) then
+      begin
+        TValueData(Value).FAsDouble := dt;
+        Result := True;
+      end else
+        Result := False;
+    end;
+  stNull:
+    begin
+      result := true;
+    end;
+  else
+    Result := False;
+  end;
+end;
+
+function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
+begin
+  {$IFDEF ISO8601}
+    if value.TypeInfo.Name = 'TTime' then
+      result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
+    else if value.TypeInfo.Name = 'TDate' then
+    begin
+      result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 1, 10)) // 2013-12-17
+    end
+    else if value.TypeInfo.Name = 'TDateTime' then
+      result := TSuperObject.create(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble));
+  {$ELSE}
+    Result := TSuperObject.Create(DelphiToJavaDateTime(TValueData(value).FAsDouble));
+  {$ENDIF}
 end;
 
 function serialfromguid(ctx: TSuperRttiContext; const obj: ISuperObject; var Value: TValue): Boolean;
@@ -3078,7 +3175,8 @@ redo_char:
                      TokRec^.current := TSuperObject.Create(dt);
                      TokRec^.parent.AsObject.PutO(tok.pb.Fbuf, TokRec^.current);
                    end;
-                   TokRec^.current := TokRec^.parent.AsObject.GetO(tok.pb.Fbuf);
+                   if not (foDelete in options) then
+                     TokRec^.current := TokRec^.parent.AsObject.GetO(tok.pb.Fbuf);
                    TokRec^.state := tsFinish;
                    goto redo_char;
                  end;
@@ -3783,6 +3881,8 @@ begin
         for j := 0 to arr.Length - 1 do
           Add(arr.GetO(j).Clone);
       end;
+    stNull:
+      Result := TSuperObject.Create(stNull);
   else
     Result := nil;
   end;
@@ -6231,7 +6331,14 @@ begin
 
   SerialFromJson.Add(TypeInfo(Boolean), serialfromboolean);
   SerialFromJson.Add(TypeInfo(TGUID), serialfromguid);
+  SerialFromJson.Add(TypeInfo(TDateTime), serialfromdatetime);
+  SerialFromJson.Add(TypeInfo(TDate), serialfromdatetime);
+  SerialFromJson.Add(TypeInfo(TTime), serialfromdatetime);
+  SerialFromJson.Add(TypeInfo(variant), serialfromvariant);
   SerialToJson.Add(TypeInfo(Boolean), serialtoboolean);
+  SerialToJson.add(TypeInfo(TDatetime), serialtodatetime);
+  SerialToJson.add(TypeInfo(TTime), serialtodatetime);
+  SerialToJson.add(TypeInfo(TDate), serialtodatetime);
 
   SerialToJson.Add(TypeInfo(TGUID), serialtoguid);
 end;
@@ -6327,12 +6434,6 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
           Result := True;
         end else
           Result := False;
-      end;
-    stNull:
-      begin
-        TValue.Make(nil, TypeInfo, Value);
-        TValueData(Value).FAsSInt64 := -1;
-        result := true;
       end;
     else
       Result := False;
@@ -6739,7 +6840,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         begin
           Value := obj.AsString;
           Result := True;
-        end
+        end;
     else
       Value := nil;
       Result := False;
@@ -6766,6 +6867,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 var
   Serial: TSerialFromJson;
 begin
+
   if TypeInfo <> nil then
   begin
     if not SerialFromJson.TryGetValue(TypeInfo, Serial) then
@@ -6786,9 +6888,7 @@ begin
         tkDynArray: FromDynArray;
         tkClassRef: FromClassRef;
       else
-      begin
-        FromUnknown;
-      end
+        FromUnknown
       end else
       begin
         TValue.Make(nil, TypeInfo, Value);
@@ -6986,11 +7086,9 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
   begin
     Result := TSuperObject.Create(stArray);
     count := Value.GetArrayLength;
-    // if the array is a TList the `Value.GetArrayLength` will give the wrong value.
-    // `Value.GetArrayLength` will return the TList's capacity.
-    // Fx. if the TList has 1/2 elements `Value.GetArrayLength` will return 1/2.
-    // If add a 3. `Value.GetArrayLength` will then return 4.
-    // There for will need to now the count size before calling this function.
+    // If `value` is a TList the SIZE of the list will be returned instead
+    // of the item count.
+    // I made a temp fix here by parsing the _listCount parameter.
     if _listCount > -1 then
       count := _listCount;
     for i := 0 to count - 1 do
