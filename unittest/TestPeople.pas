@@ -210,11 +210,9 @@ end;
 
 procedure TTestPeople.PersonNotFound;
 begin
-  CheckException(procedure
-    begin
-      RestClient.Resource(CONTEXT_PATH + 'person/999').Accept(RestUtils.MediaType_Json).GET();
-    end,
-    EHTTPError, 'HTTP Error: 404', 'Expects a HTTP Not Found (404)');
+  StartExpectingException(EHTTPError);
+  RestClient.Resource(CONTEXT_PATH + 'person/999').Accept(RestUtils.MediaType_Json).GET();
+  StopExpectingException('Person not found!');
 end;
 
 procedure TTestPeople.RemovePersonById;
