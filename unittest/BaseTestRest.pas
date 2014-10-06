@@ -2,7 +2,7 @@ unit BaseTestRest;
 
 interface
 
-uses RestClient, TestFramework, HttpConnection, TestExtensions, TypInfo, System.SysUtils;
+uses RestClient, TestFramework, HttpConnection, TestExtensions, TypInfo;
 
 {$I DelphiRest.inc}
 
