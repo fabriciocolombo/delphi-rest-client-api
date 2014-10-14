@@ -296,12 +296,11 @@ begin
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
-    if (FHttpConnection.ResponseCode >= 400) and
-       (FHttpConnection.ResponseCode <> 404) then
+    if (FHttpConnection.ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode) then
     begin
       vRetryMode := hrmRaise;
       if assigned(OnError) then
-       // OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+        FHttpConnection.OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
 
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(
