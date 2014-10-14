@@ -76,8 +76,6 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      if E.ErrorCode = 404 then
-        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -115,8 +113,6 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      if E.ErrorCode = 404 then
-        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -168,8 +164,6 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      if E.ErrorCode = 404 then
-        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -201,8 +195,6 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      if E.ErrorCode = 404 then
-        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -234,8 +226,6 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      if E.ErrorCode = 404 then
-        exit;
       retryMode := hrmRaise;
       if assigned(OnError) then
         OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
@@ -299,6 +289,8 @@ end;
 
 function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
+  FIdHttp.Request.Authentication.Free;
+  FIdHttp.Request.Authentication := nil;
   FIdHttp.Request.CustomHeaders.Clear;
   FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
   Result := Self;

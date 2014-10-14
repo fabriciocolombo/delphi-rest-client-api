@@ -31,6 +31,9 @@ type
 
     (* 404 Not Found, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">HTTP/1.1 documentation</a>}*)
     class function NOT_FOUND: TReponseCode;
+
+    (* 400 Bad Request, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">HTTP/1.1 documentation</a>}*)
+    class function BAD_REQUEST: TReponseCode;
   end;
 
 implementation
@@ -42,6 +45,12 @@ class function TStatusCode.ACCEPTED: TReponseCode;
 begin
   Result.StatusCode := 202;
   Result.Reason := 'Accepted';
+end;
+
+class function TStatusCode.BAD_REQUEST: TReponseCode;
+begin
+  Result.StatusCode := 400;
+  Result.Reason := 'Bad Request';
 end;
 
 class function TStatusCode.Created: TReponseCode;
