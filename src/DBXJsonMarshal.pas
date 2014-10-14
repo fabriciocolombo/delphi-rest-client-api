@@ -36,7 +36,7 @@ type
 
 implementation
 
-uses StrUtils, RestJsonUtils;
+uses StrUtils, RestJsonDateTimeUtils;
 
 { TDBXJsonMarshal }
 
