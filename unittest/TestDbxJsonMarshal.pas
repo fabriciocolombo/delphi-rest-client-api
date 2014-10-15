@@ -57,7 +57,7 @@ type
 
 implementation
 
-uses DateUtils, SysUtils;
+uses DateUtils, SysUtils, RestJsonDateTimeUtils;
 
 { TTestDbxJsonMarshal }
 

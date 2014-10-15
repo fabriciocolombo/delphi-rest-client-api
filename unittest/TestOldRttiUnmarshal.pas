@@ -104,7 +104,7 @@ type
 
 implementation
 
-uses Math, SysUtils, DateUtils, RestJsonUtils;
+uses Math, SysUtils, DateUtils, RestJsonUtils, RestJsonDateTimeUtils;
 
 { TTestOldRttiUnmarshal }
 
