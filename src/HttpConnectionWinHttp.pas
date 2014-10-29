@@ -63,6 +63,7 @@ const
 procedure THttpConnectionWinHttp.Configure;
 var
   i: Integer;
+  ProxyServer: string;
 begin
   if FAcceptTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept', FAcceptTypes);
@@ -84,7 +85,11 @@ begin
                               FReceiveTimeout);
 
   if ProxyActive then
-    FWinHttpRequest.SetProxy(HTTPREQUEST_PROXYSETTING_PROXY, GetProxyServer, GetProxyOverride);
+  begin
+    ProxyServer := GetProxyServer;
+    if ProxyServer <> '' then
+      FWinHttpRequest.SetProxy(HTTPREQUEST_PROXYSETTING_PROXY, ProxyServer, GetProxyOverride);
+  end;
 end;
 
 function THttpConnectionWinHttp.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
