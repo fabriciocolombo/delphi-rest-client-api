@@ -110,6 +110,7 @@ type
     FConnectTimeout: Integer;
     FSendTimeout: Integer;
     FReceiveTimeout: Integer;
+    FProxyCredentials: TProxyCredentials;
   protected
     procedure DoRequest(sMethod,AUrl: string; AContent: TStream; AResponse: TStream);virtual;
   public
@@ -141,6 +142,7 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+    function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -194,11 +196,19 @@ begin
   inherited CreateFmt('%s (%d)', [AErrorMessage, iFErrorCode]);
 end;
 
+function THttpConnectionWinInet.ConfigureProxyCredentials(
+  AProxyCredentials: TProxyCredentials): IHttpConnection;
+begin
+  FProxyCredentials := AProxyCredentials;
+  Result := Self;
+end;
+
 function THttpConnectionWinInet.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
 begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+  Result := Self;
 end;
 
 constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = True);
@@ -400,6 +410,14 @@ begin
                 InternetSetOption(iRequestHandle, INTERNET_OPTION_RECEIVE_TIMEOUT, @FReceiveTimeout, SizeOf(FReceiveTimeout));
                 InternetSetOption(iRequestHandle, INTERNET_OPTION_SEND_TIMEOUT, @FSendTimeout, SizeOf(FSendTimeout));
                 InternetSetOption(iRequestHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @FConnectTimeout, SizeOf(FConnectTimeout));
+
+                if FProxyCredentials.Informed then
+                begin
+                  InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(FProxyCredentials.UserName),
+                    Length(FProxyCredentials.UserName));
+                  InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(FProxyCredentials.Password),
+                    Length(FProxyCredentials.Password));
+                end;
 
                 if FAcceptTypes <> EmptyStr then
                   SetRequestHeader('Accept', FAcceptTypes);

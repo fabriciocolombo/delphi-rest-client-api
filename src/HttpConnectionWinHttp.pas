@@ -15,6 +15,7 @@ type
     FConnectTimeout: Integer;
     FSendTimeout: Integer;
     FReceiveTimeout: Integer;
+    FProxyCredentials: TProxyCredentials;
 
     procedure Configure;
 
@@ -48,6 +49,7 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+    function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
   end;
 
 implementation
@@ -57,6 +59,7 @@ uses
 
 const
   HTTPREQUEST_PROXYSETTING_PROXY = 2;
+  HTTPREQUEST_SETCREDENTIALS_FOR_PROXY = 1;
 
 { THttpConnectionWinHttp }
 
@@ -88,8 +91,19 @@ begin
   begin
     ProxyServer := GetProxyServer;
     if ProxyServer <> '' then
+    begin
       FWinHttpRequest.SetProxy(HTTPREQUEST_PROXYSETTING_PROXY, ProxyServer, GetProxyOverride);
+      if FProxyCredentials.Informed then
+        FWinHttpRequest.SetCredentials(FProxyCredentials.UserName, FProxyCredentials.Password,
+          HTTPREQUEST_SETCREDENTIALS_FOR_PROXY);
+    end;
   end;
+end;
+
+function THttpConnectionWinHttp.ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
+begin
+  FProxyCredentials := AProxyCredentials;
+  Result := Self;
 end;
 
 function THttpConnectionWinHttp.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
@@ -97,6 +111,7 @@ begin
   FConnectTimeout := ATimeOut.ConnectTimeout;
   FReceiveTimeout := ATimeOut.ReceiveTimeout;
   FSendTimeout    := ATimeOut.SendTimeout;
+  Result := Self;
 end;
 
 procedure THttpConnectionWinHttp.CopyResourceStreamToStream(AResponse: TStream);

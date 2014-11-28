@@ -27,6 +27,17 @@ type
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
   THTTPErrorEvent = procedure(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode) of object;
 
+  TProxyCredentials = class(TComponent)
+  private
+    FUserName: string;
+    FPassword: string;
+  public
+    function Informed: Boolean;
+  published
+    property UserName: string read FUserName write FUsername;
+    property Password: string read FPassword write FPassword;
+  end;
+
   TTimeOut = class(TComponent)
   private
     FConnectTimeout: Integer;
@@ -72,6 +83,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+    function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent, AResponse: TStream);
@@ -115,6 +127,13 @@ begin
   FConnectTimeout := TIMEOUT_CONNECT_DEFAULT;
   FSendTimeout := TIMEOUT_SEND_DEFAULT;
   FReceiveTimeout := TIMEOUT_RECEIVE_DEFAULT;
+end;
+
+{ TProxyCredentials }
+
+function TProxyCredentials.Informed: Boolean;
+begin
+  Result := (FUserName <> '') and (FPassword <> '');
 end;
 
 end.

@@ -1,4 +1,3 @@
 - Review unicode compatibility
 - Create a playground application
 - Create UrlBuilder
-- Proxy Authentication support

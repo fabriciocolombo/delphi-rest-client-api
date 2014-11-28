@@ -17,7 +17,6 @@ type
     FIdHttp: TIdHTTP;
     FEnabledCompression: Boolean;
   public
-
     OnConnectionLost: THTTPConnectionLostEvent;
     OnError: THTTPErrorEvent;
 
@@ -46,24 +45,53 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
+    function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
   end;
 
 implementation
 
+uses
+  ProxyUtils;
+
 { THttpConnectionIndy }
+
+function THttpConnectionIndy.ConfigureProxyCredentials(
+  AProxyCredentials: TProxyCredentials): IHttpConnection;
+begin
+  if AProxyCredentials.Informed and ProxyActive then
+  begin
+    FIdHttp.ProxyParams.BasicAuthentication := True;
+    FIdHttp.ProxyParams.ProxyUsername := AProxyCredentials.UserName;
+    FIdHttp.ProxyParams.ProxyPassword := AProxyCredentials.Password;
+  end;
+  Result := Self;
+end;
 
 function THttpConnectionIndy.ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
 begin
   FIdHttp.ConnectTimeout := ATimeOut.ConnectTimeout;
   FIdHttp.ReadTimeout := ATimeOut.ReceiveTimeout;
+  Result := Self;
 end;
 
 constructor THttpConnectionIndy.Create;
+var
+  ProxyServerIP: string;
 begin
   FIdHttp := TIdHTTP.Create(nil);
   FIdHttp.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
   FIdHttp.HandleRedirects := True;
   FIdHttp.Request.CustomHeaders.FoldLines := false;
+
+  if ProxyActive then
+  begin
+    ProxyServerIP := GetProxyServerIP;
+    if ProxyServerIP <> '' then
+    begin
+      FIdHttp.ProxyParams.ProxyServer := ProxyServerIP;
+      FIdHttp.ProxyParams.ProxyPort := GetProxyServerPort;
+    end;
+  end;
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);

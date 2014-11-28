@@ -5,6 +5,8 @@ interface
   function ProxyActive: Boolean;
   function GetProxyServer: string;
   function GetProxyOverride: string;
+  function GetProxyServerIP: string;
+  function GetProxyServerPort: Integer;
 
 implementation
 
@@ -71,6 +73,28 @@ end;
 function GetProxyOverride: string;
 begin
   Result := ReadStringRegistryValue(PROXY_OVERRIDE);
+end;
+
+function GetProxyServerIP: string;
+var
+  ProxyServer: string;
+begin
+  ProxyServer := GetProxyServer;
+  if ProxyServer = '' then
+  begin
+    Result := '';
+    Exit;
+  end;
+
+  Result := Copy(ProxyServer, 1, Pos(':', ProxyServer)-1);
+end;
+
+function GetProxyServerPort: Integer;
+var
+  ProxyServer: string;
+begin
+  ProxyServer := GetProxyServer;
+  Result := StrToIntDef(Copy(ProxyServer,  Pos(':', ProxyServer)+1, length(ProxyServer)-1), 0);
 end;
 
 end.

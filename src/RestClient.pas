@@ -58,6 +58,7 @@ type
     FEnabledCompression: Boolean;
     FOnCustomCreateConnection: TCustomCreateConnection;
     FTimeOut: TTimeOut;
+    FProxyCredentials: TProxyCredentials;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -103,6 +104,7 @@ type
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
     property TimeOut: TTimeOut read FTimeOut;
+    property ProxyCredentials: TProxyCredentials read FProxyCredentials;
   end;
 
   TCookie = class
@@ -220,6 +222,10 @@ begin
   FTimeOut.Name := 'TimeOut';
   FTimeOut.SetSubComponent(True);
 
+  FProxyCredentials := TProxyCredentials.Create(Self);
+  FProxyCredentials.Name := 'ProxyCredentials';
+  FProxyCredentials.SetSubComponent(True);
+
   FEnabledCompression := True;
 end;
 
@@ -262,7 +268,8 @@ begin
                    .SetContentTypes(ResourceRequest.GetContentTypes)
                    .SetHeaders(ResourceRequest.GetHeaders)
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
-                   .ConfigureTimeout(FTimeOut);
+                   .ConfigureTimeout(FTimeOut)
+                   .ConfigureProxyCredentials(FProxyCredentials);
 
     vUrl := ResourceRequest.GetURL;
 
