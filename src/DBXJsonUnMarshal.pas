@@ -134,7 +134,8 @@ begin
                   vOldValue.AsObject.Free;
                 end;
 
-                f.SetValue(Result.AsObject, v);
+                if v.TypeInfo = f.FieldType.Handle then
+                  f.SetValue(Result.AsObject, v);
               end;
             finally
               if vOwnedJsonValue then
