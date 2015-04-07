@@ -11,7 +11,7 @@ uses Classes, SysUtils, HttpConnection,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
      {$ENDIF}
-     DB, JsonListAdapter;
+     DB, dbclient, JsonListAdapter;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -46,7 +46,7 @@ type
     class function NewFrom(AList: TList; AItemClass: TClass): IJsonListAdapter;
   end;
 
-  TRestClient = class(TComponent)
+  TJsonRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
     {$IFDEF USE_GENERICS}
@@ -122,7 +122,7 @@ type
 
   TResource = class
   private
-    FRestClient: TRestClient;
+    FRestClient: TJsonRestClient;	// due to TRestClient Name collision
     FURL: string;
     FAcceptTypes: string;
     FContent: TMemoryStream;
@@ -130,11 +130,11 @@ type
     FHeaders: TStrings;
     FAcceptedLanguages: string;
 
-    constructor Create(RestClient: TRestClient; URL: string);
+    constructor Create(RestClient: TJsonRestClient; URL: string);
     procedure SetContent(entity: TObject);
+    procedure SetJsonContent(json: string);
   public
     destructor Destroy; override;
-
     function GetAcceptTypes: string;
     function GetURL: string;
     function GetContent: TStream;
@@ -184,6 +184,9 @@ type
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     function Patch<T>(Entity: TObject): T;overload;
+    function PostJson(data: string; table: string; titles: string): TClientDataSet;overload;
+    function CreateDataset(data: string; table: string = ''; titles: string = ''): TClientDataSet;
+    function PostJson(data: string): string; overload;
     {$ELSE}
     function Get(AListClass, AItemClass: TClass): TObject;overload;
     function Post(Adapter: IJsonListAdapter): TObject;overload;
@@ -200,14 +203,14 @@ type
 implementation
 
 uses StrUtils, Math,
-     {$IFDEF USE_SUPER_OBJECT}
+     //{$IFDEF USE_SUPER_OBJECT} // Super object proved superior to the Delphi Generics
      SuperObject, JsonToDataSetConverter,
-     {$ENDIF}
+     //{$ENDIF}
      HttpConnectionFactory;
 
 { TRestClient }
 
-constructor TRestClient.Create(Owner: TComponent);
+constructor TJsonRestClient.Create(Owner: TComponent);
 begin
   inherited;
   {$IFDEF USE_GENERICS}
@@ -223,14 +226,14 @@ begin
   FEnabledCompression := True;
 end;
 
-destructor TRestClient.Destroy;
+destructor TJsonRestClient.Destroy;
 begin
   FResources.Free;
   FHttpConnection := nil;
   inherited;
 end;
 
-function TRestClient.DoCustomCreateConnection: IHttpConnection;
+function TJsonRestClient.DoCustomCreateConnection: IHttpConnection;
 begin
   if Assigned(FOnCustomCreateConnection) then
   begin
@@ -247,7 +250,7 @@ begin
   end;
 end;
 
-function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): String;
+function TJsonRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): String;
 var
   vResponse: TStringStream;
   vUrl: String;
@@ -319,38 +322,38 @@ begin
 end;
 
 {$IFDEF DELPHI_2009_UP}
-procedure TRestClient.DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
+procedure TJsonRestClient.DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
 begin
   FTempHandler := AHandler;
 
   DoRequest(Method, ResourceRequest, HandleAnonymousMethod);
 end;
 
-procedure TRestClient.HandleAnonymousMethod(ResponseContent: TStream);
+procedure TJsonRestClient.HandleAnonymousMethod(ResponseContent: TStream);
 begin
   FTempHandler(ResponseContent);
   FTempHandler := nil;
 end;
 {$ENDIF}
 
-function TRestClient.GetOnConnectionLost: THTTPConnectionLostEvent;
+function TJsonRestClient.GetOnConnectionLost: THTTPConnectionLostEvent;
 begin
   result := FHttpConnection.OnConnectionLost;
 end;
 
-function TRestClient.GetOnError: THTTPErrorEvent;
+function TJsonRestClient.GetOnError: THTTPErrorEvent;
 begin
   result := FHttpConnection.OnError;
 end;
 
-function TRestClient.GetResponseCode: Integer;
+function TJsonRestClient.GetResponseCode: Integer;
 begin
   CheckConnection;
   
   Result := FHttpConnection.ResponseCode;
 end;
 
-procedure TRestClient.RecreateConnection;
+procedure TJsonRestClient.RecreateConnection;
 begin
   if not (csDesigning in ComponentState) then
   begin
@@ -366,7 +369,7 @@ begin
   end;
 end;
 
-procedure TRestClient.CheckConnection;
+procedure TJsonRestClient.CheckConnection;
 begin
   if (FHttpConnection = nil) then
   begin
@@ -374,19 +377,19 @@ begin
   end;
 end;
 
-procedure TRestClient.Loaded;
+procedure TJsonRestClient.Loaded;
 begin
   RecreateConnection;
 end;
 
-function TRestClient.Resource(URL: String): TResource;
+function TJsonRestClient.Resource(URL: String): TResource;
 begin
   Result := TResource.Create(Self, URL);
 
   FResources.Add(Result);
 end;
 
-procedure TRestClient.SetConnectionType(const Value: THttpConnectionType);
+procedure TJsonRestClient.SetConnectionType(const Value: THttpConnectionType);
 begin
   if (FConnectionType <> Value) then
   begin
@@ -396,7 +399,7 @@ begin
   end;
 end;
 
-procedure TRestClient.SetEnabledCompression(const Value: Boolean);
+procedure TJsonRestClient.SetEnabledCompression(const Value: Boolean);
 begin
   if (FEnabledCompression <> Value) then
   begin
@@ -409,18 +412,18 @@ begin
   end;
 end;
 
-procedure TRestClient.SetOnConnectionLost(
+procedure TJsonRestClient.SetOnConnectionLost(
   AConnectionLostEvent: THTTPConnectionLostEvent);
 begin
   FHttpConnection.OnConnectionLost := AConnectionLostEvent;
 end;
 
-procedure TRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
+procedure TJsonRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   FHttpConnection.OnError := AErrorEvent;
 end;
 
-function TRestClient.UnWrapConnection: IHttpConnection;
+function TJsonRestClient.UnWrapConnection: IHttpConnection;
 begin
   Result := FHttpConnection;
 end;
@@ -535,7 +538,7 @@ begin
   Result := Self;
 end;
 
-constructor TResource.Create(RestClient: TRestClient; URL: string);
+constructor TResource.Create(RestClient: TJsonRestClient; URL: string);
 begin
   inherited Create;
   FRestClient := RestClient;
@@ -635,6 +638,37 @@ begin
   else
     Result := Default(T);
 end;
+
+function TResource.PostJson(data: string; table: string; titles: string): TClientDataSet;
+var
+  vResponse: string;
+  vJson: ISuperObject;
+begin
+  SetJsonContent(data);
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+  Result := CreateDataset(vResponse, table, titles);
+end;
+function TResource.CreateDataset(data: string; table: string = ''; titles: string = ''): TClientDataSet;
+var
+  vJson: ISuperObject;
+begin
+  vJson := SuperObject.SO(data);
+
+  Result := TJsonToDataSetConverter.CreateDataSetMetadata(vJson, table, titles);
+
+  TJsonToDataSetConverter.ToDataSet(Result, vJson.O[table]);
+
+end;
+function TResource.PostJson(data: string): string;
+var
+  vResponse: string;
+  vJson: ISuperObject;
+begin
+  SetJsonContent(data);
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+  Result := vResponse;
+end;
+
 
 function TResource.Put<T>(Entity: TObject): T;
 var
@@ -758,6 +792,19 @@ begin
   end;
 end;
 
+procedure TResource.SetJsonContent(json: string);
+var
+  vStream: TStringStream;
+begin
+  FContent.Clear;
+    vStream := TStringStream.Create(json);
+    try
+      vStream.Position := 0;
+      FContent.CopyFrom(vStream, vStream.Size);
+    finally
+      vStream.Free;
+    end;
+end;
 function TResource.Put(Content: TStream): String;
 begin
   Content.Position := 0;
