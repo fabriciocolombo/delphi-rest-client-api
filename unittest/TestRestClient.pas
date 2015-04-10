@@ -47,6 +47,7 @@ type
     procedure Delete(AUrl: string; AContent: TStream);virtual;abstract;
 
     function GetResponseCode: Integer;virtual;abstract;
+    function GetResponseHeader(const Header: string): string; virtual;abstract;
     function GetEnabledCompression: Boolean;virtual;abstract;
 
     procedure SetEnabledCompression(const Value: Boolean);virtual;abstract;
