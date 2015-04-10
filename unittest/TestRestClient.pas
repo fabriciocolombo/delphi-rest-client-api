@@ -38,6 +38,7 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;virtual;abstract;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;virtual;abstract;
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;virtual;abstract;
+    function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;virtual;abstract;
 
     procedure Get(AUrl: string; AResponse: TStream);virtual;abstract;
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
@@ -46,6 +47,7 @@ type
     procedure Delete(AUrl: string; AContent: TStream);virtual;abstract;
 
     function GetResponseCode: Integer;virtual;abstract;
+    function GetResponseHeader(const Header: string): string; virtual;abstract;
     function GetEnabledCompression: Boolean;virtual;abstract;
 
     procedure SetEnabledCompression(const Value: Boolean);virtual;abstract;
