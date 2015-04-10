@@ -34,6 +34,9 @@ type
 
     (* 400 Bad Request, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">HTTP/1.1 documentation</a>}*)
     class function BAD_REQUEST: TReponseCode;
+
+    (* 407 Proxy Authentication Required, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.8">HTTP/1.1 documentation</a>}*)
+    class function PROXY_AUTHENTICATION_REQUIRED: TReponseCode;
   end;
 
 implementation
@@ -75,6 +78,12 @@ class function TStatusCode.OK: TReponseCode;
 begin
   Result.StatusCode := 200;
   Result.Reason := 'OK';
+end;
+
+class function TStatusCode.PROXY_AUTHENTICATION_REQUIRED: TReponseCode;
+begin
+  Result.StatusCode := 407;
+  Result.Reason := 'Proxy Authentication Required';
 end;
 
 end.
