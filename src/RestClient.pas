@@ -84,6 +84,7 @@ type
 
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
+    function GetResponseHeader(const Header: string): string;
 
   protected
     procedure Loaded; override;
@@ -92,6 +93,7 @@ type
     destructor Destroy; override;
 
     property ResponseCode: Integer read GetResponseCode;
+    property ResponseHeader[const Header: string]: string read GetResponseHeader;
 
     function Resource(URL: String): TResource;
 
@@ -354,6 +356,13 @@ begin
   CheckConnection;
   
   Result := FHttpConnection.ResponseCode;
+end;
+
+function TRestClient.GetResponseHeader(const Header: string): string;
+begin
+  CheckConnection;
+
+  Result := FHttpConnection.ResponseHeader[Header];
 end;
 
 procedure TRestClient.RecreateConnection;

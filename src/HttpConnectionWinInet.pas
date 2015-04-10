@@ -132,6 +132,8 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+    function GetResponseHeader(const Header: string): string;
+
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
@@ -255,6 +257,11 @@ end;
 function THttpConnectionWinInet.GetResponseCode: Integer;
 begin
   Result := FResponseCode;
+end;
+
+function THttpConnectionWinInet.GetResponseHeader(const Header: string): string;
+begin
+  raise ENotImplemented.Create('');
 end;
 
 procedure THttpConnectionWinInet.Patch(AUrl: string; AContent,

@@ -92,11 +92,13 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+    function GetResponseHeader(const Header: string): string;
     function GetEnabledCompression: Boolean;
 
     procedure SetEnabledCompression(const Value: Boolean);
 
     property ResponseCode: Integer read GetResponseCode;
+    property ResponseHeader[const Header: string]: string read GetResponseHeader;
     property EnabledCompression: Boolean read GetEnabledCompression write SetEnabledCompression;
 
     function GetOnConnectionLost: THTTPConnectionLostEvent;

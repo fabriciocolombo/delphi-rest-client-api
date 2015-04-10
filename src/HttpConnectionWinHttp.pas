@@ -39,6 +39,8 @@ type
     procedure Delete(AUrl: string; AContent: TStream);
 
     function GetResponseCode: Integer;
+    function GetResponseHeader(const Name: string): string;
+
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
@@ -183,6 +185,11 @@ end;
 function THttpConnectionWinHttp.GetResponseCode: Integer;
 begin
   Result := FWinHttpRequest.Status;
+end;
+
+function THttpConnectionWinHttp.GetResponseHeader(const Name: string): string;
+begin
+  Result := FWinHttpRequest.GetResponseHeader(Name)
 end;
 
 procedure THttpConnectionWinHttp.Patch(AUrl: string; AContent,
