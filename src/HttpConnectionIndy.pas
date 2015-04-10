@@ -323,6 +323,8 @@ end;
 
 function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
+  FIdHttp.Request.Authentication.Free;
+  FIdHttp.Request.Authentication := nil;
   FIdHttp.Request.CustomHeaders.Clear;
   FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
   Result := Self;

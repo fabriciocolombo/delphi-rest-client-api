@@ -11,9 +11,9 @@ interface
 implementation
 
 uses
-  System.SysUtils,
-  System.Win.Registry,
-  Winapi.Windows;
+  SysUtils,
+  Registry,
+  Windows;
 
 const
   INTERNET_SETTINGS = 'Software\Microsoft\Windows\CurrentVersion\Internet Settings';
