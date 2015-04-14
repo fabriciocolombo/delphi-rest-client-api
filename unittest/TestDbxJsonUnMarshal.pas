@@ -102,8 +102,11 @@ type
   end;
 
   TTestNullValue = class
+  public
     floatValue: Double;
     nullValue: Integer;
+    const DEF_NULL_FIELD_VALUE = 42;
+    constructor Create;
   end;
 
 implementation
@@ -333,6 +336,8 @@ var
 begin
   Items := TDbxJsonUnMarshal.FromJson<TTestNullValue>('{"nullValue": null,"floatValue": 1234.56}');
   CheckNotNull(Items);
+  CheckEquals(1234.56, Items.floatValue, 0.001);
+  CheckEquals(TTestNullValue.DEF_NULL_FIELD_VALUE, Items.nullValue);
   Items.Free;
 end;
 
@@ -707,6 +712,13 @@ begin
   Status.Free;
   Labels.Free;
   inherited;
+end;
+
+{ TTestNullValue }
+
+constructor TTestNullValue.Create;
+begin
+  nullValue := DEF_NULL_FIELD_VALUE;
 end;
 
 initialization
