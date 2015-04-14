@@ -55,6 +55,7 @@ type
     procedure valueSetFromString;
     procedure valueRecord;
     procedure WhiteSpaces;
+    procedure valueNull;
   end;
 
   TTestDbxJsonUnMarshalCompatibility = class(TTestCase)
@@ -98,6 +99,14 @@ type
     function GetJsonIssueResponse: string;
   published
     procedure ParseIssueResponse;
+  end;
+
+  TTestNullValue = class
+  public
+    floatValue: Double;
+    nullValue: Integer;
+    const DEF_NULL_FIELD_VALUE = 42;
+    constructor Create;
   end;
 
 implementation
@@ -319,6 +328,17 @@ begin
   CheckEquals(2, FObject.valueList.Count);
   CheckEquals('one', FObject.valueList[0].valueString);
   CheckEquals('two', FObject.valueList[1].valueString);
+end;
+
+procedure TTestDbxJsonUnMarshal.valueNull;
+var
+  Items: TTestNullValue;
+begin
+  Items := TDbxJsonUnMarshal.FromJson<TTestNullValue>('{"nullValue": null,"floatValue": 1234.56}');
+  CheckNotNull(Items);
+  CheckEquals(1234.56, Items.floatValue, 0.001);
+  CheckEquals(TTestNullValue.DEF_NULL_FIELD_VALUE, Items.nullValue);
+  Items.Free;
 end;
 
 procedure TTestDbxJsonUnMarshal.valueObject;
@@ -692,6 +712,13 @@ begin
   Status.Free;
   Labels.Free;
   inherited;
+end;
+
+{ TTestNullValue }
+
+constructor TTestNullValue.Create;
+begin
+  nullValue := DEF_NULL_FIELD_VALUE;
 end;
 
 initialization

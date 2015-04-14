@@ -94,7 +94,7 @@ end;
 function TDBXJsonUnmarshal.FromClass(ATypeInfo: PTypeInfo;AJSONValue: TJSONValue): TValue;
 var
   f: TRttiField;
-  v: TValue;
+  v, vCast: TValue;
   vFieldPair: TJSONPair;
   vOldValue: TValue;
   vJsonValue: TJSONValue;
@@ -134,7 +134,8 @@ begin
                   vOldValue.AsObject.Free;
                 end;
 
-                f.SetValue(Result.AsObject, v);
+                if v.TryCast(f.FieldType.Handle, vCast)  then
+                  f.SetValue(Result.AsObject, vCast);
               end;
             finally
               if vOwnedJsonValue then
