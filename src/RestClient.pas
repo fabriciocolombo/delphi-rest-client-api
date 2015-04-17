@@ -104,7 +104,10 @@ type
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
     property TimeOut: TTimeOut read FTimeOut;
   end;
-
+  
+  type
+    TRestClient = TJsonRestClient deprecated 'Use TJsonRestClient';
+  
   TCookie = class
   private
     FName: String;
