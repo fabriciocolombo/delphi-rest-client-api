@@ -1858,7 +1858,6 @@ end;
 function serialfromdatetime(ctx: TSuperRttiContext; const obj: ISuperObject; var Value: TValue): Boolean;
 var
   dt: TDateTime;
-  i: Int64;
   fmtSettings: TFormatSettings;
 begin
   case ObjectGetType(obj) of

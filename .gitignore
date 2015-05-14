@@ -8,6 +8,7 @@ unittest/UnitTest.dsk
 unittest/UnitTest.dof
 unittest/UnitTest.exe
 unittest/UnitTest.map
+unittest/UnitTest.stat
 unittest/target
 packages/D7/D7_RestApi.dsk
 packages/D7/D7_RestApi.res
