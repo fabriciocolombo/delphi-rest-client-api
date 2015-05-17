@@ -16,6 +16,8 @@ type
     FSendTimeout: Integer;
     FReceiveTimeout: Integer;
     FProxyCredentials: TProxyCredentials;
+    FLogin: String;
+    FPassword: String;
 
     procedure Configure;
 
@@ -60,6 +62,7 @@ uses
   ProxyUtils;
 
 const
+  HTTPREQUEST_SETCREDENTIALS_FOR_SERVER = 0;
   HTTPREQUEST_PROXYSETTING_PROXY = 2;
   HTTPREQUEST_SETCREDENTIALS_FOR_PROXY = 1;
 
@@ -73,10 +76,10 @@ begin
   if FAcceptTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept', FAcceptTypes);
 
-  if FAcceptedLanguages <> EmptyStr then  
+  if FAcceptedLanguages <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Accept-Language', FAcceptedLanguages);
 
-  if FContentTypes <> EmptyStr then  
+  if FContentTypes <> EmptyStr then
     FWinHttpRequest.SetRequestHeader('Content-Type', FContentTypes);
 
   for i := 0 to FHeaders.Count-1 do
@@ -136,6 +139,8 @@ end;
 constructor THttpConnectionWinHttp.Create;
 begin
   FHeaders := TStringList.Create;
+  FLogin:='';
+  FPassword:='';
 end;
 
 procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
@@ -244,14 +249,14 @@ end;
 function THttpConnectionWinHttp.SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
 begin
   FAcceptedLanguages := AAcceptedLanguages;
-  
+
   Result := Self;
 end;
 
 function THttpConnectionWinHttp.SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
 begin
   FAcceptTypes := AAcceptTypes;
-  
+
   Result := Self;
 end;
 

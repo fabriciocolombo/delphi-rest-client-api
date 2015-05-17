@@ -18,8 +18,8 @@ packages/XE4/Debug
 packages/XE4/Lib
 demo/DelphiRestDemo.exe
 demo/Debug
-demo\XE 4 - iOS\iOSSimulator
-demo\XE 4 - iOS\Win32
+demo/XE 4 - iOS/iOSSimulator
+demo/XE 4 - iOS/Win32
 *.dcu
 *.~*~
 *.local
@@ -33,3 +33,6 @@ bin/*
 *.hpp
 *.rsm
 /src/*.~inc
+.metadata
+RemoteSystemsTempFiles
+Servers

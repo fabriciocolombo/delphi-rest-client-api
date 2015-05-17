@@ -39,6 +39,7 @@ type
     function SetHeaders(AHeaders: TStrings): IHttpConnection;virtual;abstract;
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;virtual;abstract;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;virtual;abstract;
+    function SetCredentials(const ALogin: string; const APassword: string): IHttpConnection;virtual;abstract;
 
     procedure Get(AUrl: string; AResponse: TStream);virtual;abstract;
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;

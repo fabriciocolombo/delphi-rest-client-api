@@ -11,7 +11,7 @@ uses Classes, SysUtils, HttpConnection,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
      {$ENDIF}
-     DB, JsonListAdapter;
+     DB, JsonListAdapter, DCPbase64;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -59,6 +59,8 @@ type
     FOnCustomCreateConnection: TCustomCreateConnection;
     FTimeOut: TTimeOut;
     FProxyCredentials: TProxyCredentials;
+    FLogin: String;
+    FPassword: String;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -98,6 +100,8 @@ type
     function Resource(URL: String): TResource;
 
     function UnWrapConnection: IHttpConnection;
+
+    function SetCredentials(const ALogin, APassword: String): TRestClient;
 
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
@@ -228,6 +232,9 @@ begin
   FProxyCredentials := TProxyCredentials.Create(Self);
   FProxyCredentials.Name := 'ProxyCredentials';
   FProxyCredentials.SetSubComponent(True);
+ 
+  FLogin := '';
+  FPassword := '';
 
   FEnabledCompression := True;
 end;
@@ -257,19 +264,31 @@ begin
 end;
 
 function TRestClient.DoRequest(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandler): String;
+const
+  AuthorizationHeader = 'Authorization';
 var
   vResponse: TStringStream;
   vUrl: String;
   vResponseString: string;
   vRetryMode: THTTPRetryMode;
+  vHeaders: TStrings;
+  vEncodedCredentials: string;
 begin
   CheckConnection;
 
   vResponse := TStringStream.Create('');
   try
+    vHeaders := ResourceRequest.GetHeaders;
+
+    if (FLogin <> EmptyStr) and (vHeaders.IndexOfName(AuthorizationHeader) = -1) then
+    begin
+      vEncodedCredentials := Base64EncodeStr(Format('%s:%s', [FLogin, FPassword]));
+      vHeaders.Values[AuthorizationHeader] := 'Basic ' + vEncodedCredentials;
+    end;
+
     FHttpConnection.SetAcceptTypes(ResourceRequest.GetAcceptTypes)
                    .SetContentTypes(ResourceRequest.GetContentTypes)
-                   .SetHeaders(ResourceRequest.GetHeaders)
+                   .SetHeaders(vHeaders)
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
                    .ConfigureTimeout(FTimeOut)
                    .ConfigureProxyCredentials(FProxyCredentials);
@@ -410,6 +429,13 @@ begin
 
     RecreateConnection;
   end;
+end;
+
+function TRestClient.SetCredentials(const ALogin, APassword: String): TRestClient;
+begin
+  FLogin := ALogin;
+  FPassword := APassword;
+  Result := Self;
 end;
 
 procedure TRestClient.SetEnabledCompression(const Value: Boolean);
