@@ -186,7 +186,7 @@ end;
 
 function THttpConnectionIndy.GetResponseHeader(const Header: string): string;
 begin
-  raise ENotImplemented.Create('');
+  raise ENotSupportedException.Create('');
 end;
 
 procedure THttpConnectionIndy.Patch(AUrl: string; AContent, AResponse: TStream);
@@ -322,9 +322,18 @@ begin
 end;
 
 function THttpConnectionIndy.SetHeaders(AHeaders: TStrings): IHttpConnection;
+var
+  i: Integer;
 begin
+  FIdHttp.Request.Authentication.Free;
+  FIdHttp.Request.Authentication := nil;
   FIdHttp.Request.CustomHeaders.Clear;
-  FIdHttp.Request.CustomHeaders.AddStrings(AHeaders);
+
+  for i := 0 to AHeaders.Count-1 do
+  begin
+    FIdHttp.Request.CustomHeaders.AddValue(AHeaders.Names[i], AHeaders.ValueFromIndex[i]);
+  end;
+
   Result := Self;
 end;
 

@@ -19,7 +19,7 @@ type
 implementation
 
 uses
-  System.SysUtils, System.DateUtils, DbxJsonUtils, DbxTest, RestJsonUtils;
+  SysUtils, DateUtils, DbxJsonUtils, DbxTest, RestJsonUtils;
 
 { TTestDBXJsonUtils }
 

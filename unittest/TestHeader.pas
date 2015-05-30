@@ -2,21 +2,26 @@ unit TestHeader;
 
 interface
 
-uses BaseTestRest, RestUtils, IdHTTPServer, IdCustomHTTPServer, IdContext, HttpConnection, DCPbase64;
+{$I DelphiRest.inc}
+
+uses BaseTestRest, RestUtils, IdHTTPServer, IdCustomHTTPServer, IdContext, HttpConnection, DCPbase64, IdHeaderList;
 
 type
   TTestHeader = class(TBaseTestRest)
   private
     FHttpServer: TIdHTTPServer;
+    FAuthExists: Boolean;
     FAuthType: string;
     FAuthData: string;
 
     function CreateHttpServer: TIdHTTPServer;
     procedure DestroyHttpServer;
 
-    procedure OnParseAuthentication(AContext: TIdContext; const AAuthType, AAuthData: string; var VUsername,
-      VPassword: string; var VHandled: Boolean);
-
+    {$IFDEF DELPHI_XE_UP}
+    procedure OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
+    {$ELSE}
+    procedure OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
+    {$ENDIF}
     procedure OnCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
       AResponseInfo: TIdHTTPResponseInfo);
 
@@ -33,7 +38,7 @@ type
 
 implementation
 
-uses SysUtils;
+uses SysUtils, StrUtils;
 
 { TTestHeader }
 
@@ -121,8 +126,8 @@ function TTestHeader.CreateHttpServer: TIdHTTPServer;
 begin
   FHttpServer := TIdHTTPServer.Create(nil);
   FHttpServer.DefaultPort := 9999;
-  FHttpServer.OnParseAuthentication := OnParseAuthentication;
   FHttpServer.OnCommandGet := OnCommandGet;
+  FHttpServer.OnHeadersAvailable := OnHeadersAvailable;
   FHttpServer.Active := True;
 
   Result := FHttpServer;
@@ -148,7 +153,7 @@ end;
 procedure TTestHeader.OnCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
   AResponseInfo: TIdHTTPResponseInfo);
 begin
-  if not ARequestInfo.AuthExists then
+  if not FAuthExists then
   begin
     AResponseInfo.ResponseNo := TStatusCode.UNAUTHORIZED.StatusCode;
     AResponseInfo.ResponseText := 'Not authenticated user';
@@ -177,11 +182,31 @@ begin
   CheckEqualsString('{"x-foo":"Bar"}', vResponse);
 end;
 
-procedure TTestHeader.OnParseAuthentication(AContext: TIdContext; const AAuthType, AAuthData: string; var VUsername,
-  VPassword: string; var VHandled: Boolean);
+{$IFDEF DELPHI_XE_UP}
+procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
+{$ELSE}
+procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
+{$ENDIF}
+var
+  vAuthorizationValue: string;
+  i: Integer;
 begin
-  FAuthType := AAuthType;
-  FAuthData := AAuthData;
+  for i := 0 to AHeaders.Count-1 - 1 do
+  begin
+    if StartsText('Authorization', AHeaders.Strings[i]) then
+    begin
+      vAuthorizationValue := AHeaders.Values[AHeaders.Names[i]];
+      if StartsText('Basic', vAuthorizationValue) then
+      begin
+        Delete(vAuthorizationValue,1,6);
+        FAuthExists := True;
+        FAuthType := 'Basic';
+        FAuthData := vAuthorizationValue;
+      end;
+      Break;
+    end;
+  end;
+
 end;
 
 initialization

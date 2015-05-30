@@ -21,6 +21,8 @@ type
 
 implementation
 
+uses SysUtils;
+
 { TJsonUtilGenerics }
 
 class function TJsonUtilGenerics.Marshal(entity: TObject): string;
@@ -68,7 +70,10 @@ begin
   begin
     ctx := TSuperRttiContext.Create;
     try
-      Result := ctx.AsType<T>(SuperObject.SO(text));
+      if ctx.FromJson(TypeInfo(T), SuperObject.SO(text), v) then
+        Result := v.AsType<T>
+      else
+        raise Exception.Create('Marshalling error');
     finally
       ctx.Free;
     end;

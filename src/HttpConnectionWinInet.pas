@@ -261,7 +261,7 @@ end;
 
 function THttpConnectionWinInet.GetResponseHeader(const Header: string): string;
 begin
-  raise ENotImplemented.Create('');
+  raise ENotSupportedException.Create('');
 end;
 
 procedure THttpConnectionWinInet.Patch(AUrl: string; AContent,
