@@ -32,7 +32,7 @@ See more details about serialization here: [Serialization](https://github.com/fa
 
 ## Samples
 
-All code below assume you have dropped the RestClient component on a form or data module.
+Note that all code below assume you have installed the component in your IDE and dropped the RestClient component on a form or data module, but of course you can also create the component directly in your code.
 
 - **GET**
 
