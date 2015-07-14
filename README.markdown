@@ -136,6 +136,13 @@ begin
     vDataSet.Free;
   end;
 ```
+- **AUTHENTICATION**
+
+RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making a request:
+
+```delphi
+RestClient.SetCredentials('username', 'password');
+```
 
 ## Java Rest Server
 
