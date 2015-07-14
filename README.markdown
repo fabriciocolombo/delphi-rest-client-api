@@ -139,11 +139,13 @@ begin
 
 ## Authentication
 
-RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making a request:
+RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making the first request:
 
 ```delphi
 RestClient.SetCredentials('username', 'password');
 ```
+
+You can set it once and it will be used for every request.
 
 ## Java Rest Server
 
