@@ -136,7 +136,8 @@ begin
     vDataSet.Free;
   end;
 ```
-- **AUTHENTICATION**
+
+## Authentication
 
 RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making a request:
 
