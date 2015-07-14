@@ -137,6 +137,16 @@ begin
   end;
 ```
 
+## Authentication
+
+RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making the first request:
+
+```delphi
+RestClient.SetCredentials('username', 'password');
+```
+
+You can set it once and it will be used for every request.
+
 ## Java Rest Server
 
 The java project is only for test purpose and has built using [Maven](http://maven.apache.org) and [Jersey](http://jersey.java.net), so it's needed have installed the JRE 6+ (Java Runtime Environment) and Maven 2 to build and run the application. The Maven bin directory must be included in Windows Path environment variable.
