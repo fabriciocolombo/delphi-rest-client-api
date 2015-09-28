@@ -42,8 +42,15 @@ type
     class function PROXY_AUTHENTICATION_REQUIRED: TReponseCode;
   end;
 
+  TRestUtils = class
+  public
+    class function Base64Encode(const AValue: String): String;
+    class function Base64Decode(const AValue: String): String;
+  end;
+
 implementation
 
+uses EncdDecd;
 
 { TStatusCode }
 
@@ -93,6 +100,18 @@ class function TStatusCode.UNAUTHORIZED: TReponseCode;
 begin
   Result.StatusCode := 401;
   Result.Reason := 'Unauthorized';
+end;
+
+{ TRestUtils }
+
+class function TRestUtils.Base64Decode(const AValue: String): String;
+begin
+  Result := EncdDecd.DecodeString(AValue);
+end;
+
+class function TRestUtils.Base64Encode(const AValue: String): String;
+begin
+  Result := EncdDecd.EncodeString(AValue);
 end;
 
 end.

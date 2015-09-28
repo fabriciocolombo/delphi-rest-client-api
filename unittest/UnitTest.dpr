@@ -38,7 +38,7 @@ uses
   DbxJsonUnMarshal in '..\src\DbxJsonUnMarshal.pas',
   TestDBXJsonUtils in 'TestDBXJsonUtils.pas',
   TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas',
-  DCPbase64 in '..\lib\DCPbase64.pas';
+  TestRestUtils in 'TestRestUtils.pas';
 
 {$R *.RES}
 

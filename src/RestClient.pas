@@ -11,7 +11,7 @@ uses Classes, SysUtils, HttpConnection,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
      {$ENDIF}
-     DB, JsonListAdapter, DCPbase64;
+     DB, JsonListAdapter;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -282,7 +282,7 @@ begin
 
     if (FLogin <> EmptyStr) and (vHeaders.IndexOfName(AuthorizationHeader) = -1) then
     begin
-      vEncodedCredentials := Base64EncodeStr(Format('%s:%s', [FLogin, FPassword]));
+      vEncodedCredentials := TRestUtils.Base64Encode(Format('%s:%s', [FLogin, FPassword]));
       vHeaders.Values[AuthorizationHeader] := 'Basic ' + vEncodedCredentials;
     end;
 

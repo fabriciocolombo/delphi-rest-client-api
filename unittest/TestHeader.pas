@@ -4,7 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses BaseTestRest, RestUtils, IdHTTPServer, IdCustomHTTPServer, IdContext, HttpConnection, DCPbase64, IdHeaderList;
+uses BaseTestRest, RestUtils, IdHTTPServer, IdCustomHTTPServer, IdContext, HttpConnection, IdHeaderList;
 
 type
   TTestHeader = class(TBaseTestRest)
@@ -77,7 +77,7 @@ begin
                            .Get;
 
     CheckEquals(FAuthType, 'Basic');
-    CheckEquals(Base64DecodeStr(FAuthData), 'user:password');
+    CheckEquals(TRestUtils.Base64Decode(FAuthData), 'user:password');
     CheckEquals(RestUtils.TStatusCode.OK.StatusCode, RestClient.ResponseCode);
   finally
     DestroyHttpServer;
