@@ -2,6 +2,8 @@ unit RestUtils;
 
 interface
 
+{$I DelphiRest.inc}
+
 const
   MediaType_Json = 'application/json';
   MediaType_Xml = 'text/xml';
@@ -50,7 +52,11 @@ type
 
 implementation
 
-uses EncdDecd;
+uses
+  {$IFDEF USE_NS}
+  System.NetEncoding, //allows inlining of EncodeString, DecodeString
+  {$ENDIF}
+  EncdDecd;
 
 { TStatusCode }
 
