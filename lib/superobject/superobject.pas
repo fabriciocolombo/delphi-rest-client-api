@@ -863,6 +863,9 @@ function IsList(RttiContext: TRttiContext; TypeInfo: PTypeInfo): Boolean;
 function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue ;
 {$ENDIF}
 
+var
+  SODefaultIntNone: integer = 0;
+
 implementation
 uses sysutils, RestJsonUtils, variants,
 {$IFDEF UNIX}
@@ -6445,6 +6448,11 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end else
           Result := False;
       end;
+    stNull:
+      begin
+        TValue.Make(SODefaultIntNone, TypeInfo, Value);
+        result := true;
+      end;
     else
       Result := False;
     end;
@@ -6476,7 +6484,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stNull:
       begin
-        TValue.Make(-1, TypeInfo, Value);
+        TValue.Make(SODefaultIntNone, TypeInfo, Value);
         result := true;
       end;
     else
