@@ -789,12 +789,13 @@ type
 
   SOName = class(TSuperAttribute);
   SODefault = class(TSuperAttribute);
-
+  SODisable = class(TCustomAttribute);
 
   TSuperRttiContext = class
   private
     class function GetFieldName(r: TRttiField): string;
     class function GetFieldDefault(r: TRttiField; const obj: ISuperObject): ISuperObject;
+    class function GetFieldDisabled(r: TRttiField): boolean;
   public
     Context: TRttiContext;
     SerialFromJson: TDictionary<PTypeInfo, TSerialFromJson>;
@@ -6359,6 +6360,16 @@ begin
   Result := r.Name;
 end;
 
+class function TSuperRttiContext.GetFieldDisabled(r: TRttiField): boolean;
+var
+  o: TCustomAttribute;
+begin
+  for o in r.GetAttributes do
+    if o is SODisable then
+      Exit(True);
+  Result := false;
+end;
+
 class function TSuperRttiContext.GetFieldDefault(r: TRttiField; const obj: ISuperObject): ISuperObject;
 var
   o: TCustomAttribute;
@@ -6589,6 +6600,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
           for f in Context.GetType(Value.AsObject.ClassType).GetFields do
             if f.FieldType <> nil then
             begin
+              if GetFieldDisabled(f) then
+                continue;
               v := TValue.Empty;
               Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
               if Result then
@@ -6655,6 +6668,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 {$ELSE}
         p := TValueData(Value).FValueData.GetReferenceToRawData;
 {$ENDIF}
+        if GetFieldDisabled(f) then
+          continue;
         Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
         if Result then
           f.SetValue(p, v) else
@@ -7027,6 +7042,8 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
 {$ELSE}
       v := f.GetValue(TValueData(Value).FValueData.GetReferenceToRawData);
 {$ENDIF}
+      if GetFieldDisabled(f) then
+          continue;
       Result.AsObject[GetFieldName(f)] := ToJson(v, index);
     end;
   end;
@@ -7132,6 +7149,10 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
 var
   Serial: TSerialToJson;
 begin
+  if field <> nil then
+    if GetFieldDisabled(field) then
+      exit(nil);
+
   if not SerialToJson.TryGetValue(value.TypeInfo, Serial) then
     case Value.Kind of
       tkInt64: ToInt64;
