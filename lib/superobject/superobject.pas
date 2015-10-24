@@ -1912,6 +1912,11 @@ end;
 function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 begin
   {$IFDEF ISO8601}
+    if TValueData(Value).FAsDouble = 0 then
+    begin
+      result := TSuperObject.Create(stNull);
+      exit;
+    end;
     if value.TypeInfo.Name = 'TTime' then
       result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
     else if value.TypeInfo.Name = 'TDate' then
