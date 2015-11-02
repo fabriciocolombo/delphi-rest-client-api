@@ -358,7 +358,9 @@ begin
           FHttpConnection.ResponseCode
         )
       else if vRetryMode = hrmRetry then
-        result := DoRequest(Method, ResourceRequest, AHandler);
+        result := DoRequest(Method, ResourceRequest, AHandler)
+      else
+        result := '';
     end;
   finally
     vResponse.Free;
