@@ -6455,7 +6455,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stNull:
       begin
-        TValue.Make(SODefaultIntNull, TypeInfo, Value);
+        TValue.Make(nil, TypeInfo, Value);
+        TValueData(Value).FAsSInt64 := SODefaultIntNull;
         result := true;
       end;
     else
@@ -6489,7 +6490,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stNull:
       begin
-        TValue.Make(SODefaultIntNull, TypeInfo, Value);
+        TValue.Make(@SODefaultIntNull, TypeInfo, Value);
         result := true;
       end;
     else
