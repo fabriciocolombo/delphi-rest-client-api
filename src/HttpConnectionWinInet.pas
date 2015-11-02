@@ -117,7 +117,7 @@ type
     OnConnectionLost: THTTPConnectionLostEvent;
     OnError: THTTPErrorEvent;
 
-    constructor Create(ARaiseExceptionOnError: Boolean = True);
+    constructor Create(ARaiseExceptionOnError: Boolean = False);
     destructor Destroy; override;
 
     function SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
