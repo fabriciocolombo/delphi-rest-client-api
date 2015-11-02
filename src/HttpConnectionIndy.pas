@@ -66,12 +66,13 @@ uses
 function THttpConnectionIndy.ConfigureProxyCredentials(
   AProxyCredentials: TProxyCredentials): IHttpConnection;
 begin
-  if AProxyCredentials.Informed and ProxyActive then
-  begin
-    FIdHttp.ProxyParams.BasicAuthentication := True;
-    FIdHttp.ProxyParams.ProxyUsername := AProxyCredentials.UserName;
-    FIdHttp.ProxyParams.ProxyPassword := AProxyCredentials.Password;
-  end;
+  if assigned(AProxyCredentials) then
+    if AProxyCredentials.Informed and ProxyActive then
+    begin
+      FIdHttp.ProxyParams.BasicAuthentication := True;
+      FIdHttp.ProxyParams.ProxyUsername := AProxyCredentials.UserName;
+      FIdHttp.ProxyParams.ProxyPassword := AProxyCredentials.Password;
+    end;
   Result := Self;
 end;
 

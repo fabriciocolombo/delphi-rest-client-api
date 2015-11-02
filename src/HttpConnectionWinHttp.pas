@@ -102,9 +102,10 @@ begin
     if ProxyServer <> '' then
     begin
       FWinHttpRequest.SetProxy(HTTPREQUEST_PROXYSETTING_PROXY, ProxyServer, GetProxyOverride);
-      if FProxyCredentials.Informed then
-        FWinHttpRequest.SetCredentials(FProxyCredentials.UserName, FProxyCredentials.Password,
-          HTTPREQUEST_SETCREDENTIALS_FOR_PROXY);
+      if assigned(FProxyCredentials) then
+        if FProxyCredentials.Informed then
+          FWinHttpRequest.SetCredentials(FProxyCredentials.UserName, FProxyCredentials.Password,
+            HTTPREQUEST_SETCREDENTIALS_FOR_PROXY);
     end;
   end;
 end;

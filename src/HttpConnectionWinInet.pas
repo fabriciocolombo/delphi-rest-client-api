@@ -117,7 +117,7 @@ type
     OnConnectionLost: THTTPConnectionLostEvent;
     OnError: THTTPErrorEvent;
 
-    constructor Create(ARaiseExceptionOnError: Boolean = False);
+    constructor Create(ARaiseExceptionOnError: Boolean = True);
     destructor Destroy; override;
 
     function SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
@@ -435,13 +435,14 @@ begin
                 InternetSetOption(iRequestHandle, INTERNET_OPTION_SEND_TIMEOUT, @FSendTimeout, SizeOf(FSendTimeout));
                 InternetSetOption(iRequestHandle, INTERNET_OPTION_CONNECT_TIMEOUT, @FConnectTimeout, SizeOf(FConnectTimeout));
 
-                if FProxyCredentials.Informed then
-                begin
-                  InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(FProxyCredentials.UserName),
-                    Length(FProxyCredentials.UserName));
-                  InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(FProxyCredentials.Password),
-                    Length(FProxyCredentials.Password));
-                end;
+                if assigned(FProxyCredentials) then
+                  if FProxyCredentials.Informed then
+                  begin
+                    InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_USERNAME, PChar(FProxyCredentials.UserName),
+                      Length(FProxyCredentials.UserName));
+                    InternetSetOption(iRequestHandle, INTERNET_OPTION_PROXY_PASSWORD, PChar(FProxyCredentials.Password),
+                      Length(FProxyCredentials.Password));
+                  end;
 
                 if FAcceptTypes <> EmptyStr then
                   SetRequestHeader('Accept', FAcceptTypes);
