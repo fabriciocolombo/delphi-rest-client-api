@@ -46,6 +46,10 @@ type
     class function NewFrom(AList: TList; AItemClass: TClass): IJsonListAdapter;
   end;
 
+  TRestClient = class;
+
+  TRestOnRequestEvent = procedure (ARestClient: TRestClient; AResource: TResource; AMethod: TRequestMethod) of object;
+
   TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
@@ -94,6 +98,9 @@ type
   protected
     procedure Loaded; override;
   public
+    OnBeforeRequest: TRestOnRequestEvent;
+    OnAfterRequest: TRestOnRequestEvent;
+
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
 
@@ -303,12 +310,19 @@ begin
 
     ResourceRequest.GetContent.Position := 0;
 
-    case Method of
-      METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
-      METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
+    if assigned(OnBeforeRequest) then
+      OnBeforeRequest(self, ResourceRequest, Method);
+    try
+      case Method of
+        METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
+        METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
+        METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
+        METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
+        METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
+      end;
+    finally
+      if assigned(OnAfterRequest) then
+        OnAfterRequest(self, ResourceRequest, Method);
     end;
 
     if Assigned(AHandler) then
