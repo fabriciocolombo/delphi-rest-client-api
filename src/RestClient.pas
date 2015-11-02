@@ -62,6 +62,8 @@ type
     FLogin: String;
     FPassword: String;
 
+    FVerifyCert: boolean;
+
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
     procedure DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
@@ -87,6 +89,7 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function GetResponseHeader(const Header: string): string;
+    procedure SetVerifyCertificate(AValue: boolean);
 
   protected
     procedure Loaded; override;
@@ -105,9 +108,11 @@ type
 
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
+    property VerifyCert: Boolean read FVerifyCert write SetVerifyCertificate default True;
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
     property TimeOut: TTimeOut read FTimeOut;
     property ProxyCredentials: TProxyCredentials read FProxyCredentials;
@@ -237,6 +242,7 @@ begin
   FPassword := '';
 
   FEnabledCompression := True;
+  FVerifyCert := True;
 end;
 
 destructor TRestClient.Destroy;
@@ -419,6 +425,17 @@ begin
   Result := TResource.Create(Self, URL);
 
   FResources.Add(Result);
+end;
+
+procedure TRestClient.SetVerifyCertificate(AValue: boolean);
+begin
+  if FVerifyCert = AValue then
+    exit;
+  FVerifyCert := AValue;
+  if Assigned(FHttpConnection) then
+  begin
+    FHttpConnection.VerifyCert := FVerifyCert;
+  end;
 end;
 
 procedure TRestClient.SetConnectionType(const Value: THttpConnectionType);

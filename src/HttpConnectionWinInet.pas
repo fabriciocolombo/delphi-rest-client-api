@@ -146,6 +146,9 @@ type
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
 
+    procedure SetVerifyCert(const Value: boolean);
+    function GetVerifyCert: boolean;
+
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
 //  published
@@ -259,6 +262,12 @@ begin
   Result := FResponseCode;
 end;
 
+function THttpConnectionWinInet.GetVerifyCert: boolean;
+begin
+  result := FCertificateCheckDate and FCertificateCheckAuthority and
+    FCertificateCheckHostName;
+end;
+
 function THttpConnectionWinInet.GetResponseHeader(const Header: string): string;
 begin
   raise ENotSupportedException.Create('');
@@ -322,6 +331,13 @@ end;
 procedure THttpConnectionWinInet.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   OnError := AErrorEvent;
+end;
+
+procedure THttpConnectionWinInet.SetVerifyCert(const Value: boolean);
+begin
+  FCertificateCheckDate := Value;
+  FCertificateCheckAuthority := Value;
+  FCertificateCheckHostName := Value;
 end;
 
 procedure THttpConnectionWinInet.DoRequest(sMethod, AUrl: string; AContent,

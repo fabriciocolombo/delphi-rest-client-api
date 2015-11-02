@@ -94,12 +94,15 @@ type
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
     function GetEnabledCompression: Boolean;
+    function GetVerifyCert: Boolean;
 
     procedure SetEnabledCompression(const Value: Boolean);
+    procedure SetVerifyCert(const Value: boolean);
 
     property ResponseCode: Integer read GetResponseCode;
     property ResponseHeader[const Header: string]: string read GetResponseHeader;
     property EnabledCompression: Boolean read GetEnabledCompression write SetEnabledCompression;
+    property VerifyCert: boolean read GetVerifyCert write SetVerifyCert;
 
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);

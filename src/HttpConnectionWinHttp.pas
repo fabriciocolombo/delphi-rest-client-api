@@ -18,6 +18,7 @@ type
     FProxyCredentials: TProxyCredentials;
     FLogin: String;
     FPassword: String;
+    FVerifyCert: boolean;
 
     procedure Configure;
 
@@ -49,6 +50,9 @@ type
 
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
+
+    procedure SetVerifyCert(const Value: boolean);
+    function GetVerifyCert: boolean;
 
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
@@ -192,6 +196,11 @@ begin
   Result := FWinHttpRequest.Status;
 end;
 
+function THttpConnectionWinHttp.GetVerifyCert: boolean;
+begin
+  result := FVerifyCert;
+end;
+
 function THttpConnectionWinHttp.GetResponseHeader(const Name: string): string;
 begin
   Result := FWinHttpRequest.GetResponseHeader(Name)
@@ -288,6 +297,13 @@ end;
 procedure THttpConnectionWinHttp.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   OnError := AErrorEvent;
+end;
+
+procedure THttpConnectionWinHttp.SetVerifyCert(const Value: boolean);
+begin
+  if Value = False then
+    raise Exception.Create('`VerifyCert` is not supported for hctWinHttp. '+
+      'Use hctIndy or hctWinInet if you want to disable certificate verification.');
 end;
 
 end.

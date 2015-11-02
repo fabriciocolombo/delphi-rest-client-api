@@ -16,7 +16,11 @@ type
   private
     FIdHttp: TIdHTTP;
     FEnabledCompression: Boolean;
+    FVerifyCert: boolean;
+    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509;
+      AOk: Boolean; ADepth, AError: Integer): Boolean;
   public
+
     OnConnectionLost: THTTPConnectionLostEvent;
     OnError: THTTPErrorEvent;
 
@@ -39,6 +43,9 @@ type
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
+
+    procedure SetVerifyCert(const Value: boolean);
+    function GetVerifyCert: boolean;
 
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
@@ -77,10 +84,14 @@ end;
 
 constructor THttpConnectionIndy.Create;
 var
+  ssl: TIdSSLIOHandlerSocketOpenSSL;
   ProxyServerIP: string;
 begin
   FIdHttp := TIdHTTP.Create(nil);
-  FIdHttp.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
+  ssl := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
+  ssl.OnVerifyPeer := IdSSLIOHandlerSocketOpenSSL1VerifyPeer;
+  ssl.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+  FIdHttp.IOHandler := ssl;
   FIdHttp.HandleRedirects := True;
   FIdHttp.Request.CustomHeaders.FoldLines := false;
 
@@ -187,6 +198,21 @@ end;
 function THttpConnectionIndy.GetResponseHeader(const Header: string): string;
 begin
   raise ENotSupportedException.Create('');
+end;
+
+function THttpConnectionIndy.GetVerifyCert: boolean;
+begin
+  result := FVerifyCert;
+end;
+
+function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(
+  Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
+begin
+  result := AOk;
+  if not FVerifyCert then
+  begin
+    result := True;
+  end;
 end;
 
 procedure THttpConnectionIndy.Patch(AUrl: string; AContent, AResponse: TStream);
@@ -346,6 +372,11 @@ end;
 procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
   OnError := AErrorEvent;
+end;
+
+procedure THttpConnectionIndy.SetVerifyCert(const Value: boolean);
+begin
+  FVerifyCert := Value;
 end;
 
 { TIdHTTP }
