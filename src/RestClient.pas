@@ -846,9 +846,11 @@ end;
 
 function TResource.Put(Content: TStream): String;
 begin
-  Content.Position := 0;
-  FContent.CopyFrom(Content, Content.Size);
-
+  if Content <> nil then
+  begin
+    Content.Position := 0;
+    FContent.CopyFrom(Content, Content.Size);
+  end;
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
 end;
 
