@@ -108,6 +108,8 @@ begin
             HTTPREQUEST_SETCREDENTIALS_FOR_PROXY);
     end;
   end;
+  if not FVerifyCert then
+    FWinHttpRequest.Option[WinHttpRequestOption_SslErrorIgnoreFlags] := $3300;
 end;
 
 function THttpConnectionWinHttp.ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
@@ -146,6 +148,7 @@ begin
   FHeaders := TStringList.Create;
   FLogin:='';
   FPassword:='';
+  FVerifyCert := True;
 end;
 
 procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
@@ -302,9 +305,7 @@ end;
 
 procedure THttpConnectionWinHttp.SetVerifyCert(const Value: boolean);
 begin
-  if Value = False then
-    raise Exception.Create('`VerifyCert` is not supported for hctWinHttp. '+
-      'Use hctIndy or hctWinInet if you want to disable certificate verification.');
+  FVerifyCert := Value;
 end;
 
 end.
