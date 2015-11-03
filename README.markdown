@@ -155,6 +155,9 @@ To skip certificate validation set `VerifyCert` to false.
 RestClient.VerifyCert := false;
 ```
 
+> **Indy note:** Certificate validation is not yet supported with `hctIndy`.
+> Certificates will not be validated!
+
 ## Error events
 
 ### Retry modes
