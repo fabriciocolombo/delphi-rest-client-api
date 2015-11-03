@@ -357,6 +357,7 @@ var
   AData: AnsiString;
   SecurityFlags : DWord;
   FlagsLen : DWord;
+  retryMode: THTTPRetryMode;
 
    procedure SetRequestHeader(sName , sValue : string);
    var sHeader : string;
@@ -505,10 +506,30 @@ begin
                       InternetQueryOption(iRequestHandle, INTERNET_OPTION_SECURITY_FLAGS, Pointer(@iFlags), FlagsLen);
                       iFlags := iFlags or SecurityFlags;
                       InternetSetOption(iRequestHandle, INTERNET_OPTION_SECURITY_FLAGS, Pointer(@iFlags), FlagsLen);
-
                     end
                     else
-                    raise EInetException.Create;
+                    begin
+                      if GetLastError = ERROR_INTERNET_SEC_CERT_CN_INVALID then
+                        raise EHTTPVerifyCertError.Create('SSL certificate common name (host name field) is incorrect.')
+                      else if GetLastError = ERROR_INTERNET_SEC_CERT_DATE_INVALID then
+                        raise EHTTPVerifyCertError.Create('SSL certificate date that was received from the server is bad. The certificate is expired.');
+                      case GetLastError of
+                        ERROR_INTERNET_CANNOT_CONNECT,
+                        ERROR_INTERNET_CONNECTION_ABORTED,
+                        ERROR_INTERNET_CONNECTION_RESET:
+                        begin
+                          retryMode := hrmRaise;
+                          if assigned(OnConnectionLost) then
+                            OnConnectionLost(nil, retryMode);
+                          if retryMode = hrmRaise then
+                            raise EInetException.Create(inttostr(GetLastError))
+                          else if retryMode = hrmRetry then
+                            DoRequest(sMethod, AUrl, AContent, AResponse);
+                        end;
+                        else
+                          raise EInetException.Create(inttostr(GetLastError));
+                      end;
+                    end;
                   end;
                 until (iRetry=0) or (iRetry>1);
               end else raise EInetException.Create;
