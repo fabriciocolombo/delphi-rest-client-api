@@ -147,6 +147,14 @@ RestClient.SetCredentials('username', 'password');
 
 You can set it once and it will be used for every request.
 
+## Self signed certificates
+
+To skip certificate validation set `VerifyCert` to false.
+
+```delphi
+RestClient.VerifyCert := false;
+```
+
 ## Error events
 
 ### Retry modes
