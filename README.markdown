@@ -147,7 +147,7 @@ RestClient.SetCredentials('username', 'password');
 
 You can set it once and it will be used for every request.
 
-## Self signed certificates
+## Self-signed certificates
 
 To skip certificate validation set `VerifyCert` to false.
 
