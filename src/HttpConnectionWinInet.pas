@@ -509,11 +509,11 @@ begin
                     end
                     else
                     begin
-                      if GetLastError = ERROR_INTERNET_SEC_CERT_CN_INVALID then
-                        raise EHTTPVerifyCertError.Create('SSL certificate common name (host name field) is incorrect.')
-                      else if GetLastError = ERROR_INTERNET_SEC_CERT_DATE_INVALID then
-                        raise EHTTPVerifyCertError.Create('SSL certificate date that was received from the server is bad. The certificate is expired.');
                       case GetLastError of
+                        ERROR_INTERNET_SEC_CERT_CN_INVALID:
+                          raise EHTTPVerifyCertError.Create('SSL certificate common name (host name field) is incorrect.');
+                        ERROR_INTERNET_SEC_CERT_DATE_INVALID:
+                          raise EHTTPVerifyCertError.Create('SSL certificate date that was received from the server is bad. The certificate is expired.');
                         ERROR_INTERNET_CANNOT_CONNECT,
                         ERROR_INTERNET_CONNECTION_ABORTED,
                         ERROR_INTERNET_CONNECTION_RESET:
