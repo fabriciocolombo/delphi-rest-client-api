@@ -27,6 +27,8 @@ type
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
   THTTPErrorEvent = procedure(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode) of object;
 
+  EHTTPVerifyCertError = class(Exception) end;
+
   TProxyCredentials = class(TComponent)
   private
     FUserName: string;
