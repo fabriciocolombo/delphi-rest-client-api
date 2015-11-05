@@ -864,7 +864,7 @@ function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue 
 {$ENDIF}
 
 var
-  SODefaultIntNull: integer = 0;
+  SODefaultIntNull: integer = -1;
 
 implementation
 uses sysutils, RestJsonUtils, variants,
