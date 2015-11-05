@@ -217,7 +217,7 @@ begin
   Result := Self;
 end;
 
-constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = True);
+constructor THttpConnectionWinInet.Create(ARaiseExceptionOnError: Boolean = False);
 begin
   FHeaders := TStringList.Create;
   FCertificateCheckAuthority:=True;
