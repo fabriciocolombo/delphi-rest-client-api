@@ -42,7 +42,7 @@ type
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string; AContent: TStream);
+    procedure Delete(AUrl: string; AContent: TStream; AResponse: TStream);
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Name: string): string;
@@ -231,9 +231,9 @@ begin
   DoRequest('PUT', AUrl, AContent, AResponse);
 end;
 
-procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent: TStream);
+procedure THttpConnectionWinHttp.Delete(AUrl: string; AContent, AResponse: TStream);
 begin
-  DoRequest('DELETE', AUrl, AContent, nil);
+  DoRequest('DELETE', AUrl, AContent, AResponse);
 end;
 
 function THttpConnectionWinHttp.GetEnabledCompression: Boolean;

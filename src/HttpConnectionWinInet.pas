@@ -130,7 +130,7 @@ type
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string; AContent: TStream);
+    procedure Delete(AUrl: string; AContent: TStream; AResponse: TStream);
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
@@ -227,9 +227,9 @@ begin
   FRaiseExceptionOnError:=ARaiseExceptionOnError;
 end;
 
-procedure THttpConnectionWinInet.Delete(AUrl: string; AContent: TStream);
+procedure THttpConnectionWinInet.Delete(AUrl: string; AContent, AResponse: TStream);
 begin
-  DoRequest('DELETE', AUrl, AContent,nil);
+  DoRequest('DELETE', AUrl, AContent, AResponse);
 end;
 
 destructor THttpConnectionWinInet.Destroy;

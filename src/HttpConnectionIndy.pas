@@ -36,7 +36,7 @@ type
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string; AContent: TStream);
+    procedure Delete(AUrl: string; AContent: TStream; AResponse: TStream);
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
@@ -108,6 +108,7 @@ begin
 end;
 
 procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
+procedure THttpConnectionIndy.Delete(AUrl: string; AContent, AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
 begin

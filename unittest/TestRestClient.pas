@@ -45,7 +45,7 @@ type
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Put(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Patch(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
-    procedure Delete(AUrl: string; AContent: TStream);virtual;abstract;
+    procedure Delete(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
 
     function GetResponseCode: Integer;virtual;abstract;
     function GetResponseHeader(const Header: string): string; virtual;abstract;

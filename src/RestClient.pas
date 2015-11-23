@@ -317,7 +317,7 @@ begin
       METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
+      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent, vResponse);
     end;
     if Assigned(AHandler) then
     begin
