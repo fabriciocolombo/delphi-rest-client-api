@@ -312,19 +312,13 @@ begin
 
     if assigned(OnBeforeRequest) then
       OnBeforeRequest(self, ResourceRequest, Method);
-    try
-      case Method of
-        METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
-        METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
-        METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
-        METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
-        METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
-      end;
-    finally
-      if assigned(OnAfterRequest) then
-        OnAfterRequest(self, ResourceRequest, Method);
+    case Method of
+      METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
+      METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
+      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
     end;
-
     if Assigned(AHandler) then
     begin
       AHandler(vResponse);
@@ -361,7 +355,10 @@ begin
         result := DoRequest(Method, ResourceRequest, AHandler)
       else
         result := '';
-    end;
+    end
+    else
+      if assigned(OnAfterRequest) then
+        OnAfterRequest(self, ResourceRequest, Method);
   finally
     vResponse.Free;
     FResources.Remove(ResourceRequest);
