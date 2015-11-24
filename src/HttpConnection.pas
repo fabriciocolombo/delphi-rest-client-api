@@ -25,7 +25,6 @@ type
   THTTPRetryMode = (hrmRaise, hrmIgnore, hrmRetry);
 
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
-  THTTPErrorEvent = procedure(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode) of object;
 
   EHTTPVerifyCertError = class(Exception) end;
 
