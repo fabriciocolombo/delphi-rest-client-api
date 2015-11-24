@@ -789,7 +789,7 @@ type
 
   SOName = class(TSuperAttribute);
   SODefault = class(TSuperAttribute);
-  SODisable = class(TCustomAttribute);
+  SOIgnore = class(TCustomAttribute);
 
   TSuperRttiContext = class
   private
@@ -6373,7 +6373,7 @@ var
   o: TCustomAttribute;
 begin
   for o in r.GetAttributes do
-    if o is SODisable then
+    if o is SOIgnore then
       Exit(True);
   Result := false;
 end;
