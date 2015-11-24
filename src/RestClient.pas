@@ -53,7 +53,7 @@ type
 
 
   THTTPErrorEvent = procedure(ARestClient: TRestClient; AResource: TResource;
-    AMethod: TRequestMethod; AException: EHTTPError;
+    AMethod: TRequestMethod; AHTTPError: EHTTPError;
     var ARetryMode: THTTPRetryMode) of object;
 
   TRestClient = class(TComponent)
@@ -293,6 +293,7 @@ var
   vRetryMode: THTTPRetryMode;
   vHeaders: TStrings;
   vEncodedCredentials: string;
+  vHttpError: EHTTPError;
 begin
   CheckConnection;
 
@@ -350,17 +351,24 @@ begin
     begin
       vRetryMode := hrmRaise;
       if assigned(FOnError) then
-        FOnError(
-          self,
-          ResourceRequest,
-          Method,
-          EHTTPError.Create(
-            format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
-            Result,
-            FHTTPConnection.ResponseCode
-          ),
-          vRetryMode
+      begin
+        vHttpError := EHTTPError.Create(
+          format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+          Result,
+          FHTTPConnection.ResponseCode
         );
+        try
+          FOnError(
+            self,
+            ResourceRequest,
+            Method,
+            vHttpError,
+            vRetryMode
+          );
+        finally
+          vHttpError.Free;
+        end;
+      end;
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(
           format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
