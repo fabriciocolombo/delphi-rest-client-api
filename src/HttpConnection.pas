@@ -25,7 +25,8 @@ type
   THTTPRetryMode = (hrmRaise, hrmIgnore, hrmRetry);
 
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
-  THTTPErrorEvent = procedure(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode) of object;
+
+  EHTTPVerifyCertError = class(Exception) end;
 
   TProxyCredentials = class(TComponent)
   private
@@ -89,25 +90,25 @@ type
     procedure Post(AUrl: string; AContent, AResponse: TStream);
     procedure Put(AUrl: string; AContent, AResponse: TStream);
     procedure Patch(AUrl: string; AContent, AResponse: TStream);
-    procedure Delete(AUrl: string; AContent: TStream);
+    procedure Delete(AUrl: string; AContent, AResponse: TStream);
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
     function GetEnabledCompression: Boolean;
+    function GetVerifyCert: Boolean;
 
     procedure SetEnabledCompression(const Value: Boolean);
+    procedure SetVerifyCert(const Value: boolean);
 
     property ResponseCode: Integer read GetResponseCode;
     property ResponseHeader[const Header: string]: string read GetResponseHeader;
     property EnabledCompression: Boolean read GetEnabledCompression write SetEnabledCompression;
+    property VerifyCert: boolean read GetVerifyCert write SetVerifyCert;
 
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
-    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   end;
 
 implementation

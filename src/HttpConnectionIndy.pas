@@ -16,9 +16,11 @@ type
   private
     FIdHttp: TIdHTTP;
     FEnabledCompression: Boolean;
+    FVerifyCert: boolean;
+    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509;
+      AOk: Boolean; ADepth, AError: Integer): Boolean;
   public
     OnConnectionLost: THTTPConnectionLostEvent;
-    OnError: THTTPErrorEvent;
 
     constructor Create;
     destructor Destroy; override;
@@ -32,7 +34,7 @@ type
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Put(AUrl: string; AContent: TStream; AResponse: TStream);
     procedure Patch(AUrl: string; AContent: TStream; AResponse: TStream);
-    procedure Delete(AUrl: string; AContent: TStream);
+    procedure Delete(AUrl: string; AContent: TStream; AResponse: TStream);
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
@@ -40,11 +42,12 @@ type
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
 
+    procedure SetVerifyCert(const Value: boolean);
+    function GetVerifyCert: boolean;
+
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
   end;
@@ -59,12 +62,13 @@ uses
 function THttpConnectionIndy.ConfigureProxyCredentials(
   AProxyCredentials: TProxyCredentials): IHttpConnection;
 begin
-  if AProxyCredentials.Informed and ProxyActive then
-  begin
-    FIdHttp.ProxyParams.BasicAuthentication := True;
-    FIdHttp.ProxyParams.ProxyUsername := AProxyCredentials.UserName;
-    FIdHttp.ProxyParams.ProxyPassword := AProxyCredentials.Password;
-  end;
+  if assigned(AProxyCredentials) then
+    if AProxyCredentials.Informed and ProxyActive then
+    begin
+      FIdHttp.ProxyParams.BasicAuthentication := True;
+      FIdHttp.ProxyParams.ProxyUsername := AProxyCredentials.UserName;
+      FIdHttp.ProxyParams.ProxyPassword := AProxyCredentials.Password;
+    end;
   Result := Self;
 end;
 
@@ -77,10 +81,14 @@ end;
 
 constructor THttpConnectionIndy.Create;
 var
+  ssl: TIdSSLIOHandlerSocketOpenSSL;
   ProxyServerIP: string;
 begin
   FIdHttp := TIdHTTP.Create(nil);
-  FIdHttp.IOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
+  ssl := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
+  ssl.OnVerifyPeer := IdSSLIOHandlerSocketOpenSSL1VerifyPeer;
+  ssl.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+  FIdHttp.IOHandler := ssl;
   FIdHttp.HandleRedirects := True;
   FIdHttp.Request.CustomHeaders.FoldLines := false;
 
@@ -95,9 +103,10 @@ begin
   end;
 end;
 
-procedure THttpConnectionIndy.Delete(AUrl: string; AContent: TStream);
+procedure THttpConnectionIndy.Delete(AUrl: string; AContent, AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
+  temp: TStringStream;
 begin
   try
     FIdHttp.Request.Source := AContent;
@@ -105,13 +114,12 @@ begin
   except
     on E: EIdHTTPProtocolException do
     begin
-      retryMode := hrmRaise;
-      if assigned(OnError) then
-        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
-      if retryMode = hrmRaise then
-        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmRetry then
-        Delete(AUrl, AContent);
+      if Length(E.ErrorMessage) > 0 then
+      begin
+        temp := TStringStream.Create(E.ErrorMessage);
+        AResponse.CopyFrom(temp, temp.Size);
+        temp.Free;
+      end;
     end;
     on E: EIdSocketError do
     begin
@@ -122,7 +130,7 @@ begin
       if retryMode = hrmRaise then
         raise
       else if retryMode = hrmRetry then
-        Delete(AUrl, AContent);
+        Delete(AUrl, AContent, AResponse);
     end;
   end;
 end;
@@ -136,19 +144,19 @@ end;
 procedure THttpConnectionIndy.Get(AUrl: string; AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
+  temp: TStringStream;
 begin
   try
     FIdHttp.Get(AUrl, AResponse);
   except
     on E: EIdHTTPProtocolException do
     begin
-      retryMode := hrmRaise;
-      if assigned(OnError) then
-        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
-      if retryMode = hrmRaise then
-        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmRetry then
-        Get(AUrl, AResponse);
+      if Length(E.ErrorMessage) > 0 then
+      begin
+        temp := TStringStream.Create(E.ErrorMessage);
+        AResponse.CopyFrom(temp, temp.Size);
+        temp.Free;
+      end;
     end;
     on E: EIdSocketError do
     begin
@@ -174,11 +182,6 @@ begin
   result := OnConnectionLost;
 end;
 
-function THttpConnectionIndy.GetOnError: THTTPErrorEvent;
-begin
-  result := OnError;
-end;
-
 function THttpConnectionIndy.GetResponseCode: Integer;
 begin
   Result := FIdHttp.ResponseCode;
@@ -189,22 +192,37 @@ begin
   raise ENotSupportedException.Create('');
 end;
 
+function THttpConnectionIndy.GetVerifyCert: boolean;
+begin
+  result := FVerifyCert;
+end;
+
+function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(
+  Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
+begin
+  result := AOk;
+  if not FVerifyCert then
+  begin
+    result := True;
+  end;
+end;
+
 procedure THttpConnectionIndy.Patch(AUrl: string; AContent, AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
+  temp: TStringStream;
 begin
   try
     FIdHttp.Patch(AUrl, AContent, AResponse);
   except
     on E: EIdHTTPProtocolException do
     begin
-      retryMode := hrmRaise;
-      if assigned(OnError) then
-        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
-      if retryMode = hrmRaise then
-        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmRetry then
-        Patch(AUrl, AContent, AResponse);
+      if Length(E.ErrorMessage) > 0 then
+      begin
+        temp := TStringStream.Create(E.ErrorMessage);
+        AResponse.CopyFrom(temp, temp.Size);
+        temp.Free;
+      end;
     end;
     on E: EIdSocketError do
     begin
@@ -223,19 +241,19 @@ end;
 procedure THttpConnectionIndy.Post(AUrl: string; AContent, AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
+  temp: TStringStream;
 begin
   try
     FIdHttp.Post(AUrl, AContent, AResponse);
   except
     on E: EIdHTTPProtocolException do
     begin
-      retryMode := hrmRaise;
-      if assigned(OnError) then
-        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
-      if retryMode = hrmRaise then
-        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmRetry then
-        Post(AUrl, AContent, AResponse);
+      if Length(E.ErrorMessage) > 0 then
+      begin
+        temp := TStringStream.Create(E.ErrorMessage);
+        AResponse.CopyFrom(temp, temp.Size);
+        temp.Free;
+      end;
     end;
     on E: EIdSocketError do
     begin
@@ -254,19 +272,19 @@ end;
 procedure THttpConnectionIndy.Put(AUrl: string; AContent, AResponse: TStream);
 var
   retryMode: THTTPRetryMode;
+  temp: TStringStream;
 begin
   try
     FIdHttp.Put(AUrl, AContent, AResponse);
   except
     on E: EIdHTTPProtocolException do
     begin
-      retryMode := hrmRaise;
-      if assigned(OnError) then
-        OnError(e.Message, e.ErrorMessage, e.ErrorCode, retryMode);
-      if retryMode = hrmRaise then
-        raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode)
-      else if retryMode = hrmRetry then
-        Put(AUrl, AContent, AResponse);
+      if Length(E.ErrorMessage) > 0 then
+      begin
+        temp := TStringStream.Create(E.ErrorMessage);
+        AResponse.CopyFrom(temp, temp.Size);
+        temp.Free;
+      end;
     end;
     on E: EIdSocketError do
     begin
@@ -343,9 +361,9 @@ begin
   OnConnectionLost := AConnectionLostEvent;
 end;
 
-procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
+procedure THttpConnectionIndy.SetVerifyCert(const Value: boolean);
 begin
-  OnError := AErrorEvent;
+  FVerifyCert := Value;
 end;
 
 { TIdHTTP }

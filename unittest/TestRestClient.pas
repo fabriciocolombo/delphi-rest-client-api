@@ -45,7 +45,7 @@ type
     procedure Post(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Put(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
     procedure Patch(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
-    procedure Delete(AUrl: string; AContent: TStream);virtual;abstract;
+    procedure Delete(AUrl: string; AContent, AResponse: TStream);virtual;abstract;
 
     function GetResponseCode: Integer;virtual;abstract;
     function GetResponseHeader(const Header: string): string; virtual;abstract;
@@ -58,9 +58,9 @@ type
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
-    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+    procedure SetVerifyCert(const Value: boolean);
+    function GetVerifyCert: boolean;
+
   public
   end;
 
@@ -134,7 +134,7 @@ begin
 
 end;
 
-function TStubConnection.GetOnError: THTTPErrorEvent;
+function TStubConnection.GetVerifyCert: boolean;
 begin
 
 end;
@@ -145,7 +145,7 @@ begin
 
 end;
 
-procedure TStubConnection.SetOnError(AConnectionLostEvent: THTTPErrorEvent);
+procedure TStubConnection.SetVerifyCert(const Value: boolean);
 begin
 
 end;

@@ -46,6 +46,16 @@ type
     class function NewFrom(AList: TList; AItemClass: TClass): IJsonListAdapter;
   end;
 
+  TRestClient = class;
+
+  TRestOnRequestEvent = procedure (ARestClient: TRestClient;
+    AResource: TResource; AMethod: TRequestMethod) of object;
+
+
+  THTTPErrorEvent = procedure(ARestClient: TRestClient; AResource: TResource;
+    AMethod: TRequestMethod; AHTTPError: EHTTPError;
+    var ARetryMode: THTTPRetryMode) of object;
+
   TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
@@ -61,6 +71,9 @@ type
     FProxyCredentials: TProxyCredentials;
     FLogin: String;
     FPassword: String;
+    FOnError: THTTPErrorEvent;
+
+    FVerifyCert: boolean;
 
     {$IFDEF DELPHI_2009_UP}
     FTempHandler: TRestResponseHandlerFunc;
@@ -87,10 +100,14 @@ type
     function GetOnError: THTTPErrorEvent;
     procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function GetResponseHeader(const Header: string): string;
+    procedure SetVerifyCertificate(AValue: boolean);
 
   protected
     procedure Loaded; override;
   public
+    OnBeforeRequest: TRestOnRequestEvent;
+    OnAfterRequest: TRestOnRequestEvent;
+
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
 
@@ -105,9 +122,11 @@ type
 
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
     property EnabledCompression: Boolean read FEnabledCompression write SetEnabledCompression default True;
+    property VerifyCert: Boolean read FVerifyCert write SetVerifyCertificate default True;
     property OnCustomCreateConnection: TCustomCreateConnection read FOnCustomCreateConnection write FOnCustomCreateConnection;
     property TimeOut: TTimeOut read FTimeOut;
     property ProxyCredentials: TProxyCredentials read FProxyCredentials;
@@ -237,6 +256,7 @@ begin
   FPassword := '';
 
   FEnabledCompression := True;
+  FVerifyCert := True;
 end;
 
 destructor TRestClient.Destroy;
@@ -273,6 +293,7 @@ var
   vRetryMode: THTTPRetryMode;
   vHeaders: TStrings;
   vEncodedCredentials: string;
+  vHttpError: EHTTPError;
 begin
   CheckConnection;
 
@@ -297,14 +318,15 @@ begin
 
     ResourceRequest.GetContent.Position := 0;
 
+    if assigned(OnBeforeRequest) then
+      OnBeforeRequest(self, ResourceRequest, Method);
     case Method of
       METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
       METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PUT: FHttpConnection.Put(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
-      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent);
+      METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent, vResponse);
     end;
-
     if Assigned(AHandler) then
     begin
       AHandler(vResponse);
@@ -321,16 +343,32 @@ begin
         {$ENDIF}
       {$ELSE}
         vResponseString := vResponse.DataString;
-         
+
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
     end;
     if (FHttpConnection.ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode) then
     begin
       vRetryMode := hrmRaise;
-      if assigned(OnError) then
-        FHttpConnection.OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
-
+      if assigned(FOnError) then
+      begin
+        vHttpError := EHTTPError.Create(
+          format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
+          Result,
+          FHTTPConnection.ResponseCode
+        );
+        try
+          FOnError(
+            self,
+            ResourceRequest,
+            Method,
+            vHttpError,
+            vRetryMode
+          );
+        finally
+          vHttpError.Free;
+        end;
+      end;
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(
           format('HTTP Error: %d', [FHttpConnection.ResponseCode]),
@@ -338,8 +376,13 @@ begin
           FHttpConnection.ResponseCode
         )
       else if vRetryMode = hrmRetry then
-        result := DoRequest(Method, ResourceRequest, AHandler);
-    end;
+        result := DoRequest(Method, ResourceRequest, AHandler)
+      else
+        result := '';
+    end
+    else
+      if assigned(OnAfterRequest) then
+        OnAfterRequest(self, ResourceRequest, Method);
   finally
     vResponse.Free;
     FResources.Remove(ResourceRequest);
@@ -368,7 +411,7 @@ end;
 
 function TRestClient.GetOnError: THTTPErrorEvent;
 begin
-  result := FHttpConnection.OnError;
+  result := FOnError;
 end;
 
 function TRestClient.GetResponseCode: Integer;
@@ -421,6 +464,17 @@ begin
   FResources.Add(Result);
 end;
 
+procedure TRestClient.SetVerifyCertificate(AValue: boolean);
+begin
+  if FVerifyCert = AValue then
+    exit;
+  FVerifyCert := AValue;
+  if Assigned(FHttpConnection) then
+  begin
+    FHttpConnection.VerifyCert := FVerifyCert;
+  end;
+end;
+
 procedure TRestClient.SetConnectionType(const Value: THttpConnectionType);
 begin
   if (FConnectionType <> Value) then
@@ -459,7 +513,7 @@ end;
 
 procedure TRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
-  FHttpConnection.OnError := AErrorEvent;
+  FOnError := AErrorEvent;
 end;
 
 function TRestClient.UnWrapConnection: IHttpConnection;
@@ -815,9 +869,11 @@ end;
 
 function TResource.Put(Content: TStream): String;
 begin
-  Content.Position := 0;
-  FContent.CopyFrom(Content, Content.Size);
-
+  if Content <> nil then
+  begin
+    Content.Position := 0;
+    FContent.CopyFrom(Content, Content.Size);
+  end;
   Result := FRestClient.DoRequest(METHOD_PUT, Self);
 end;
 

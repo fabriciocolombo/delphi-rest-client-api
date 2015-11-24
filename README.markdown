@@ -147,6 +147,71 @@ RestClient.SetCredentials('username', 'password');
 
 You can set it once and it will be used for every request.
 
+## Self-signed certificates
+
+To skip certificate validation set `VerifyCert` to false.
+
+```delphi
+RestClient.VerifyCert := false;
+```
+
+> **Indy note:** Certificate validation is not yet supported with `hctIndy`.
+> Certificates will not be validated!
+
+## Error events
+
+### Retry modes
+  
+  * hrmRaise (default)   
+    Raises an exception after the event.
+  * hrmIgnore   
+    Ignore the error. No exception will be raised after the event.
+  * hrmRetry   
+    Retries the request.
+
+### THTTPErrorEvent
+
+Triggered for all status codes equal or above 400.
+
+The following example will ignore the status code 404.
+This will result in an empty response (nil for objects).
+You'll have to check if your objects has been assigned after every request. 
+
+`AHTTPError.ErrorMessage` contains the content of the response.
+You can deserialize this to display your own error message (see `RestJsonUtils.TJsonUtil`).
+
+```delphi
+restclient := TRestClient.Create(self); 
+restclient.ConnectionType := hctWinINet;
+restclient.OnError := RestError;
+
+procedure Tdm.RestError(ARestClient: TRestClient; AResource: restclient.TResource;
+  AMethod: TRequestMethod; AHTTPError: EHTTPError;
+  var ARetryMode: THTTPRetryMode);
+begin
+  ARetryMode := hrmRaise;
+  if AHTTPError.ErrorCode = 404 then
+    ARetryMode := hrmIgnore;
+end;
+```
+
+### THTTPConnectionLostEvent
+The following example will retry the request forever.
+If you want it to only retry for at limited time, you'll have to
+implement that counter your self.
+
+```delphi
+restclient := TRestClient.Create(self); 
+restclient.ConnectionType := hctWinINet;
+restclient.OnConnectionLost := RestConnectionLost;
+
+procedure Tdm.RestConnectionLost(AException: Exception; var ARetryMode: THTTPRetryMode);
+begin
+  ARetryMode := hrmRetry;
+  sleep(1000);
+end;
+```
+
 ## Java Rest Server
 
 The java project is only for test purpose and has built using [Maven](http://maven.apache.org) and [Jersey](http://jersey.java.net), so it's needed have installed the JRE 6+ (Java Runtime Environment) and Maven 2 to build and run the application. The Maven bin directory must be included in Windows Path environment variable.

@@ -789,12 +789,13 @@ type
 
   SOName = class(TSuperAttribute);
   SODefault = class(TSuperAttribute);
-
+  SOIgnore = class(TCustomAttribute);
 
   TSuperRttiContext = class
   private
     class function GetFieldName(r: TRttiField): string;
     class function GetFieldDefault(r: TRttiField; const obj: ISuperObject): ISuperObject;
+    class function GetFieldDisabled(r: TRttiField): boolean;
   public
     Context: TRttiContext;
     SerialFromJson: TDictionary<PTypeInfo, TSerialFromJson>;
@@ -861,6 +862,9 @@ function GetDeclaredGenericType(RttiContext: TRttiContext; TypeInfo: PTypeInfo):
 function IsList(RttiContext: TRttiContext; TypeInfo: PTypeInfo): Boolean;
 function CreateInstance(RttiContext: TRttiContext; TypeInfo: PTypeInfo): TValue ;
 {$ENDIF}
+
+var
+  SODefaultIntNull: integer = -1;
 
 implementation
 uses sysutils, RestJsonUtils, variants,
@@ -1908,6 +1912,11 @@ end;
 function serialtodatetime(ctx: TSuperRttiContext; var value: TValue; const index: ISuperObject): ISuperObject;
 begin
   {$IFDEF ISO8601}
+    if TValueData(Value).FAsDouble = 0 then
+    begin
+      result := TSuperObject.Create(stNull);
+      exit;
+    end;
     if value.TypeInfo.Name = 'TTime' then
       result := TSuperObject.create(copy(DelphiDateTimeToISO8601Date(TValueData(Value).FAsDouble), 12, 8)) // 08:00:00 - should there be a timezone here?
     else if value.TypeInfo.Name = 'TDate' then
@@ -6359,6 +6368,16 @@ begin
   Result := r.Name;
 end;
 
+class function TSuperRttiContext.GetFieldDisabled(r: TRttiField): boolean;
+var
+  o: TCustomAttribute;
+begin
+  for o in r.GetAttributes do
+    if o is SOIgnore then
+      Exit(True);
+  Result := false;
+end;
+
 class function TSuperRttiContext.GetFieldDefault(r: TRttiField; const obj: ISuperObject): ISuperObject;
 var
   o: TCustomAttribute;
@@ -6434,6 +6453,12 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end else
           Result := False;
       end;
+    stNull:
+      begin
+        TValue.Make(nil, TypeInfo, Value);
+        TValueData(Value).FAsSInt64 := SODefaultIntNull;
+        result := true;
+      end;
     else
       Result := False;
     end;
@@ -6465,7 +6490,7 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
       end;
     stNull:
       begin
-        TValue.Make(-1, TypeInfo, Value);
+        TValue.Make(@SODefaultIntNull, TypeInfo, Value);
         result := true;
       end;
     else
@@ -6589,6 +6614,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
           for f in Context.GetType(Value.AsObject.ClassType).GetFields do
             if f.FieldType <> nil then
             begin
+              if GetFieldDisabled(f) then
+                continue;
               v := TValue.Empty;
               Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
               if Result then
@@ -6655,6 +6682,8 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
 {$ELSE}
         p := TValueData(Value).FValueData.GetReferenceToRawData;
 {$ENDIF}
+        if GetFieldDisabled(f) then
+          continue;
         Result := FromJson(f.FieldType.Handle, GetFieldDefault(f, obj.AsObject[GetFieldName(f)]), v);
         if Result then
           f.SetValue(p, v) else
@@ -7027,6 +7056,8 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
 {$ELSE}
       v := f.GetValue(TValueData(Value).FValueData.GetReferenceToRawData);
 {$ENDIF}
+      if GetFieldDisabled(f) then
+          continue;
       Result.AsObject[GetFieldName(f)] := ToJson(v, index);
     end;
   end;
@@ -7132,6 +7163,10 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
 var
   Serial: TSerialToJson;
 begin
+  if field <> nil then
+    if GetFieldDisabled(field) then
+      exit(nil);
+
   if not SerialToJson.TryGetValue(value.TypeInfo, Serial) then
     case Value.Kind of
       tkInt64: ToInt64;
