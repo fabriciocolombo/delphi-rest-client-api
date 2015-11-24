@@ -110,9 +110,6 @@ type
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
-    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   end;
 
 implementation

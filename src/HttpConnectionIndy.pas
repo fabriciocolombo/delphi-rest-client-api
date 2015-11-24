@@ -20,9 +20,7 @@ type
     function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509;
       AOk: Boolean; ADepth, AError: Integer): Boolean;
   public
-
     OnConnectionLost: THTTPConnectionLostEvent;
-    OnError: THTTPErrorEvent;
 
     constructor Create;
     destructor Destroy; override;
@@ -50,8 +48,6 @@ type
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
   end;
@@ -184,11 +180,6 @@ end;
 function THttpConnectionIndy.GetOnConnectionLost: THTTPConnectionLostEvent;
 begin
   result := OnConnectionLost;
-end;
-
-function THttpConnectionIndy.GetOnError: THTTPErrorEvent;
-begin
-  result := OnError;
 end;
 
 function THttpConnectionIndy.GetResponseCode: Integer;
@@ -368,11 +359,6 @@ procedure THttpConnectionIndy.SetOnConnectionLost(
   AConnectionLostEvent: THTTPConnectionLostEvent);
 begin
   OnConnectionLost := AConnectionLostEvent;
-end;
-
-procedure THttpConnectionIndy.SetOnError(AErrorEvent: THTTPErrorEvent);
-begin
-  OnError := AErrorEvent;
 end;
 
 procedure THttpConnectionIndy.SetVerifyCert(const Value: boolean);

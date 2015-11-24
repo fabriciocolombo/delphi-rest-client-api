@@ -48,7 +48,8 @@ type
 
   TRestClient = class;
 
-  TRestOnRequestEvent = procedure (ARestClient: TRestClient; AResource: TResource; AMethod: TRequestMethod) of object;
+  TRestOnRequestEvent = procedure (ARestClient: TRestClient;
+    AResource: TResource; AMethod: TRequestMethod) of object;
 
   TRestClient = class(TComponent)
   private
@@ -65,6 +66,7 @@ type
     FProxyCredentials: TProxyCredentials;
     FLogin: String;
     FPassword: String;
+    FOnError: THTTPErrorEvent;
 
     FVerifyCert: boolean;
 
@@ -342,8 +344,8 @@ begin
     if (FHttpConnection.ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode) then
     begin
       vRetryMode := hrmRaise;
-      if assigned(OnError) then
-        FHttpConnection.OnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
+      if assigned(FOnError) then
+        FOnError(format('HTTP Error: %d', [FHttpConnection.ResponseCode]), Result, FHttpConnection.ResponseCode, vRetryMode);
 
       if vRetryMode = hrmRaise then
         raise EHTTPError.Create(
@@ -387,7 +389,7 @@ end;
 
 function TRestClient.GetOnError: THTTPErrorEvent;
 begin
-  result := FHttpConnection.OnError;
+  result := FOnError;
 end;
 
 function TRestClient.GetResponseCode: Integer;
@@ -489,7 +491,7 @@ end;
 
 procedure TRestClient.SetOnError(AErrorEvent: THTTPErrorEvent);
 begin
-  FHttpConnection.OnError := AErrorEvent;
+  FOnError := AErrorEvent;
 end;
 
 function TRestClient.UnWrapConnection: IHttpConnection;

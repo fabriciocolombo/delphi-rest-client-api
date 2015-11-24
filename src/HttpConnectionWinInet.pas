@@ -115,7 +115,6 @@ type
     procedure DoRequest(sMethod,AUrl: string; AContent: TStream; AResponse: TStream);virtual;
   public
     OnConnectionLost: THTTPConnectionLostEvent;
-    OnError: THTTPErrorEvent;
 
     constructor Create(ARaiseExceptionOnError: Boolean = false);
     destructor Destroy; override;
@@ -142,8 +141,6 @@ type
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AErrorEvent: THTTPErrorEvent);
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
 
@@ -253,11 +250,6 @@ begin
   result := OnConnectionLost;
 end;
 
-function THttpConnectionWinInet.GetOnError: THTTPErrorEvent;
-begin
-  result := OnError;
-end;
-
 function THttpConnectionWinInet.GetResponseCode: Integer;
 begin
   Result := FResponseCode;
@@ -327,11 +319,6 @@ procedure THttpConnectionWinInet.SetOnConnectionLost(
   AConnectionLostEvent: THTTPConnectionLostEvent);
 begin
   OnConnectionLost := AConnectionLostEvent;
-end;
-
-procedure THttpConnectionWinInet.SetOnError(AErrorEvent: THTTPErrorEvent);
-begin
-  OnError := AErrorEvent;
 end;
 
 procedure THttpConnectionWinInet.SetVerifyCert(const Value: boolean);

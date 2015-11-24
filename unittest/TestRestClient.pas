@@ -61,9 +61,6 @@ type
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
 
-    function GetOnError: THTTPErrorEvent;
-    procedure SetOnError(AConnectionLostEvent: THTTPErrorEvent);
-    property OnError: THTTPErrorEvent read GetOnError write SetOnError;
   public
   end;
 
@@ -137,11 +134,6 @@ begin
 
 end;
 
-function TStubConnection.GetOnError: THTTPErrorEvent;
-begin
-
-end;
-
 function TStubConnection.GetVerifyCert: boolean;
 begin
 
@@ -149,11 +141,6 @@ end;
 
 procedure TStubConnection.SetOnConnectionLost(
   AConnectionLostEvent: THTTPConnectionLostEvent);
-begin
-
-end;
-
-procedure TStubConnection.SetOnError(AConnectionLostEvent: THTTPErrorEvent);
 begin
 
 end;
