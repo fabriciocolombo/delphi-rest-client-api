@@ -177,7 +177,7 @@ The following example will ignore the status code 404.
 This will result in an empty response (nil for objects).
 You'll have to check if your objects has been assigned after every request. 
 
-`AErrorMessage` contains the content of the response.
+`AHTTPError.ErrorMessage` contains the content of the response.
 You can deserialize this to display your own error message (see `RestJsonUtils.TJsonUtil`).
 
 ```delphi
@@ -185,17 +185,17 @@ restclient := TRestClient.Create(self);
 restclient.ConnectionType := hctWinINet;
 restclient.OnError := RestError;
 
-procedure Tdm.RestError(const AMessage, AErrorMessage: string; AErrorCode: integer; var ARetryMode: THTTPRetryMode);
+procedure Tdm.RestError(ARestClient: TRestClient; AResource: restclient.TResource;
+  AMethod: TRequestMethod; AHTTPError: EHTTPError;
+  var ARetryMode: THTTPRetryMode);
 begin
   ARetryMode := hrmRaise;
-  if AErrorCode = 404 then
+  if AHTTPError.ErrorCode = 404 then
     ARetryMode := hrmIgnore;
 end;
 ```
 
 ### THTTPConnectionLostEvent
-Only supported for `hctWinINet` and `hctIndy`.
-
 The following example will retry the request forever.
 If you want it to only retry for at limited time, you'll have to
 implement that counter your self.
