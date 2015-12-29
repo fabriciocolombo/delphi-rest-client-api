@@ -321,7 +321,8 @@ end;
 
 procedure THttpConnectionIndy.SetAsync(const Value: Boolean);
 begin
-  raise ENotImplemented.Create('Async requests not implemented for Indy.');
+  if Value then
+    raise ENotImplemented.Create('Async requests not implemented for Indy.');
 end;
 
 function THttpConnectionIndy.SetContentTypes(AContentTypes: string): IHttpConnection;

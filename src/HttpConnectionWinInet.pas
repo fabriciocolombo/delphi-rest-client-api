@@ -305,7 +305,8 @@ end;
 
 procedure THttpConnectionWinInet.SetAsync(const Value: Boolean);
 begin
-  raise ENotImplemented.Create('Async requests not implemented for WinInet.');
+  if Value then
+    raise ENotImplemented.Create('Async requests not implemented for WinInet.');
 end;
 
 function THttpConnectionWinInet.SetContentTypes(AContentTypes: string): IHttpConnection;

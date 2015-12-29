@@ -53,15 +53,15 @@ type
 
     procedure SetEnabledCompression(const Value: Boolean);virtual;abstract;
 
-
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
 
     procedure SetVerifyCert(const Value: boolean);
-    function GetVerifyCert: boolean;
+    function GetVerifyCert: boolean;virtual;abstract;
 
-  public
+    procedure SetAsync(const Value: Boolean);virtual;abstract;
+    procedure CancelRequest;
   end;
 
 { TTestRestClient }
@@ -127,14 +127,14 @@ begin
   CheckTrue(Supports(FRest.UnWrapConnection, IStubConnection));
 end;
 
-{ TStubConnection }
-
-function TStubConnection.GetOnConnectionLost: THTTPConnectionLostEvent;
+procedure TStubConnection.CancelRequest;
 begin
 
 end;
 
-function TStubConnection.GetVerifyCert: boolean;
+{ TStubConnection }
+
+function TStubConnection.GetOnConnectionLost: THTTPConnectionLostEvent;
 begin
 
 end;

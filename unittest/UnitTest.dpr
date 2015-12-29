@@ -39,7 +39,8 @@ uses
   TestDBXJsonUtils in 'TestDBXJsonUtils.pas',
   TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas',
   TestRestUtils in 'TestRestUtils.pas',
-  TestSuperobject in 'TestSuperobject.pas';
+  TestSuperobject in 'TestSuperobject.pas',
+  TestAsync in 'TestAsync.pas';
 
 {$R *.RES}
 
