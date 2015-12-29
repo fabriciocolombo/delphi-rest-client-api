@@ -691,6 +691,11 @@ begin
   Result := FAcceptTypes;
 end;
 
+function TResource.GetAsync: Boolean;
+begin
+   Result := FAsync;
+end;
+
 function TResource.GetContent: TStream;
 begin
   Result := FContent;
@@ -844,11 +849,6 @@ begin
   end else begin
     Result:=GetasDataSet();
   end;
-end;
-
-function TResource.GetAsync: Boolean;
-begin
-  Result := FAsync;
 end;
 
 function TResource.GetAsDataSet: TDataSet;
