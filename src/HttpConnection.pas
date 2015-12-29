@@ -26,6 +26,8 @@ type
 
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
 
+  TAsyncRequestProcessEvent = reference to procedure(var Cancel: Boolean);
+
   EHTTPVerifyCertError = class(Exception) end;
 
   TProxyCredentials = class(TComponent)
@@ -85,6 +87,7 @@ type
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent, AResponse: TStream);
@@ -99,8 +102,8 @@ type
 
     procedure SetEnabledCompression(const Value: Boolean);
     procedure SetVerifyCert(const Value: boolean);
-    
-    procedure SetAsync(const Value: Boolean);
+
+    function SetAsync(const Value: Boolean): IHttpConnection;
     procedure CancelRequest;
 
     property ResponseCode: Integer read GetResponseCode;

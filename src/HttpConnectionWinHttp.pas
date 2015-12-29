@@ -23,6 +23,7 @@ type
     FAsync: Boolean;
     FCancelRequest: Boolean;
     FWaitingResponse: Boolean;
+    FOnAsyncRequestProcess: TAsyncRequestProcessEvent;
 
     procedure Configure;
 
@@ -50,7 +51,7 @@ type
     function GetResponseCode: Integer;
     function GetResponseHeader(const Name: string): string;
 
-    procedure SetAsync(const Value: Boolean);
+    function SetAsync(const Value: Boolean): IHttpConnection;
     procedure CancelRequest;
 
     function GetEnabledCompression: Boolean;
@@ -64,6 +65,8 @@ type
 
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
+
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
   end;
 
 implementation
@@ -300,9 +303,10 @@ begin
   Result := Self;
 end;
 
-procedure THttpConnectionWinHttp.SetAsync(const Value: Boolean);
+function THttpConnectionWinHttp.SetAsync(const Value: Boolean): IHttpConnection;
 begin
   FAsync := Value;
+  Result := Self;
 end;
 
 function THttpConnectionWinHttp.SetContentTypes(AContentTypes: string): IHttpConnection;
@@ -324,6 +328,12 @@ begin
   Result := Self;
 end;
 
+function THttpConnectionWinHttp.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
+begin
+  FOnAsyncRequestProcess := Value;
+  Result := Self;
+end;
+
 procedure THttpConnectionWinHttp.SetOnConnectionLost(
   AConnectionLostEvent: THTTPConnectionLostEvent);
 begin
@@ -339,6 +349,9 @@ procedure THttpConnectionWinHttp.WaitForResponse;
 begin
   while not FWinHttpRequest.WaitForResponse(1) do
   begin
+    if Assigned(FOnAsyncRequestProcess) then
+      FOnAsyncRequestProcess(FCancelRequest);
+
     if FCancelRequest then
     begin
       FWinHttpRequest.Abort;

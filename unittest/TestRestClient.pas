@@ -60,8 +60,10 @@ type
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;virtual;abstract;
 
-    procedure SetAsync(const Value: Boolean);virtual;abstract;
+    function SetAsync(const Value: Boolean): IHttpConnection; virtual; abstract;
     procedure CancelRequest;
+
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
   end;
 
 { TTestRestClient }
@@ -137,6 +139,11 @@ end;
 function TStubConnection.GetOnConnectionLost: THTTPConnectionLostEvent;
 begin
 
+end;
+
+function TStubConnection.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
+begin
+  Result := Self;
 end;
 
 procedure TStubConnection.SetOnConnectionLost(

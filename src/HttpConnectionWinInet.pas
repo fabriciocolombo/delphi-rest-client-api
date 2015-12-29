@@ -99,9 +99,7 @@ type
     FBasicAuthentication_Password : string;
     FCertificateContext : PCERT_CONTEXT;
     FCertificateCheckAuthority: boolean;
-
     FCertificateIgnoreRevocation: boolean;
-
     FCertificateCheckHostName: boolean;
     FCertificateCheckDate: Boolean;
     FResponseCode : Integer;
@@ -147,8 +145,10 @@ type
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
 
-    procedure SetAsync(const Value: Boolean);
+    function SetAsync(const Value: Boolean): IHttpConnection;
     procedure CancelRequest;
+
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -303,10 +303,12 @@ begin
   Result := Self;
 end;
 
-procedure THttpConnectionWinInet.SetAsync(const Value: Boolean);
+function THttpConnectionWinInet.SetAsync(const Value: Boolean): IHttpConnection;
 begin
   if Value then
     raise ENotImplemented.Create('Async requests not implemented for WinInet.');
+
+  Result := Self;
 end;
 
 function THttpConnectionWinInet.SetContentTypes(AContentTypes: string): IHttpConnection;
@@ -325,6 +327,11 @@ function THttpConnectionWinInet.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
   FHeaders.Assign(AHeaders);
 
+  Result := Self;
+end;
+
+function THttpConnectionWinInet.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
+begin
   Result := Self;
 end;
 

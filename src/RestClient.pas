@@ -70,6 +70,7 @@ type
     FTimeOut: TTimeOut;
     FProxyCredentials: TProxyCredentials;
     FLogin: String;
+    FOnAsyncRequestProcess: TAsyncRequestProcessEvent;
     FPassword: String;
     FOnError: THTTPErrorEvent;
 
@@ -120,10 +121,9 @@ type
 
     function SetCredentials(const ALogin, APassword: String): TRestClient;
 
-    procedure CancelRequest;
-
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+    property OnAsyncRequestProcess: TAsyncRequestProcessEvent read FOnAsyncRequestProcess write FOnAsyncRequestProcess;
 
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
@@ -266,7 +266,8 @@ end;
 
 destructor TRestClient.Destroy;
 begin
-  CancelRequest;
+  if FHttpConnection <> nil then
+    FHttpConnection.CancelRequest;
   FResources.Free;
   FHttpConnection := nil;
   inherited;
@@ -319,7 +320,8 @@ begin
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
                    .ConfigureTimeout(FTimeOut)
                    .ConfigureProxyCredentials(FProxyCredentials)
-                   .SetAsync(ResourceRequest.GetAsync);
+                   .SetAsync(ResourceRequest.GetAsync)
+                   .SetOnAsyncRequestProcess(FOnAsyncRequestProcess);
 
     vUrl := ResourceRequest.GetURL;
 
@@ -449,12 +451,6 @@ begin
       FHttpConnection.EnabledCompression := FEnabledCompression;
     end;
   end;
-end;
-
-procedure TRestClient.CancelRequest;
-begin
-  if FHttpConnection <> nil then
-    FHttpConnection.CancelRequest;
 end;
 
 procedure TRestClient.CheckConnection;

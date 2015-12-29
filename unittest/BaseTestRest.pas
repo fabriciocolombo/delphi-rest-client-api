@@ -24,6 +24,7 @@ type
     FRestClient: TRestClient;
     FHttpConnectionType: THttpConnectionType;
   protected
+    procedure FreeAndNilRestClient;
     procedure SetUp; override;
     procedure TearDown; override;
   public
@@ -41,12 +42,20 @@ const
 
 implementation
 
+uses
+  System.SysUtils;
+
 { TBaseTestRest }
 
 constructor TBaseTestRest.Create(MethodName: string);
 begin
   inherited;
 
+end;
+
+procedure TBaseTestRest.FreeAndNilRestClient;
+begin
+  FreeAndNil(FRestClient);
 end;
 
 class procedure TBaseTestRest.RegisterTest;
@@ -81,7 +90,7 @@ end;
 
 procedure TBaseTestRest.TearDown;
 begin
-  FRestClient.Free;
+  FreeAndNilRestClient;
   inherited;
 end;
 

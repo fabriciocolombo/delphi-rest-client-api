@@ -8,7 +8,8 @@ type
   TTestAsync = class(TBaseTestRest)
   private
   published
-    procedure GET_CancelRequest;
+    procedure GET_CancelRequestUsingOnAsyncRequestProcessEvent;
+    procedure GET_CancelRequestWhenDestroyingTheRestClientObject;
   end;
 
 implementation
@@ -18,21 +19,38 @@ uses
 
 { TTestAsync }
 
-procedure TTestAsync.GET_CancelRequest;
+procedure TTestAsync.GET_CancelRequestUsingOnAsyncRequestProcessEvent;
 begin
   if RestClient.ConnectionType = hctWinHttp then
-  begin
-    ExpectedException := EAbort;
-
-    TThread.CreateAnonymousThread(
-      procedure
-      begin
-        Sleep(100);
-        RestClient.CancelRequest;
-      end).Start;
-  end
+    ExpectedException := EAbort
   else
     ExpectedException := ENotImplemented;
+
+  RestClient.OnAsyncRequestProcess :=
+    procedure(var Cancel: Boolean)
+    begin
+      Cancel := True;
+    end;
+
+  RestClient.Resource(CONTEXT_PATH + 'async')
+            .Accept('text/plain')
+            .Async
+            .GET();
+end;
+
+procedure TTestAsync.GET_CancelRequestWhenDestroyingTheRestClientObject;
+begin
+  if RestClient.ConnectionType = hctWinHttp then
+    ExpectedException := EAbort
+  else
+    ExpectedException := ENotImplemented;
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Sleep(50);
+      FreeAndNilRestClient;
+    end).Start;
 
   RestClient.Resource(CONTEXT_PATH + 'async')
             .Accept('text/plain')
