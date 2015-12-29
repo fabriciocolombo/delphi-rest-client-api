@@ -120,6 +120,8 @@ type
 
     function SetCredentials(const ALogin, APassword: String): TRestClient;
 
+    procedure CancelRequest;
+
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
 
@@ -156,6 +158,7 @@ type
     FContentTypes: string;
     FHeaders: TStrings;
     FAcceptedLanguages: string;
+    FAsync: Boolean;
 
     constructor Create(RestClient: TRestClient; URL: string);
     procedure SetContent(entity: TObject);
@@ -168,8 +171,10 @@ type
     function GetContentTypes: string;
     function GetHeaders: TStrings;
     function GetAcceptedLanguages: string;
+    function GetAsync: Boolean;
 
     function Accept(AcceptType: String): TResource;
+    function Async(const Value: Boolean = True): TResource;
     function ContentType(ContentType: String): TResource;
     function AcceptLanguage(Language: String): TResource;
 
@@ -261,6 +266,7 @@ end;
 
 destructor TRestClient.Destroy;
 begin
+  CancelRequest;
   FResources.Free;
   FHttpConnection := nil;
   inherited;
@@ -312,7 +318,8 @@ begin
                    .SetHeaders(vHeaders)
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
                    .ConfigureTimeout(FTimeOut)
-                   .ConfigureProxyCredentials(FProxyCredentials);
+                   .ConfigureProxyCredentials(FProxyCredentials)
+                   .SetAsync(ResourceRequest.GetAsync);
 
     vUrl := ResourceRequest.GetURL;
 
@@ -442,6 +449,12 @@ begin
       FHttpConnection.EnabledCompression := FEnabledCompression;
     end;
   end;
+end;
+
+procedure TRestClient.CancelRequest;
+begin
+  if FHttpConnection <> nil then
+    FHttpConnection.CancelRequest;
 end;
 
 procedure TRestClient.CheckConnection;
@@ -622,6 +635,13 @@ end;
 function TResource.AcceptLanguage(Language: String): TResource;
 begin
   Result := Header('Accept-Language', Language);
+end;
+
+function TResource.Async(const Value: Boolean = True): TResource;
+begin
+  FAsync := True;
+
+  Result := Self;
 end;
 
 function TResource.ContentType(ContentType: String): TResource;
@@ -824,6 +844,11 @@ begin
   end else begin
     Result:=GetasDataSet();
   end;
+end;
+
+function TResource.GetAsync: Boolean;
+begin
+  Result := FAsync;
 end;
 
 function TResource.GetAsDataSet: TDataSet;

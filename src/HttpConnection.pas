@@ -99,6 +99,9 @@ type
 
     procedure SetEnabledCompression(const Value: Boolean);
     procedure SetVerifyCert(const Value: boolean);
+    
+    procedure SetAsync(const Value: Boolean);
+    procedure CancelRequest;
 
     property ResponseCode: Integer read GetResponseCode;
     property ResponseHeader[const Header: string]: string read GetResponseHeader;
@@ -108,7 +111,6 @@ type
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
-
   end;
 
 implementation

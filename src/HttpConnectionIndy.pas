@@ -45,6 +45,9 @@ type
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
 
+    procedure SetAsync(const Value: Boolean);
+    procedure CancelRequest;
+
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
 
@@ -58,6 +61,10 @@ uses
   ProxyUtils;
 
 { THttpConnectionIndy }
+
+procedure THttpConnectionIndy.CancelRequest;
+begin
+end;
 
 function THttpConnectionIndy.ConfigureProxyCredentials(
   AProxyCredentials: TProxyCredentials): IHttpConnection;
@@ -310,6 +317,11 @@ function THttpConnectionIndy.SetAcceptTypes(AAcceptTypes: string): IHttpConnecti
 begin
   FIdHttp.Request.Accept := AAcceptTypes;
   Result := Self;
+end;
+
+procedure THttpConnectionIndy.SetAsync(const Value: Boolean);
+begin
+  raise ENotImplemented.Create('Async requests not implemented for Indy.');
 end;
 
 function THttpConnectionIndy.SetContentTypes(AContentTypes: string): IHttpConnection;

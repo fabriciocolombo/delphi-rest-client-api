@@ -123,7 +123,8 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
-	property Headers: TStrings read FHeaders;
+
+    property Headers: TStrings read FHeaders;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -133,7 +134,6 @@ type
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
-
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
@@ -146,6 +146,9 @@ type
 
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
+
+    procedure SetAsync(const Value: Boolean);
+    procedure CancelRequest;
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -197,6 +200,10 @@ constructor EInetException.Create(const AErrorMessage: string; const AErrorCode:
 begin
   iFErrorCode := AErrorCode;
   inherited CreateFmt('%s (%d)', [AErrorMessage, iFErrorCode]);
+end;
+
+procedure THttpConnectionWinInet.CancelRequest;
+begin
 end;
 
 function THttpConnectionWinInet.ConfigureProxyCredentials(
@@ -294,6 +301,11 @@ begin
   FAcceptTypes := AAcceptTypes;
   
   Result := Self;
+end;
+
+procedure THttpConnectionWinInet.SetAsync(const Value: Boolean);
+begin
+  raise ENotImplemented.Create('Async requests not implemented for WinInet.');
 end;
 
 function THttpConnectionWinInet.SetContentTypes(AContentTypes: string): IHttpConnection;

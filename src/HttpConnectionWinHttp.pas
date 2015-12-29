@@ -20,10 +20,14 @@ type
     FLogin: String;
     FPassword: String;
     FVerifyCert: boolean;
+    FAsync: Boolean;
+    FCancelRequest: Boolean;
+    FWaitingResponse: Boolean;
 
     procedure Configure;
 
     procedure CopyResourceStreamToStream(AResponse: TStream);
+    procedure WaitForResponse;
   protected
     procedure DoRequest(sMethod, AUrl: string; AContent, AResponse: TStream);
   public
@@ -46,6 +50,8 @@ type
     function GetResponseCode: Integer;
     function GetResponseHeader(const Name: string): string;
 
+    procedure SetAsync(const Value: Boolean);
+    procedure CancelRequest;
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
@@ -71,6 +77,18 @@ const
   HTTPREQUEST_SETCREDENTIALS_FOR_PROXY = 1;
 
 { THttpConnectionWinHttp }
+
+procedure THttpConnectionWinHttp.CancelRequest;
+begin
+  if not FAsync then
+    Exit;
+
+  while FWaitingResponse do
+  begin
+    FCancelRequest := True;
+    Sleep(50);
+  end;
+end;
 
 procedure THttpConnectionWinHttp.Configure;
 var
@@ -164,46 +182,56 @@ var
   vAdapter: IStream;
   retryMode: THTTPRetryMode;
 begin
-  FWinHttpRequest := CoWinHttpRequest.Create;
-  FWinHttpRequest.Open(sMethod, AUrl, false);
-
-  Configure;
-
-  vAdapter := nil;
-  if assigned(AContent) and (AContent.Size>0) then
-    vAdapter := TStreamAdapter.Create(AContent, soReference);
-
+  FCancelRequest := False;
+  FWaitingResponse := True;
   try
-    if assigned(vAdapter) then
-      FWinHttpRequest.Send(vAdapter)
-    else
-      FWinHttpRequest.Send(EmptyParam);
-    if assigned(AResponse) then
-      CopyResourceStreamToStream(AResponse);
-  except
-    on E: EOleException do
-    begin
-      case E.ErrorCode of
-        -2147012858: // WININET_E_SEC_CERT_CN_INVALID
-          raise EHTTPVerifyCertError.Create('The host name in the certificate is invalid or does not match');
-        -2147012859: // WININET_E_SEC_CERT_DATE_INVALID
-          raise EHTTPVerifyCertError.Create('The date in the certificate is invalid or has expired');
-        -2147012865, // WININET_E_CONNECTION_RESET
-        -2147012866, // WININET_E_CONNECTION_ABORTED
-        -2147012867: // WININET_E_CANNOT_CONNECT
-        begin
-          retryMode := hrmRaise;
-          if assigned(OnConnectionLost) then
-            OnConnectionLost(e, retryMode);
-          if retryMode = hrmRaise then
-            raise
-          else if retryMode = hrmRetry then
-            DoRequest(sMethod, AUrl, AContent, AResponse);
-        end
-        else
-          raise;
+    FWinHttpRequest := CoWinHttpRequest.Create;
+    FWinHttpRequest.Open(sMethod, AUrl, FAsync);
+
+    Configure;
+
+    vAdapter := nil;
+    if assigned(AContent) and (AContent.Size>0) then
+      vAdapter := TStreamAdapter.Create(AContent, soReference);
+
+    try
+      if assigned(vAdapter) then
+        FWinHttpRequest.Send(vAdapter)
+      else
+        FWinHttpRequest.Send(EmptyParam);
+
+      if FAsync then
+        WaitForResponse;
+
+      if assigned(AResponse) then
+        CopyResourceStreamToStream(AResponse);
+    except
+      on E: EOleException do
+      begin
+        case E.ErrorCode of
+          -2147012858: // WININET_E_SEC_CERT_CN_INVALID
+            raise EHTTPVerifyCertError.Create('The host name in the certificate is invalid or does not match');
+          -2147012859: // WININET_E_SEC_CERT_DATE_INVALID
+            raise EHTTPVerifyCertError.Create('The date in the certificate is invalid or has expired');
+          -2147012865, // WININET_E_CONNECTION_RESET
+          -2147012866, // WININET_E_CONNECTION_ABORTED
+          -2147012867: // WININET_E_CANNOT_CONNECT
+          begin
+            retryMode := hrmRaise;
+            if assigned(OnConnectionLost) then
+              OnConnectionLost(e, retryMode);
+            if retryMode = hrmRaise then
+              raise
+            else if retryMode = hrmRetry then
+              DoRequest(sMethod, AUrl, AContent, AResponse);
+          end
+          else
+            raise;
+        end;
       end;
     end;
+  finally
+    FWaitingResponse := False;
   end;
 end;
 
@@ -272,6 +300,11 @@ begin
   Result := Self;
 end;
 
+procedure THttpConnectionWinHttp.SetAsync(const Value: Boolean);
+begin
+  FAsync := Value;
+end;
+
 function THttpConnectionWinHttp.SetContentTypes(AContentTypes: string): IHttpConnection;
 begin
   FContentTypes := AContentTypes;
@@ -300,6 +333,18 @@ end;
 procedure THttpConnectionWinHttp.SetVerifyCert(const Value: boolean);
 begin
   FVerifyCert := Value;
+end;
+
+procedure THttpConnectionWinHttp.WaitForResponse;
+begin
+  while not FWinHttpRequest.WaitForResponse(1) do
+  begin
+    if FCancelRequest then
+    begin
+      FWinHttpRequest.Abort;
+      Abort;
+    end
+  end;
 end;
 
 end.
