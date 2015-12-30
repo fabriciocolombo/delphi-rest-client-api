@@ -70,6 +70,7 @@ type
     FTimeOut: TTimeOut;
     FProxyCredentials: TProxyCredentials;
     FLogin: String;
+    FOnAsyncRequestProcess: TAsyncRequestProcessEvent;
     FPassword: String;
     FOnError: THTTPErrorEvent;
 
@@ -122,6 +123,7 @@ type
 
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
     property OnError: THTTPErrorEvent read GetOnError write SetOnError;
+    property OnAsyncRequestProcess: TAsyncRequestProcessEvent read FOnAsyncRequestProcess write FOnAsyncRequestProcess;
 
   published
     property ConnectionType: THttpConnectionType read FConnectionType write SetConnectionType;
@@ -156,6 +158,7 @@ type
     FContentTypes: string;
     FHeaders: TStrings;
     FAcceptedLanguages: string;
+    FAsync: Boolean;
 
     constructor Create(RestClient: TRestClient; URL: string);
     procedure SetContent(entity: TObject);
@@ -168,8 +171,10 @@ type
     function GetContentTypes: string;
     function GetHeaders: TStrings;
     function GetAcceptedLanguages: string;
+    function GetAsync: Boolean;
 
     function Accept(AcceptType: String): TResource;
+    function Async(const Value: Boolean = True): TResource;
     function ContentType(ContentType: String): TResource;
     function AcceptLanguage(Language: String): TResource;
 
@@ -261,6 +266,8 @@ end;
 
 destructor TRestClient.Destroy;
 begin
+  if FHttpConnection <> nil then
+    FHttpConnection.CancelRequest;
   FResources.Free;
   FHttpConnection := nil;
   inherited;
@@ -312,7 +319,9 @@ begin
                    .SetHeaders(vHeaders)
                    .SetAcceptedLanguages(ResourceRequest.GetAcceptedLanguages)
                    .ConfigureTimeout(FTimeOut)
-                   .ConfigureProxyCredentials(FProxyCredentials);
+                   .ConfigureProxyCredentials(FProxyCredentials)
+                   .SetAsync(ResourceRequest.GetAsync)
+                   .SetOnAsyncRequestProcess(FOnAsyncRequestProcess);
 
     vUrl := ResourceRequest.GetURL;
 
@@ -624,6 +633,13 @@ begin
   Result := Header('Accept-Language', Language);
 end;
 
+function TResource.Async(const Value: Boolean = True): TResource;
+begin
+  FAsync := True;
+
+  Result := Self;
+end;
+
 function TResource.ContentType(ContentType: String): TResource;
 begin
   FContentTypes := ContentType;
@@ -669,6 +685,11 @@ end;
 function TResource.GetAcceptTypes: string;
 begin
   Result := FAcceptTypes;
+end;
+
+function TResource.GetAsync: Boolean;
+begin
+   Result := FAsync;
 end;
 
 function TResource.GetContent: TStream;

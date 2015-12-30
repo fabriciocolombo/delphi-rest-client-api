@@ -99,9 +99,7 @@ type
     FBasicAuthentication_Password : string;
     FCertificateContext : PCERT_CONTEXT;
     FCertificateCheckAuthority: boolean;
-
     FCertificateIgnoreRevocation: boolean;
-
     FCertificateCheckHostName: boolean;
     FCertificateCheckDate: Boolean;
     FResponseCode : Integer;
@@ -123,7 +121,8 @@ type
     function SetAcceptedLanguages(AAcceptedLanguages: string): IHttpConnection;
     function SetContentTypes(AContentTypes: string): IHttpConnection;
     function SetHeaders(AHeaders: TStrings): IHttpConnection;
-	property Headers: TStrings read FHeaders;
+
+    property Headers: TStrings read FHeaders;
 
     procedure Get(AUrl: string; AResponse: TStream);
     procedure Post(AUrl: string; AContent: TStream; AResponse: TStream);
@@ -133,7 +132,6 @@ type
 
     function GetResponseCode: Integer;
     function GetResponseHeader(const Header: string): string;
-
 
     function GetEnabledCompression: Boolean;
     procedure SetEnabledCompression(const Value: Boolean);
@@ -146,6 +144,11 @@ type
 
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
+
+    function SetAsync(const Value: Boolean): IHttpConnection;
+    procedure CancelRequest;
+
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
 
     property ResponseErrorStatusText : string read FResponseErrorStatusText write FResponseErrorStatusText;
     property CertificateContext: PCERT_CONTEXT read FCertificateContext write FCertificateContext;
@@ -197,6 +200,10 @@ constructor EInetException.Create(const AErrorMessage: string; const AErrorCode:
 begin
   iFErrorCode := AErrorCode;
   inherited CreateFmt('%s (%d)', [AErrorMessage, iFErrorCode]);
+end;
+
+procedure THttpConnectionWinInet.CancelRequest;
+begin
 end;
 
 function THttpConnectionWinInet.ConfigureProxyCredentials(
@@ -296,6 +303,14 @@ begin
   Result := Self;
 end;
 
+function THttpConnectionWinInet.SetAsync(const Value: Boolean): IHttpConnection;
+begin
+  if Value then
+    raise ENotImplemented.Create('Async requests not implemented for WinInet.');
+
+  Result := Self;
+end;
+
 function THttpConnectionWinInet.SetContentTypes(AContentTypes: string): IHttpConnection;
 begin
   FContentTypes := AContentTypes;
@@ -312,6 +327,11 @@ function THttpConnectionWinInet.SetHeaders(AHeaders: TStrings): IHttpConnection;
 begin
   FHeaders.Assign(AHeaders);
 
+  Result := Self;
+end;
+
+function THttpConnectionWinInet.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
+begin
   Result := Self;
 end;
 

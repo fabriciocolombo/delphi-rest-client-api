@@ -53,15 +53,17 @@ type
 
     procedure SetEnabledCompression(const Value: Boolean);virtual;abstract;
 
-
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
 
     procedure SetVerifyCert(const Value: boolean);
-    function GetVerifyCert: boolean;
+    function GetVerifyCert: boolean;virtual;abstract;
 
-  public
+    function SetAsync(const Value: Boolean): IHttpConnection; virtual; abstract;
+    procedure CancelRequest;
+
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
   end;
 
 { TTestRestClient }
@@ -127,6 +129,11 @@ begin
   CheckTrue(Supports(FRest.UnWrapConnection, IStubConnection));
 end;
 
+procedure TStubConnection.CancelRequest;
+begin
+
+end;
+
 { TStubConnection }
 
 function TStubConnection.GetOnConnectionLost: THTTPConnectionLostEvent;
@@ -134,9 +141,9 @@ begin
 
 end;
 
-function TStubConnection.GetVerifyCert: boolean;
+function TStubConnection.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
 begin
-
+  Result := Self;
 end;
 
 procedure TStubConnection.SetOnConnectionLost(

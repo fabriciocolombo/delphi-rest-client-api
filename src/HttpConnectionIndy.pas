@@ -17,6 +17,7 @@ type
     FIdHttp: TIdHTTP;
     FEnabledCompression: Boolean;
     FVerifyCert: boolean;
+    procedure CancelRequest;
     function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509;
       AOk: Boolean; ADepth, AError: Integer): Boolean;
   public
@@ -45,11 +46,13 @@ type
     procedure SetVerifyCert(const Value: boolean);
     function GetVerifyCert: boolean;
 
+    function SetAsync(const Value: Boolean): IHttpConnection;
     function GetOnConnectionLost: THTTPConnectionLostEvent;
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
 
     function ConfigureTimeout(const ATimeOut: TTimeOut): IHttpConnection;
     function ConfigureProxyCredentials(AProxyCredentials: TProxyCredentials): IHttpConnection;
+    function SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
   end;
 
 implementation
@@ -58,6 +61,10 @@ uses
   ProxyUtils;
 
 { THttpConnectionIndy }
+
+procedure THttpConnectionIndy.CancelRequest;
+begin
+end;
 
 function THttpConnectionIndy.ConfigureProxyCredentials(
   AProxyCredentials: TProxyCredentials): IHttpConnection;
@@ -312,6 +319,14 @@ begin
   Result := Self;
 end;
 
+function THttpConnectionIndy.SetAsync(const Value: Boolean): IHttpConnection;
+begin
+  if Value then
+    raise ENotImplemented.Create('Async requests not implemented for Indy.');
+
+  Result := Self;
+end;
+
 function THttpConnectionIndy.SetContentTypes(AContentTypes: string): IHttpConnection;
 begin
   FIdHttp.Request.ContentType := AContentTypes;
@@ -352,6 +367,11 @@ begin
     FIdHttp.Request.CustomHeaders.AddValue(AHeaders.Names[i], AHeaders.ValueFromIndex[i]);
   end;
 
+  Result := Self;
+end;
+
+function THttpConnectionIndy.SetOnAsyncRequestProcess(const Value: TAsyncRequestProcessEvent): IHttpConnection;
+begin
   Result := Self;
 end;
 
