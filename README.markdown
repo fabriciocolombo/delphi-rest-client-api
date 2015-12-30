@@ -137,6 +137,26 @@ begin
   end;
 ```
 
+- **ASYNC REQUESTS**
+
+```Delphi
+  //Implement OnAsyncRequestProcess event to allow cancelling a request or update the UI
+  RestClient.OnAsyncRequestProcess :=
+    procedure(var Cancel: Boolean)
+    begin
+      Cancel := True; // Set cancel to true to abort the request
+    end;
+
+// This will raise an EAbort if the request is canceled 
+ RestClient.Resource(CONTEXT_PATH + 'async')
+            .Accept('text/plain')
+            .Async
+            .GET();
+```
+
+> **NOTE:** Async request is only supported for `WinHTTP`.
+> Any thought about how to implement this feature for `Indy` and `WinInet` are welcome.
+
 ## Authentication
 
 RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making the first request:
@@ -155,8 +175,9 @@ To skip certificate validation set `VerifyCert` to false.
 RestClient.VerifyCert := false;
 ```
 
-> **Indy note:** Certificate validation is not yet supported with `hctIndy`.
+> **Indy note:** Certificate validation is not yet supported with `Indy`.
 > Certificates will not be validated!
+> Any thought about how to implement this feature for `Indy` are welcome.
 
 ## Error events
 
