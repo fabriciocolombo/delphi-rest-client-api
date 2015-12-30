@@ -2,6 +2,8 @@ unit HttpConnectionIndy;
 
 interface
 
+{$I DelphiRest.inc}
+
 uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
      IdSSLOpenSSL, IdStack;
 
@@ -94,7 +96,13 @@ begin
   FIdHttp := TIdHTTP.Create(nil);
   ssl := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
   ssl.OnVerifyPeer := IdSSLIOHandlerSocketOpenSSL1VerifyPeer;
+
+  {$IFDEF DELPHI_XE3_UP}
   ssl.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
+  {$ELSE}
+  ssl.SSLOptions.SSLVersions := [sslvTLSv1];
+  {$ENDIF}
+
   FIdHttp.IOHandler := ssl;
   FIdHttp.HandleRedirects := True;
   FIdHttp.Request.CustomHeaders.FoldLines := false;
