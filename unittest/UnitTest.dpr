@@ -40,7 +40,7 @@ uses
   TestDbxJsonMarshal in 'TestDbxJsonMarshal.pas',
   TestRestUtils in 'TestRestUtils.pas',
   TestSuperobject in 'TestSuperobject.pas',
-  TestAsync in 'TestAsync.pas';
+  RestException in '..\src\RestException.pas';
 
 {$R *.RES}
 

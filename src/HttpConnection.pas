@@ -1,5 +1,7 @@
 unit HttpConnection;
 
+{$I DelphiRest.inc}
+
 interface
 
 uses Classes, SysUtils;
@@ -26,7 +28,11 @@ type
 
   THTTPConnectionLostEvent = procedure(AException: Exception; var ARetryMode: THTTPRetryMode) of object;
 
+  {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
   TAsyncRequestProcessEvent = reference to procedure(var Cancel: Boolean);
+  {$ELSE}
+  TAsyncRequestProcessEvent = procedure(var Cancel: Boolean) of object;
+  {$ENDIF}
 
   EHTTPVerifyCertError = class(Exception) end;
 

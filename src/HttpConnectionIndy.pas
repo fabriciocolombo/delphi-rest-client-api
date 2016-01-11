@@ -5,7 +5,7 @@ interface
 {$I DelphiRest.inc}
 
 uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
-     IdSSLOpenSSL, IdStack;
+     IdSSLOpenSSL, IdStack, RestException;
 
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
@@ -20,8 +20,18 @@ type
     FEnabledCompression: Boolean;
     FVerifyCert: boolean;
     procedure CancelRequest;
-    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509;
-      AOk: Boolean; ADepth, AError: Integer): Boolean;
+    ///
+    ///  Delphi 2007
+    ///
+    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean): Boolean;overload;
+    ///
+    ///  Delphi 2010 and XE
+    ///
+    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean;overload;
+    ///
+    ///  Delphi XE2 and newer
+    ///
+    function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;overload;
   public
     OnConnectionLost: THTTPConnectionLostEvent;
 
@@ -97,10 +107,17 @@ begin
   ssl := TIdSSLIOHandlerSocketOpenSSL.Create(FIdHttp);
   ssl.OnVerifyPeer := IdSSLIOHandlerSocketOpenSSL1VerifyPeer;
 
+  {$if defined(DELPHI_7) or defined(DELPHI_2007) or
+       defined(DELPHI_2009) or defined(DELPHI_2010)}
+    ssl.SSLOptions.Method := sslvTLSv1;
+  {$ifend}
+
+  {$if defined(DELPHI_XE) or defined(DELPHI_XE2)}
+    ssl.SSLOptions.SSLVersions := [sslvTLSv1];
+  {$ifend}
+
   {$IFDEF DELPHI_XE3_UP}
-  ssl.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
-  {$ELSE}
-  ssl.SSLOptions.SSLVersions := [sslvTLSv1];
+    ssl.SSLOptions.SSLVersions := [sslvTLSv1,sslvTLSv1_1,sslvTLSv1_2];
   {$ENDIF}
 
   FIdHttp.IOHandler := ssl;
@@ -210,6 +227,17 @@ end;
 function THttpConnectionIndy.GetVerifyCert: boolean;
 begin
   result := FVerifyCert;
+end;
+
+function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean): Boolean;
+begin
+  Result := IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate, AOk, -1);
+end;
+
+function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(
+  Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean;
+begin
+  Result := IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate, AOk, ADepth, -1);
 end;
 
 function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(

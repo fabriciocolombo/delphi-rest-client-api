@@ -11,7 +11,7 @@ uses Classes, SysUtils, HttpConnection,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
      {$ENDIF}
-     DB, JsonListAdapter;
+     DB, JsonListAdapter, RestException;
 
 const
   DEFAULT_COOKIE_VERSION = 1; {Cookies using the default version correspond to RFC 2109.}
@@ -19,7 +19,7 @@ const
 type
   TRequestMethod = (METHOD_GET, METHOD_POST, METHOD_PUT, METHOD_PATCH, METHOD_DELETE);
 
-  {$IFDEF DELPHI_2009_UP}
+  {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
   TRestResponseHandlerFunc = reference to procedure(ResponseContent: TStream);
   {$ENDIF}
   TRestResponseHandler = procedure (ResponseContent: TStream) of object;
@@ -27,11 +27,6 @@ type
   TResource = class;
 
   TCustomCreateConnection = procedure(Sender: TObject; AConnectionType: THttpConnectionType; out AConnection: IHttpConnection) of object;
-
-  ERestClientException = class(Exception);
-  EInvalidHttpConnectionConfiguration = class(ERestClientException);
-  ECustomCreateConnectionException = class(ERestClientException);
-  EInactiveConnection = class(ERestClientException);
 
   TJsonListAdapter = class(TInterfacedObject, IJsonListAdapter)
   private

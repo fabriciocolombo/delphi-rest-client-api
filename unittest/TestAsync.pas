@@ -2,7 +2,7 @@ unit TestAsync;
 
 interface
 
-uses BaseTestRest;
+uses BaseTestRest, RestException;
 
 type
   TTestAsync = class(TBaseTestRest)
@@ -15,7 +15,17 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils, HttpConnection;
+  Classes, SysUtils, HttpConnection;
+
+type
+  TAnonymousThread = class(TThread)
+  private
+    FProc: TProc;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(const AProc: TProc);
+  end;
 
 { TTestAsync }
 
@@ -45,7 +55,7 @@ begin
   else
     ExpectedException := ENotImplemented;
 
-  TThread.CreateAnonymousThread(
+  TAnonymousThread.Create(
     procedure
     begin
       Sleep(50);
@@ -56,6 +66,20 @@ begin
             .Accept('text/plain')
             .Async
             .GET();
+end;
+
+{ TAnonymousThread }
+
+constructor TAnonymousThread.Create(const AProc: TProc);
+begin
+  inherited Create(True);
+  FreeOnTerminate := True;
+  FProc := AProc;
+end;
+
+procedure TAnonymousThread.Execute;
+begin
+  FProc();
 end;
 
 initialization

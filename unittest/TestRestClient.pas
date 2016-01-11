@@ -4,7 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses TestFramework, RestClient, HttpConnection, Classes, SysUtils;
+uses TestFramework, RestClient, HttpConnection, Classes, SysUtils, RestException;
 
 type
   TTestRestClient = class(TTestCase)

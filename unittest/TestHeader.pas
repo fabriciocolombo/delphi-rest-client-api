@@ -17,11 +17,9 @@ type
     function CreateHttpServer: TIdHTTPServer;
     procedure DestroyHttpServer;
 
-    {$IFDEF DELPHI_XE_UP}
-    procedure OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
-    {$ELSE}
-    procedure OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
-    {$ENDIF}
+    procedure OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);overload;
+    procedure OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);overload;
+
     procedure OnCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
       AResponseInfo: TIdHTTPResponseInfo);
 
@@ -182,21 +180,23 @@ begin
   CheckEqualsString('{"x-foo":"Bar"}', vResponse);
 end;
 
-{$IFDEF DELPHI_XE_UP}
+procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList;
+  var VContinueProcessing: Boolean);
+begin
+  OnHeadersAvailable(AContext, EmptyStr, AHeaders, VContinueProcessing);
+end;
+
 procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
-{$ELSE}
-procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);
-{$ENDIF}
 var
   vAuthorizationValue: string;
   i: Integer;
 begin
   for i := 0 to AHeaders.Count-1 - 1 do
   begin
-    if StartsText('Authorization', AHeaders.Strings[i]) then
+    if AnsiStartsText('Authorization', AHeaders.Strings[i]) then
     begin
       vAuthorizationValue := AHeaders.Values[AHeaders.Names[i]];
-      if StartsText('Basic', vAuthorizationValue) then
+      if AnsiStartsText('Basic', vAuthorizationValue) then
       begin
         Delete(vAuthorizationValue,1,6);
         FAuthExists := True;

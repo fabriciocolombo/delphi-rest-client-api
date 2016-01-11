@@ -7,7 +7,11 @@ interface
 {$IFDEF USE_GENERICS}
 uses TestDBXJson, TestSerializer, TestDataSetHandler,
      TestDbxJsonUnMarshal, TestDbxJsonMarshal,
-     DbxJsonUnMarshal, DbxJsonMarshal;
+     DbxJsonUnMarshal, DbxJsonMarshal
+     {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
+     ,TestAsync
+     {$ENDIF}
+     ;
 {$ELSE}
 uses TestRequestSerialization;
 {$ENDIF}

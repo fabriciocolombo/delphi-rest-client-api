@@ -141,7 +141,7 @@ begin
                 end;
               end;
     stArray: begin
-               Result := FromList(AClassType, nil, AJSONValue);
+               Result := FromList(AClassType, PPropInfo(nil), AJSONValue);
              end;
   end;
 end;

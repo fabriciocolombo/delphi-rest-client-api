@@ -5,7 +5,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses HttpConnection, Classes, SysUtils, Variants, ActiveX, AxCtrls, Wcrypt2;
+uses HttpConnection, Classes, SysUtils, Variants, ActiveX, AxCtrls, Wcrypt2, RestException;
 
 {$IFNDEF DELPHI_XE2_UP}
 const
