@@ -4,10 +4,10 @@ interface
 
 uses SysUtils, DateUtils;
 
-type
 {$I DelphiRest.inc}
 
 {$IFDEF USE_GENERICS}
+type
   TJsonAttribute = class(TCustomAttribute)
   private
     FName: string;
