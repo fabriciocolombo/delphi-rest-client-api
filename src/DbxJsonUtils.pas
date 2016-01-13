@@ -6,7 +6,7 @@ uses SysUtils, DateUtils;
 
 {$I DelphiRest.inc}
 
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
 type
   TJsonAttribute = class(TCustomAttribute)
   private
@@ -254,7 +254,7 @@ function SystemTimeToTzSpecificLocalTime(
 {$ENDIF WINDOWSNT_COMPATIBILITY}
 {$ENDIF MACOS}
 
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
 { TJsonAttribute }
 
 constructor TJsonAttribute.Create(const AName: string);

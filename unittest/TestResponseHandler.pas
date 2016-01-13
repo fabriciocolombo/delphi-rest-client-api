@@ -13,7 +13,7 @@ type
 
     procedure HandleResponse(ResponseContent: TStream);
   published
-    {$IFDEF DELPHI_2009_UP}
+    {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
     procedure TestResponseHandlerAnonymous;
     {$ENDIF}
     procedure TestResponseHandler;
@@ -25,7 +25,7 @@ uses SysUtils;
 
 { TTestResponseHandler }
 
-{$IFDEF DELPHI_2009_UP}
+{$IFDEF SUPPORTS_ANONYMOUS_METHODS}
 procedure TTestResponseHandler.TestResponseHandlerAnonymous;
 var
   vStringStream: TStringStream;

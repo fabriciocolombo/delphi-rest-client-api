@@ -13,11 +13,11 @@ type
   ECustomCreateConnectionException = class(ERestClientException);
   EInactiveConnection = class(ERestClientException);
 
-{$IFNDEF DELPHI_2010_UP}
+{$IFNDEF HAS_ENOTSUPPORTED}
   ENotSupportedException = class(Exception);
 {$ENDIF}
 
-{$IFNDEF DELPHI_XE_UP}
+{$IFNDEF HAS_ENOTIMPLEMENTED}
   ENotImplemented = class(Exception);
 {$ENDIF}
 

@@ -5,7 +5,7 @@ interface
 {$I DelphiRest.inc}
 
 uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers
-    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    {$IFDEF HAS_UNIT_JSON}, Json{$ENDIF}
     ;
 
 type
@@ -246,7 +246,7 @@ begin
     begin
       if (f.FieldType <> nil) then
       begin
-        {$IFDEF VER210}
+        {$IFDEF DELPHI_2010}
           fieldValue := f.GetValue(IValueData(TValueData(AValue).FHeapData).GetReferenceToRawData);
         {$ELSE}
           fieldValue := f.GetValue(TValueData(AValue).FValueData.GetReferenceToRawData);

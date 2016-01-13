@@ -1,10 +1,10 @@
 unit RestJsonOldRTTI;
 
+{.$I DelphiRest.inc}
+
 interface
 
 uses OldRttiMarshal, OldRttiUnMarshal;
-
-{$I DelphiRest.inc}
 
 type
   TJsonUtilOldRTTI = class
