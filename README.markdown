@@ -3,7 +3,7 @@ Delphi REST Client API
 
 A Delphi REST client API to consume REST services written in any programming language.
 
-The API was tested in Delphi 7, XE, XE2, XE3, XE4 and XE7. It is also compatible with Mac OSX and iOS.
+The API it is designed to work with Delphi 7 or later. Newer versions takes advantage of Generics Methods.
 
 ## Connection Layer
 
