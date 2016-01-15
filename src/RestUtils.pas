@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  {$IFDEF USE_NS}
+  {$IFDEF HAS_UNIT_NETENCODING}
   System.NetEncoding, //allows inlining of EncodeString, DecodeString
   {$ENDIF}
   EncdDecd;

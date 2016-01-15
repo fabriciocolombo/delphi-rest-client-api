@@ -7,7 +7,7 @@ interface
 
 uses HttpConnection, Classes, SysUtils, Variants, ActiveX, AxCtrls, Wcrypt2, RestException;
 
-{$IFNDEF DELPHI_XE2_UP}
+{$IFNDEF HAS_WININET_INTERNET_OPTION}
 const
   INTERNET_OPTION_FROM_CACHE_TIMEOUT          = 63;
   {$EXTERNALSYM INTERNET_OPTION_FROM_CACHE_TIMEOUT}

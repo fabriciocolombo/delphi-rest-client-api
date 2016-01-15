@@ -5,7 +5,7 @@ interface
 {$I DelphiRest.inc}
 
 uses Rtti, TypInfo, DBXJson, DbxJsonUtils, DBXJsonHelpers
-    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    {$IFDEF HAS_UNIT_JSON}, Json{$ENDIF}
     ;
 
 type
@@ -404,7 +404,7 @@ begin
   begin
     TValue.Make(nil, ATypeInfo, Result);
 
-    {$IFDEF VER210}
+    {$IFDEF DELPHI_2010}
       vInstance := IValueData(TValueData(Result).FHeapData).GetReferenceToRawData;
     {$ELSE}
       vInstance := TValueData(Result).FValueData.GetReferenceToRawData;
@@ -528,22 +528,8 @@ begin
 end;
 
 function TDBXJsonUnmarshal.GetPair(AJSONObject: TJSONObject;const APairName: UnicodeString): TJSONPair;
-{$IFDEF DELPHI_XE_UP}
 begin
   Result := AJSONObject.Get(APairName);
-{$ELSE}
-var
-  Candidate: TJSONPair;
-  I: Integer;
-begin
-  for i := 0 to AJSONObject.Size - 1 do
-  begin
-    Candidate := AJSONObject.Get(i);
-    if SameStr(Candidate.JsonString.Value, APairName) then
-      Exit(Candidate);
-  end;
-  Result := nil;
-{$ENDIF}
 end;
 
 function TDBXJsonUnmarshal.GetParameterizedType(ATypeInfo: PTypeInfo): TRttiType;

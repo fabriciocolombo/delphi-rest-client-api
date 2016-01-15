@@ -5,7 +5,7 @@ interface
 {$I DelphiRest.inc}
 
 uses Rtti, TypInfo, DBXJson, DbxJsonUtils
-    {$IFDEF DELPHI_XE6_UP}, Json{$ENDIF}
+    {$IFDEF HAS_UNIT_JSON}, Json{$ENDIF}
     ;
 
 type

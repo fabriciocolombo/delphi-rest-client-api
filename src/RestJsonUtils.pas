@@ -4,7 +4,7 @@ interface
 
 {$I DelphiRest.inc}
 
-uses {$IFDEF USE_GENERICS}RestJsonGenerics, {$ENDIF}
+uses {$IFDEF SUPPORTS_GENERICS}RestJsonGenerics, {$ENDIF}
      {$IFDEF USE_SUPER_OBJECT}RestJsonOldRTTI, {$ENDIF}
      SysUtils, DateUtils, TypInfo;
 
@@ -21,7 +21,7 @@ type
   public
     class function Marshal(entity: TObject): string;
 
-    {$IFDEF USE_GENERICS}
+    {$IFDEF SUPPORTS_GENERICS}
     class function UnMarshal<T>(AJsonText: String): T;overload;
     {$ENDIF}
     class function UnMarshal(AClassType: TClass; AJsonText: String): TObject;overload;
@@ -266,7 +266,7 @@ function SystemTimeToTzSpecificLocalTime(
 {$ENDIF WINDOWSNT_COMPATIBILITY}
 {$ENDIF MACOS}
 
-{$IFDEF DELPHI_XE_UP}
+{$IFDEF HAS_TTIMEZONE}
 function JavaToDelphiDateTime(const dt: int64): TDateTime;
 var
   univTime: TDateTime;
@@ -353,13 +353,13 @@ type
     bias: Integer;
   end;
 
-{$if (sizeof(Char) = 1)}
+{$IFNDEF UNICODE}
   PSOChar = PWideChar;
   SOChar = WideChar;
-{$else}
+{$ELSE}
   SOChar = Char;
   PSOChar = PChar;
-{$ifend}
+{$ENDIF}
 
 var
   p: PSOChar;
@@ -1020,7 +1020,7 @@ end;
 
 class function TJsonUtil.Marshal(entity: TObject): string;
 begin
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
   Result := TJsonUtilGenerics.Marshal(entity);
 {$ELSE}
   Result := TJsonUtilOldRTTI.Marshal(entity);
@@ -1029,14 +1029,14 @@ end;
 
 class function TJsonUtil.UnMarshal(AClassType: TClass;AJsonText: String): TObject;
 begin
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
   Result := TJsonUtilGenerics.UnMarshal(AClassType, AJsonText);
 {$ELSE}
   Result := TJsonUtilOldRTTI.UnMarshal(AClassType, AJsonText);
 {$ENDIF}
 end;
 
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
 class function TJsonUtil.UnMarshal<T>(AJsonText: String): T;
 begin
   Result := TJsonUtilGenerics.UnMarshal<T>(AJsonText);

@@ -1,12 +1,12 @@
 unit RestClient;
 
-interface
-
 {$I DelphiRest.inc}
+
+interface
 
 uses Classes, SysUtils, HttpConnection,
      RestUtils, RestJsonUtils,
-     {$IFDEF USE_GENERICS}
+     {$IFDEF SUPPORTS_GENERICS}
      Generics.Collections, Rtti,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
@@ -54,7 +54,7 @@ type
   TRestClient = class(TComponent)
   private
     FHttpConnection: IHttpConnection;
-    {$IFDEF USE_GENERICS}
+    {$IFDEF SUPPORTS_GENERICS}
     FResources: TObjectList<TResource>;
     {$ELSE}
     FResources: TObjectList;
@@ -71,7 +71,7 @@ type
 
     FVerifyCert: boolean;
 
-    {$IFDEF DELPHI_2009_UP}
+    {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
     FTempHandler: TRestResponseHandlerFunc;
     procedure DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
     procedure HandleAnonymousMethod(ResponseContent: TStream);
@@ -199,14 +199,14 @@ type
     procedure Delete();overload;
     procedure Delete(Entity: TObject);overload;
 
-    {$IFDEF DELPHI_2009_UP}
+    {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
     procedure Get(AHandler: TRestResponseHandlerFunc);overload;
     procedure Post(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     procedure Put(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     procedure Patch(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     {$ENDIF}
 
-    {$IFDEF USE_GENERICS}
+    {$IFDEF SUPPORTS_GENERICS}
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
     function Put<T>(Entity: TObject): T;overload;
@@ -238,7 +238,7 @@ uses StrUtils, Math,
 constructor TRestClient.Create(Owner: TComponent);
 begin
   inherited;
-  {$IFDEF USE_GENERICS}
+  {$IFDEF SUPPORTS_GENERICS}
   FResources := TObjectList<TResource>.Create;
   {$ELSE}
   FResources := TObjectList.Create;
@@ -393,7 +393,7 @@ begin
   end;
 end;
 
-{$IFDEF DELPHI_2009_UP}
+{$IFDEF SUPPORTS_ANONYMOUS_METHODS}
 procedure TRestClient.DoRequestFunc(Method: TRequestMethod; ResourceRequest: TResource; AHandler: TRestResponseHandlerFunc);
 begin
   FTempHandler := AHandler;
@@ -578,7 +578,7 @@ begin
   FRestClient.DoRequest(METHOD_PUT, Self, AHandler);
 end;
 
-{$IFDEF DELPHI_2009_UP}
+{$IFDEF SUPPORTS_ANONYMOUS_METHODS}
 procedure TResource.Get(AHandler: TRestResponseHandlerFunc);
 begin
   FRestClient.DoRequestFunc(METHOD_GET, Self, AHandler);
@@ -722,7 +722,7 @@ begin
   Result := FRestClient.DoRequest(METHOD_POST, Self);
 end;
 
-{$IFDEF USE_GENERICS}
+{$IFDEF SUPPORTS_GENERICS}
 function TResource.Get<T>(): T;
 var
   vResponse: string;
