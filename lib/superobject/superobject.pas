@@ -6994,7 +6994,7 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
   var
     o: ISuperObject;
     f: TRttiField;
-    v, items: TValue;
+    v: TValue;
     jsonValue: ISuperObject;
   begin
     if TValueData(Value).FAsObject <> nil then
@@ -7012,11 +7012,7 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
             begin
               if (GetFieldName(f) = 'FItems') then
               begin
-                items := v;
-              end
-              else if (GetFieldName(f) = 'FCount') then
-              begin
-                Result := ToJson(items, index, v.AsInteger);
+                Result := ToJson(v, index, v.GetArrayLength);
               end;
               Continue;
             end;
