@@ -31,7 +31,8 @@ begin
     try
       Reg.RootKey := HKEY_CURRENT_USER;
       Reg.OpenKey(INTERNET_SETTINGS, false);
-      Result := Reg.ReadString(Value);
+      if Reg.ValueExists(Value) then
+        Result := Reg.ReadString(Value);
     finally
       Reg.Free;
     end
@@ -41,22 +42,23 @@ begin
   end;
 end;
 
-function ReadIntegerRegistryValue(const Value: string): integer;
+function ReadIntegerRegistryValue(const Value: string): Integer;
 var
   Reg: TRegistry;
 begin
+  Result := 0;
   try
     Reg := TRegistry.Create;
     try
       Reg.RootKey := HKEY_CURRENT_USER;
       Reg.OpenKey(INTERNET_SETTINGS, false);
-      Result := Reg.ReadInteger(Value);
+      if Reg.ValueExists(Value) then
+        Result := Reg.ReadInteger(Value);
     finally
       Reg.Free;
     end
   except
-    on E: ERegistryException do
-      Result := 0;
+    on E: ERegistryException do;
   end;
 end;
 
