@@ -526,7 +526,8 @@ begin
                           raise EHTTPVerifyCertError.Create('Unable to validate the revocation of the SSL certificate because the revocation server is unavailable');
                         ERROR_INTERNET_CANNOT_CONNECT,
                         ERROR_INTERNET_CONNECTION_ABORTED,
-                        ERROR_INTERNET_CONNECTION_RESET:
+                        ERROR_INTERNET_CONNECTION_RESET,
+                        ERROR_INTERNET_TIMEOUT:
                         begin
                           retryMode := hrmRaise;
                           if assigned(OnConnectionLost) then
