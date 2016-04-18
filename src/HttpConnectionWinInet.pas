@@ -182,6 +182,25 @@ uses WinInet,Windows;
 const
   BUFSIZE = 4096;
 
+function GetWinInetError(ErrorCode:Cardinal): string;
+const
+   winetdll = 'wininet.dll';
+var
+  Len: Integer;
+  Buffer: PChar;
+begin
+  Len := FormatMessage(
+  FORMAT_MESSAGE_FROM_HMODULE or FORMAT_MESSAGE_FROM_SYSTEM or
+  FORMAT_MESSAGE_ALLOCATE_BUFFER or FORMAT_MESSAGE_IGNORE_INSERTS or  FORMAT_MESSAGE_ARGUMENT_ARRAY,
+  Pointer(GetModuleHandle(winetdll)), ErrorCode, 0, @Buffer, SizeOf(Buffer), nil);
+  try
+    while (Len > 0) and {$IFDEF UNICODE}(CharInSet(Buffer[Len - 1], [#0..#32, '.'])) {$ELSE}(Buffer[Len - 1] in [#0..#32, '.']) {$ENDIF} do Dec(Len);
+    SetString(Result, Buffer, Len);
+  finally
+    LocalFree(HLOCAL(Buffer));
+  end;
+end;
+
 constructor EInetException.Create;
 var
   vErrorMessage: string;
@@ -191,7 +210,7 @@ begin
   case iFErrorCode of
     ERROR_INTERNET_TIMEOUT: vErrorMessage := 'The request has timed out.';
   else
-    vErrorMessage := SysErrorMessage(iFErrorCode);
+    vErrorMessage := GetWinInetError(iFErrorCode);
   end;
   Create(vErrorMessage, iFErrorCode);
 end;
@@ -538,7 +557,7 @@ begin
                             DoRequest(sMethod, AUrl, AContent, AResponse);
                         end;
                         else
-                          raise EInetException.Create(inttostr(GetLastError));
+                          raise EInetException.Create;
                       end;
                     end;
                   end;
