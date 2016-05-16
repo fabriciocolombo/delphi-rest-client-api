@@ -26,38 +26,29 @@ function ReadStringRegistryValue(const Value: string): string;
 var
   Reg: TRegistry;
 begin
+  Reg := TRegistry.Create;
   try
-    Reg := TRegistry.Create;
-    try
-      Reg.RootKey := HKEY_CURRENT_USER;
-      Reg.OpenKey(INTERNET_SETTINGS, false);
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if Reg.OpenKeyReadOnly(INTERNET_SETTINGS) and Reg.ValueExists(Value) then
       Result := Reg.ReadString(Value);
-    finally
-      Reg.Free;
-    end
-  except
-    on E: ERegistryException do
-      Result := '';
-  end;
+  finally
+    Reg.Free;
+  end
 end;
 
-function ReadIntegerRegistryValue(const Value: string): integer;
+function ReadIntegerRegistryValue(const Value: string): Integer;
 var
   Reg: TRegistry;
 begin
+  Result := 0;
+  Reg := TRegistry.Create;
   try
-    Reg := TRegistry.Create;
-    try
-      Reg.RootKey := HKEY_CURRENT_USER;
-      Reg.OpenKey(INTERNET_SETTINGS, false);
+    Reg.RootKey := HKEY_CURRENT_USER;
+    if Reg.OpenKeyReadOnly(INTERNET_SETTINGS) and Reg.ValueExists(Value) then
       Result := Reg.ReadInteger(Value);
-    finally
-      Reg.Free;
-    end
-  except
-    on E: ERegistryException do
-      Result := 0;
-  end;
+  finally
+    Reg.Free;
+  end
 end;
 
 function ProxyActive: Boolean;
