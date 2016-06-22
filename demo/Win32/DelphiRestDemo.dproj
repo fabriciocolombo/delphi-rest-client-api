@@ -101,7 +101,7 @@
 			<DCCReference Include="uFrm_Person.pas">
 				<Form>Frm_Person</Form>
 			</DCCReference>
-			<DCCReference Include="uDM.pas">
+			<DCCReference Include="..\Common\uDM.pas">
 				<Form>DM</Form>
 				<DesignClass>TDataModule</DesignClass>
 			</DCCReference>
