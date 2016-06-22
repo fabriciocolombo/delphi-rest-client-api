@@ -37,3 +37,4 @@ bin/*
 .metadata
 RemoteSystemsTempFiles
 Servers
+*.dsk
