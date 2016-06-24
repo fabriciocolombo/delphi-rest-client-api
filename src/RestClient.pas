@@ -209,6 +209,7 @@ type
     {$IFDEF SUPPORTS_GENERICS}
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
+    function Post<T,RT>(Entity: TObject): RT;overload;
     function Put<T>(Entity: TObject): T;overload;
     function Patch<T>(Entity: TObject): T;overload;
     {$ELSE}
@@ -746,6 +747,20 @@ begin
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
     Result := Default(T);
+end;
+
+function TResource.Post<T,RT>(Entity: TObject): RT;
+var
+  vResponse: string;
+begin
+  SetContent(Entity);
+
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<RT>(vResponse)
+  else
+    Result := Default(RT);
 end;
 
 function TResource.Put<T>(Entity: TObject): T;
