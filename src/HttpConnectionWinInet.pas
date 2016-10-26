@@ -182,6 +182,25 @@ uses WinInet,Windows;
 const
   BUFSIZE = 4096;
 
+function GetWinInetError(ErrorCode:Cardinal): string;
+const
+   winetdll = 'wininet.dll';
+var
+  Len: Integer;
+  Buffer: PChar;
+begin
+  Len := FormatMessage(
+  FORMAT_MESSAGE_FROM_HMODULE or FORMAT_MESSAGE_FROM_SYSTEM or
+  FORMAT_MESSAGE_ALLOCATE_BUFFER or FORMAT_MESSAGE_IGNORE_INSERTS or  FORMAT_MESSAGE_ARGUMENT_ARRAY,
+  Pointer(GetModuleHandle(winetdll)), ErrorCode, 0, @Buffer, SizeOf(Buffer), nil);
+  try
+    while (Len > 0) and {$IFDEF UNICODE}(CharInSet(Buffer[Len - 1], [#0..#32, '.'])) {$ELSE}(Buffer[Len - 1] in [#0..#32, '.']) {$ENDIF} do Dec(Len);
+    SetString(Result, Buffer, Len);
+  finally
+    LocalFree(HLOCAL(Buffer));
+  end;
+end;
+
 constructor EInetException.Create;
 var
   vErrorMessage: string;
@@ -191,7 +210,7 @@ begin
   case iFErrorCode of
     ERROR_INTERNET_TIMEOUT: vErrorMessage := 'The request has timed out.';
   else
-    vErrorMessage := SysErrorMessage(iFErrorCode);
+    vErrorMessage := GetWinInetError(iFErrorCode);
   end;
   Create(vErrorMessage, iFErrorCode);
 end;
@@ -265,7 +284,7 @@ end;
 function THttpConnectionWinInet.GetVerifyCert: boolean;
 begin
   result := FCertificateCheckDate and FCertificateCheckAuthority and
-    FCertificateCheckHostName;
+    FCertificateCheckHostName and FCertificateIgnoreRevocation;
 end;
 
 function THttpConnectionWinInet.GetResponseHeader(const Header: string): string;
@@ -346,6 +365,7 @@ begin
   FCertificateCheckDate := Value;
   FCertificateCheckAuthority := Value;
   FCertificateCheckHostName := Value;
+  FCertificateIgnoreRevocation := Value;
 end;
 
 procedure THttpConnectionWinInet.DoRequest(sMethod, AUrl: string; AContent,
@@ -521,9 +541,12 @@ begin
                           raise EHTTPVerifyCertError.Create('SSL certificate common name (host name field) is incorrect.');
                         ERROR_INTERNET_SEC_CERT_DATE_INVALID:
                           raise EHTTPVerifyCertError.Create('SSL certificate date that was received from the server is bad. The certificate is expired.');
+                        ERROR_INTERNET_SEC_CERT_REV_FAILED:
+                          raise EHTTPVerifyCertError.Create('Unable to validate the revocation of the SSL certificate because the revocation server is unavailable');
                         ERROR_INTERNET_CANNOT_CONNECT,
                         ERROR_INTERNET_CONNECTION_ABORTED,
-                        ERROR_INTERNET_CONNECTION_RESET:
+                        ERROR_INTERNET_CONNECTION_RESET,
+                        ERROR_INTERNET_TIMEOUT:
                         begin
                           retryMode := hrmRaise;
                           if assigned(OnConnectionLost) then
@@ -534,7 +557,7 @@ begin
                             DoRequest(sMethod, AUrl, AContent, AResponse);
                         end;
                         else
-                          raise EInetException.Create(inttostr(GetLastError));
+                          raise EInetException.Create;
                       end;
                     end;
                   end;
