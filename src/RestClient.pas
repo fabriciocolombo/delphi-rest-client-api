@@ -46,6 +46,7 @@ type
   TRestOnRequestEvent = procedure (ARestClient: TRestClient;
     AResource: TResource; AMethod: TRequestMethod) of object;
 
+  TRestOnResponseEvent = procedure (ARestClient: TRestClient; ResponseCode: Integer; const ResponseContent: string) of object;
 
   THTTPErrorEvent = procedure(ARestClient: TRestClient; AResource: TResource;
     AMethod: TRequestMethod; AHTTPError: EHTTPError;
@@ -100,9 +101,11 @@ type
 
   protected
     procedure Loaded; override;
+    function ResponseCodeRaisesError(ResponseCode: Integer): Boolean; virtual;
   public
     OnBeforeRequest: TRestOnRequestEvent;
     OnAfterRequest: TRestOnRequestEvent;
+    OnResponse: TRestOnResponseEvent;
 
     constructor Create(Owner: TComponent); override;
     destructor Destroy; override;
@@ -324,6 +327,9 @@ begin
 
     if assigned(OnBeforeRequest) then
       OnBeforeRequest(self, ResourceRequest, Method);
+
+    ResourceRequest.GetContent.Position := 0;
+
     case Method of
       METHOD_GET: FHttpConnection.Get(vUrl, vResponse);
       METHOD_POST: FHttpConnection.Post(vURL, ResourceRequest.GetContent, vResponse);
@@ -331,10 +337,9 @@ begin
       METHOD_PATCH: FHttpConnection.Patch(vURL, ResourceRequest.GetContent, vResponse);
       METHOD_DELETE: FHttpConnection.Delete(vUrl, ResourceRequest.GetContent, vResponse);
     end;
+
     if Assigned(AHandler) then
-    begin
-      AHandler(vResponse);
-    end
+      AHandler(vResponse)
     else
     begin
       {$IFDEF UNICODE}
@@ -350,8 +355,10 @@ begin
 
         Result := UTF8Decode(vResponse.DataString);
       {$ENDIF}
+      if Assigned(OnResponse) then
+        OnResponse(Self, FHttpConnection.ResponseCode, Result);
     end;
-    if (FHttpConnection.ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode) then
+    if ResponseCodeRaisesError(FHttpConnection.ResponseCode) then
     begin
       vRetryMode := hrmRaise;
       if assigned(FOnError) then
@@ -466,6 +473,11 @@ begin
   Result := TResource.Create(Self, URL);
 
   FResources.Add(Result);
+end;
+
+function TRestClient.ResponseCodeRaisesError(ResponseCode: Integer): Boolean;
+begin
+  Result := (ResponseCode >= TStatusCode.BAD_REQUEST.StatusCode);
 end;
 
 procedure TRestClient.SetVerifyCertificate(AValue: boolean);
