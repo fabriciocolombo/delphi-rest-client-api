@@ -170,6 +170,7 @@ type
 
     function Accept(AcceptType: String): TResource;
     function Async(const Value: Boolean = True): TResource;
+    function Authorization(Authorization: String): TResource;
     function ContentType(ContentType: String): TResource;
     function AcceptLanguage(Language: String): TResource;
 
@@ -209,6 +210,7 @@ type
     {$IFDEF SUPPORTS_GENERICS}
     function Get<T>(): T;overload;
     function Post<T>(Entity: TObject): T;overload;
+    function Post<T>(Content: string): T;overload;
     function Put<T>(Entity: TObject): T;overload;
     function Patch<T>(Entity: TObject): T;overload;
     {$ELSE}
@@ -635,6 +637,11 @@ begin
   Result := Self;
 end;
 
+function TResource.Authorization(Authorization: String): TResource;
+begin
+  Result := Header('Authorization', Authorization);
+end;
+
 function TResource.ContentType(ContentType: String): TResource;
 begin
   FContentTypes := ContentType;
@@ -743,6 +750,18 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
 
   if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
+end;
+
+function TResource.Post<T>(Content: string): T;
+var
+  vResponse: string;
+begin
+  vResponse := Post(Content);
+
+  if Trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
     Result := Default(T);

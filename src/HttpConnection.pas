@@ -85,6 +85,7 @@ type
     property ReceiveTimeout: Integer read FReceiveTimeout write FReceiveTimeout default TIMEOUT_RECEIVE_DEFAULT;
   end;
 
+  {$M+}
   IHttpConnection = interface
   ['{B9611100-5243-4874-A777-D91448517116}']
     function SetAcceptTypes(AAcceptTypes: string): IHttpConnection;
@@ -121,6 +122,7 @@ type
     procedure SetOnConnectionLost(AConnectionLostEvent: THTTPConnectionLostEvent);
     property OnConnectionLost: THTTPConnectionLostEvent read GetOnConnectionLost write SetOnConnectionLost;
   end;
+  {$M-}
 
 implementation
 
