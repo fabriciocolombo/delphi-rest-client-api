@@ -926,12 +926,15 @@ procedure TResource.SetContent(entity: TObject);
 var
   vRawContent: string;
   vStream: TStringStream;
+  {$IFDEF SUPPORTS_GENERICS}
   vMultipartFormData: TMultipartFormData;
+  {$ENDIF}
 begin
   FContent.Clear;
   if not Assigned(entity) then
     Exit;
 
+  {$IFDEF SUPPORTS_GENERICS}
   if entity is TMultipartFormData then
   begin
     vMultipartFormData := TMultipartFormData(entity);
@@ -939,6 +942,7 @@ begin
     ContentType(vMultipartFormData.ContentType);
   end
   else
+  {$ENDIF}
     vRawContent := TJsonUtil.Marshal(Entity);
 
   vStream := TStringStream.Create(vRawContent);
