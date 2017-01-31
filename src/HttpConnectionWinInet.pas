@@ -109,6 +109,7 @@ type
     FSendTimeout: Integer;
     FReceiveTimeout: Integer;
     FProxyCredentials: TProxyCredentials;
+    FResponseHeader: TStringList;
   protected
     procedure DoRequest(sMethod,AUrl: string; AContent: TStream; AResponse: TStream);virtual;
   public
@@ -176,6 +177,9 @@ type
 implementation
 
 uses WinInet,Windows;
+
+const
+  MaxHeadSize          = 16384; { see http://stackoverflow.com/questions/686217/maximum-on-http-header-values }
 
 { THttpConnectionWinInet }
 
@@ -248,6 +252,8 @@ begin
   FCertificateCheckHostName:=True;
   FCertificateCheckDate:=True;
   FRaiseExceptionOnError:=ARaiseExceptionOnError;
+  FResponseHeader := TStringList.Create;
+  FResponseHeader.NameValueSeparator := ':';
 end;
 
 procedure THttpConnectionWinInet.Delete(AUrl: string; AContent, AResponse: TStream);
@@ -258,12 +264,13 @@ end;
 destructor THttpConnectionWinInet.Destroy;
 begin
   FHeaders.Free;
+  FResponseHeader.Free;
   inherited;
 end;
 
 procedure THttpConnectionWinInet.Get(AUrl: string; AResponse: TStream);
 begin
-  DoRequest('GET', AUrl, nil,AResponse);
+  DoRequest('GET', AUrl, nil, AResponse);
 end;
 
 function THttpConnectionWinInet.GetEnabledCompression: Boolean;
@@ -289,7 +296,8 @@ end;
 
 function THttpConnectionWinInet.GetResponseHeader(const Header: string): string;
 begin
-  raise ENotSupportedException.Create('');
+  Assert(FResponseHeader <> nil);
+  Result := FResponseHeader.Values[Header];
 end;
 
 procedure THttpConnectionWinInet.Patch(AUrl: string; AContent,
@@ -386,6 +394,9 @@ var
   FlagsLen : DWord;
   retryMode: THTTPRetryMode;
 
+  iSize, iReserved: DWord;
+  sRespHeader: string;
+
    procedure SetRequestHeader(sName , sValue : string);
    var sHeader : string;
    begin
@@ -395,6 +406,7 @@ var
 
 begin
   FResponseCode:=0;
+  FResponseHeader.Clear;
   SecurityFlags:=0;
   FillChar(pURIC, SizeOf(URL_COMPONENTS), 0);
   iFlags := INTERNET_FLAG_RELOAD or INTERNET_FLAG_RAW_DATA;
@@ -522,6 +534,12 @@ begin
                         while InternetReadFile(iRequestHandle, @arBuf, BUFSIZE, iBytesRead) and (iBytesRead > 0) do begin
                           AResponse.Write(arBuf,iBytesRead);
                         end;
+                        iReserved := 0;
+                        iSize := MaxHeadSize;
+                        SetLength(sRespHeader, iSize);
+                        HttpQueryInfo(iRequestHandle, HTTP_QUERY_RAW_HEADERS_CRLF, PChar(sRespHeader), iSize, iReserved);
+                        SetLength(sRespHeader, iSize div SizeOf(Char));
+                        FResponseHeader.Text := sRespHeader;
                         iRetry:=0;
                       end;
                   end else
