@@ -481,6 +481,7 @@ begin
     begin
       FHttpConnection := THttpConnectionFactory.NewConnection(FConnectionType);
       FHttpConnection.EnabledCompression := FEnabledCompression;
+      FHttpConnection.VerifyCert := FVerifyCert;
     end;
   end;
 end;
