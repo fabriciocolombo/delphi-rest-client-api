@@ -157,6 +157,26 @@ begin
 > **NOTE:** Async request is only supported for `WinHTTP`.
 > Any thought about how to implement this feature for `Indy` and `WinInet` are welcome.
 
+- **MULTIPART/FORM-DATA**
+
+Send forms with file attachments is possible by declaring a class that represents the form fields and inherits from `TMultiPartFormData`.
+
+```Delphi   
+  TRequestData = class(TMultiPartFormData)
+    name: string;
+    ticket_number: integer;
+    signed_contract: TMultiPartFormAttachment;
+  end;
+```
+```Delphi
+  Request := TRequestData.Create;
+  Request.name := 'Fernando'; 
+  Request.ticket_number := 123; 
+  Request.signed_contract := TMultiPartFormAttachment.Create('c:\contract.txt', 'text/plain', 'contract.txt');
+
+  Result := RestClient.Resource(URL).Post(Request);
+```
+
 ## Authentication
 
 RestClient supports HTTP Basic authentication. You can set credentials using the `SetCredentials` method before making the first request:
