@@ -7,7 +7,7 @@ interface
 uses Classes, SysUtils, HttpConnection,
      RestUtils, RestJsonUtils,
      {$IFDEF SUPPORTS_GENERICS}
-     Generics.Collections, Rtti,
+     Generics.Collections, Rtti, TypInfo,
      {$ELSE}
      Contnrs, OldRttiUnMarshal,
      {$ENDIF}
