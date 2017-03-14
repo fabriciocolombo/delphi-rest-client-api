@@ -210,15 +210,17 @@ begin
         CopyResourceStreamToStream(AResponse);
     except
       on E: EOleException do
-      begin
-        case E.ErrorCode of
-          -2147012858: // WININET_E_SEC_CERT_CN_INVALID
+      begin;
+        case E.ErrorCode + 2147024896 of
+          12038: // ERROR_WINHTTP_SECURE_CERT_CN_INVALID
             raise EHTTPVerifyCertError.Create('The host name in the certificate is invalid or does not match');
-          -2147012859: // WININET_E_SEC_CERT_DATE_INVALID
+          12037: // ERROR_WINHTTP_SECURE_CERT_DATE_INVALID
             raise EHTTPVerifyCertError.Create('The date in the certificate is invalid or has expired');
-          -2147012865, // WININET_E_CONNECTION_RESET
-          -2147012866, // WININET_E_CONNECTION_ABORTED
-          -2147012867: // WININET_E_CANNOT_CONNECT
+          12057: // ERROR_WINHTTP_SECURE_CERT_REV_FAILED
+            raise EHTTPVerifyCertError.Create('Unable to validate the revocation of the SSL certificate because the revocation server is unavailable');
+          12029, // ERROR_WINHTTP_CANNOT_CONNECT
+          12002, // ERROR_WINHTTP_TIMEOUT
+          12007: // ERROR_WINHTTP_NAME_NOT_RESOLVED
           begin
             retryMode := hrmRaise;
             if assigned(OnConnectionLost) then
