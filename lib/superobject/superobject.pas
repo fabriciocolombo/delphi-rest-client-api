@@ -803,7 +803,7 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     function FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject; var Value: TValue): Boolean; virtual;
-    function ToJson(var value: TValue; const index: ISuperObject; _listCount: integer=-1; field: TRttiField = nil): ISuperObject; virtual;
+    function ToJson(var value: TValue; const index: ISuperObject; field: TRttiField = nil): ISuperObject; virtual;
     function AsType<T>(const obj: ISuperObject): T;
     function AsJson<T>(const obj: T; const index: ISuperObject = nil): ISuperObject;
   end;
@@ -6926,7 +6926,7 @@ begin
     Result := False;
 end;
 
-function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; _listCount: integer; field: TRttiField): ISuperObject;
+function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; field: TRttiField): ISuperObject;
   procedure ToInt64;
   begin
     Result := TSuperObject.Create(SuperInt(Value.AsInt64));
@@ -7012,12 +7012,12 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
             begin
               if (GetFieldName(f) = 'FItems') then
               begin
-                Result := ToJson(v, index, v.GetArrayLength);
+                Result := ToJson(v, index);
               end;
               Continue;
             end;
 
-            jsonValue := ToJson(v, index, -1, f);
+            jsonValue := ToJson(v, index, f);
             if jsonValue <> nil then
             begin
               Result.AsObject[GetFieldName(f)] := jsonValue;
@@ -7108,16 +7108,9 @@ function TSuperRttiContext.ToJson(var value: TValue; const index: ISuperObject; 
   var
     i: Integer;
     v: TValue;
-    count: integer;
   begin
     Result := TSuperObject.Create(stArray);
-    count := Value.GetArrayLength;
-    // If `value` is a TList the SIZE of the list will be returned instead
-    // of the item count.
-    // I made a temp fix here by parsing the _listCount parameter.
-    if _listCount > -1 then
-      count := _listCount;
-    for i := 0 to count - 1 do
+    for i := 0 to Value.GetArrayLength - 1 do
     begin
       v := Value.GetArrayElement(i);
       if not v.IsEmpty then

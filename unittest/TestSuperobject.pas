@@ -16,6 +16,7 @@ type
     procedure SetUp; override;
   published
     procedure TestNullInt;
+    procedure TestList;
   end;
 
   TTestInt = class(TObject)
@@ -58,6 +59,23 @@ end;
 procedure TTestSuperObjectUnMarshal.TearDown;
 begin
   inherited;
+end;
+
+procedure TTestSuperObjectUnMarshal.TestList;
+var
+  list: TList<integer>;
+  s: string;
+begin
+  list := TList<integer>.create;
+  try
+    list.Add(1);
+    list.Add(2);
+    list.Add(3);
+    s := list.ToJson().AsJSon();
+    checkEquals('[1,2,3]', s);
+  finally
+    list.Free;
+  end;
 end;
 
 procedure TTestSuperObjectUnMarshal.TestNullInt;
