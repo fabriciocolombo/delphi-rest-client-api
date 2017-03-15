@@ -189,6 +189,9 @@ type
     function Post(Content: string): String;overload;
     procedure Post(Content: TStream; AHandler: TRestResponseHandler);overload;
     function Post(Entity: TObject): TObject;overload;
+    function Post(Content: string; ResultClass: TClass): TObject;overload;
+    function Post(Content: TStream; ResultClass: TClass): TObject;overload;
+    function Post(Entity: TObject; ResultClass: TClass): TObject;overload;
 
     function Put(Content: TStream): String;overload;
     function Put(Content: string): string;overload;
@@ -974,6 +977,45 @@ begin
   vResponse := FRestClient.DoRequest(METHOD_POST, Self);
   if trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
+  else
+    Result := nil;
+end;
+
+function TResource.Post(Content: string; ResultClass: TClass): TObject;
+var
+  vStringStream: TStringStream;
+begin
+  vStringStream := TStringStream.Create(Content);
+  try
+    Result := Post(vStringStream, ResultClass);
+  finally
+    vStringStream.Free;
+  end;
+end;
+
+function TResource.Post(Content: TStream; ResultClass: TClass): TObject;
+var
+  vResponse: string;
+begin
+  Content.Position := 0;
+  FContent.CopyFrom(Content, Content.Size);
+
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
+  else
+    Result := nil;
+end;
+
+function TResource.Post(Entity: TObject; ResultClass: TClass): TObject;
+var
+  vResponse: string;
+begin
+  if Entity <> nil then
+    SetContent(Entity);
+  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
+  if trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
   else
     Result := nil;
 end;
