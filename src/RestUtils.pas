@@ -31,14 +31,17 @@ type
     (* 204 No Content, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.5">HTTP/1.1 documentation</a>}. *)
     class function NO_CONTENT: TReponseCode;
 
-    (* 404 Not Found, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">HTTP/1.1 documentation</a>}*)
-    class function NOT_FOUND: TReponseCode;
-
     (* 400 Bad Request, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">HTTP/1.1 documentation</a>}*)
     class function BAD_REQUEST: TReponseCode;
 
     (* 401 Unauthorized, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.2">HTTP/1.1 documentation</a>}*)
     class function UNAUTHORIZED: TReponseCode;
+
+    (* 403 Forbidden, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.4">HTTP/1.1 documentation</a>}*)
+    class function FORBIDDEN: TReponseCode;
+
+    (* 404 Not Found, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">HTTP/1.1 documentation</a>}*)
+    class function NOT_FOUND: TReponseCode;
 
     (* 407 Proxy Authentication Required, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.8">HTTP/1.1 documentation</a>}*)
     class function PROXY_AUTHENTICATION_REQUIRED: TReponseCode;
@@ -76,6 +79,12 @@ class function TStatusCode.Created: TReponseCode;
 begin
   Result.StatusCode := 201;
   Result.Reason := 'Created';
+end;
+
+class function TStatusCode.FORBIDDEN: TReponseCode;
+begin
+  Result.StatusCode := 403;
+  Result.Reason := 'Forbidden';
 end;
 
 class function TStatusCode.NOT_FOUND: TReponseCode;
