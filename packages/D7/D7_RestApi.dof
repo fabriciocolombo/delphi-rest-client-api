@@ -94,7 +94,7 @@ OutputDir=
 UnitOutputDir=
 PackageDLLOutputDir=
 PackageDCPOutputDir=
-SearchPath=..\..\lib\superobject
+SearchPath=..\..\lib\superobject;..\..\lib;..\..\src
 Packages=
 Conditionals=
 DebugSourceDirs=
@@ -134,17 +134,12 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
-[Excluded Packages]
-c:\apps\borland\delphi7\projects\bpl\D7_ElotechComponents.bpl=Elotech Component - Frame Work®
-c:\apps\borland\delphi7\Projects\Bpl\RE_ElotechComponents.bpl=Elotech Component - Text Editor® [EloRichEdit]
-c:\apps\borland\delphi7\Projects\Bpl\agendador_components.bpl=Elotech Agendador Components
-c:\apps\borland\delphi7\Projects\Bpl\AiseTribTributacaoComponents.bpl=Elotech Tributos Components
-c:\apps\borland\delphi7\Projects\Bpl\CR_ElotechComponents.bpl=Elotech Component - Frame Work® [Crystal Report]
-c:\apps\borland\delphi7\Bin\DBWEBXPRT.BPL=Borland Web Wizard Package
-C:\Program Files (x86)\RemObjects Software\Everwood\Bin\RemObjects_Everwood_D7.bpl=RemObjects Everwood for Delphi
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlSearchPath]
-Count=1
-Item0=..\..\lib\superobject
+Count=4
+Item0=..\..\lib\superobject;..\..\lib;..\..\src
+Item1=..\..\lib\superobject;..\..\src;..\..\lib
+Item2=..\..\lib\superobject;..\..\src
+Item3=..\..\lib\superobject

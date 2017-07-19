@@ -559,8 +559,10 @@ begin
                           raise EHTTPVerifyCertError.Create('SSL certificate common name (host name field) is incorrect.');
                         ERROR_INTERNET_SEC_CERT_DATE_INVALID:
                           raise EHTTPVerifyCertError.Create('SSL certificate date that was received from the server is bad. The certificate is expired.');
+                        {$IFNDEF DELPHI_7}
                         ERROR_INTERNET_SEC_CERT_REV_FAILED:
                           raise EHTTPVerifyCertError.Create('Unable to validate the revocation of the SSL certificate because the revocation server is unavailable');
+                        {$ENDIF}
                         ERROR_INTERNET_CANNOT_CONNECT,
                         ERROR_INTERNET_CONNECTION_ABORTED,
                         ERROR_INTERNET_CONNECTION_RESET,
