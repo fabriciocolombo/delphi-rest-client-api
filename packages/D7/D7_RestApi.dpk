@@ -28,7 +28,8 @@ requires
   rtl,
   vcl,
   dbrtl,
-  dsnap;
+  dsnap,
+  soaprtl;
 
 contains
   RestClient in '..\..\src\RestClient.pas',
