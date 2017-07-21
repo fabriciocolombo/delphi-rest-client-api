@@ -160,6 +160,7 @@ type
 
     constructor Create(RestClient: TRestClient; URL: string);
     procedure SetContent(entity: TObject);
+    function EntityRequest(Entity: TObject; ResultClass: TClass; Method: TRequestMethod; AHandler: TRestResponseHandler = nil): TObject;
   public
     destructor Destroy; override;
 
@@ -723,10 +724,23 @@ end;
 destructor TResource.Destroy;
 begin
   FRestClient.FResources.Extract(Self);
-  
+
   FContent.Free;
   FHeaders.Free;
   inherited;
+end;
+
+function TResource.EntityRequest(Entity: TObject; ResultClass: TClass; Method: TRequestMethod; AHandler: TRestResponseHandler = nil): TObject;
+var
+  vResponse: string;
+begin
+  if Entity <> nil then
+    SetContent(Entity);
+  vResponse := FRestClient.DoRequest(Method, Self, AHandler);
+  if Trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
+  else
+    Result := nil;
 end;
 
 function TResource.Get: string;
@@ -975,16 +989,8 @@ begin
 end;
 
 function TResource.Post(Entity: TObject): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
-  else
-    Result := nil;
+  Result := Post(Entity, Entity.ClassType);
 end;
 
 function TResource.Post(Content: string; ResultClass: TClass): TObject;
@@ -1014,30 +1020,13 @@ begin
 end;
 
 function TResource.Post(Entity: TObject; ResultClass: TClass): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-  vResponse := FRestClient.DoRequest(METHOD_POST, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
-  else
-    Result := nil;
+  Result := EntityRequest(Entity, ResultClass, METHOD_POST);
 end;
 
 function TResource.Put(Entity: TObject): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-
-  vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
-  else
-    Result := nil;
+  Result := Put(Entity, Entity.ClassType);
 end;
 
 function TResource.Put(Content: string; ResultClass: TClass): TObject;
@@ -1067,16 +1056,8 @@ begin
 end;
 
 function TResource.Put(Entity: TObject; ResultClass: TClass): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-  vResponse := FRestClient.DoRequest(METHOD_PUT, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
-  else
-    Result := nil;
+  Result := EntityRequest(Entity, ResultClass, METHOD_PUT);
 end;
 
 function TResource.Patch(Content: TStream): String;
@@ -1096,17 +1077,8 @@ begin
 end;
 
 function TResource.Patch(Entity: TObject): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-
-  vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(Entity.ClassType, vResponse)
-  else
-    Result := nil;
+  Result := Patch(Entity, Entity.ClassType);
 end;
 
 function TResource.Patch(Content: string; ResultClass: TClass): TObject;
@@ -1136,16 +1108,8 @@ begin
 end;
 
 function TResource.Patch(Entity: TObject; ResultClass: TClass): TObject;
-var
-  vResponse: string;
 begin
-  if Entity <> nil then
-    SetContent(Entity);
-  vResponse := FRestClient.DoRequest(METHOD_PATCH, Self);
-  if trim(vResponse) <> '' then
-    Result := TJsonUtil.UnMarshal(ResultClass, vResponse)
-  else
-    Result := nil;
+  Result := EntityRequest(Entity, ResultClass, METHOD_PATCH);
 end;
 
 function TResource.Patch(Content: string): string;
