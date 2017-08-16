@@ -385,7 +385,7 @@ var
 label
   error;
 begin
-  p := PSOChar(str);
+  p := PSOChar(SOString(str));
   sep := perhaps;
   state := stStart;
   pos := 0;
