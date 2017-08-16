@@ -30,7 +30,7 @@ type
 function JavaToDelphiDateTime(const dt: int64): TDateTime;
 function DelphiToJavaDateTime(const dt: TDateTime): int64;
 function ISO8601DateToJavaDateTime(const str: String; var ms: Int64): Boolean;
-function ISO8601DateToDelphiDateTime(const str: string; var dt: TDateTime): Boolean;
+function ISO8601DateToDelphiDateTime(const str: String; var dt: TDateTime): Boolean;
 function DelphiDateTimeToISO8601Date(dt: TDateTime): string;
 
 implementation
@@ -356,9 +356,11 @@ type
 {$IFNDEF UNICODE}
   PSOChar = PWideChar;
   SOChar = WideChar;
+  SOString = WideString;
 {$ELSE}
   SOChar = Char;
   PSOChar = PChar;
+  SOString = String;
 {$ENDIF}
 
 var
@@ -968,7 +970,7 @@ error:
   Result := False;
 end;
 
-function ISO8601DateToDelphiDateTime(const str: string; var dt: TDateTime): Boolean;
+function ISO8601DateToDelphiDateTime(const str: String; var dt: TDateTime): Boolean;
 var
   ms: Int64;
 begin
