@@ -232,9 +232,7 @@ begin
     vJsonObject := SO(AJson);
 
     if vJsonObject = nil then
-    begin
       raise EJsonInvalidSyntax.CreateFmt('Invalid json: "%s"', [AJson]);
-    end;
 
     Result := vUnMarshal.FromClass(AClassType, vJsonObject);
   finally
@@ -254,9 +252,7 @@ begin
     vJsonObject := SO(AJson);
 
     if vJsonObject = nil then
-    begin
       raise EJsonInvalidSyntax.CreateFmt('Invalid json: "%s"', [AJson]);
-    end;
 
     Result := vUnMarshal.FromList(AClassType, AItemClassType, vJsonObject);
   finally

@@ -17,7 +17,6 @@ type
     function CreateHttpServer: TIdHTTPServer;
     procedure DestroyHttpServer;
 
-    procedure OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);overload;
     procedure OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);overload;
 
     procedure OnCommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
@@ -178,12 +177,6 @@ begin
                          .Get;
 
   CheckEqualsString('{"x-foo":"Bar"}', vResponse);
-end;
-
-procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; AHeaders: TIdHeaderList;
-  var VContinueProcessing: Boolean);
-begin
-  OnHeadersAvailable(AContext, EmptyStr, AHeaders, VContinueProcessing);
 end;
 
 procedure TTestHeader.OnHeadersAvailable(AContext: TIdContext; const AUri: string; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean);

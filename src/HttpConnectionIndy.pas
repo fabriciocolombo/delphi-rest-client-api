@@ -23,11 +23,13 @@ type
     ///
     ///  Delphi 2007
     ///
+    {$IFNDEF DELPHI_10TOKYO_UP}
     function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean): Boolean;overload;
     ///
     ///  Delphi 2010 and XE
     ///
     function IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean;overload;
+    {$ENDIF}
     ///
     ///  Delphi XE2 and newer
     ///
@@ -229,6 +231,7 @@ begin
   result := FVerifyCert;
 end;
 
+{$IFNDEF DELPHI_10TOKYO_UP}
 function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate: TIdX509; AOk: Boolean): Boolean;
 begin
   Result := IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate, AOk, -1);
@@ -239,6 +242,7 @@ function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(
 begin
   Result := IdSSLIOHandlerSocketOpenSSL1VerifyPeer(Certificate, AOk, ADepth, -1);
 end;
+{$ENDIF}
 
 function THttpConnectionIndy.IdSSLIOHandlerSocketOpenSSL1VerifyPeer(
   Certificate: TIdX509; AOk: Boolean; ADepth, AError: Integer): Boolean;
