@@ -109,6 +109,17 @@
   {$DEFINE DELPHI_10SEATTLE_UP}
 {$ENDIF}
 
+{$IFDEF VER310}  // RAD Studio 10 Berlin
+  {$DEFINE DELPHI_10BERLIN}
+  {$DEFINE DELPHI_10BERLIN_UP}
+{$ENDIF}
+
+{$IFDEF VER320}  // RAD Studio 10 Tokyo
+  {$DEFINE DELPHI_10TOKYO}
+  {$DEFINE DELPHI_10TOKYO_UP}
+{$ENDIF}
+
+
 //Provide compatibility for the next version
 {$IF Declared(CompilerVersion) and (CompilerVersion > 30.0)} // Delphi 10 Seattle
   {$DEFINE DELPHI_10SEATTLE}
@@ -118,6 +129,14 @@
 {------------------------------------------------------------------------------}
 { DELPHI_**_UP VERSIONS                                                          }
 {------------------------------------------------------------------------------}
+
+{$IFDEF DELPHI_10TOKYO_UP}
+  {$DEFINE DELPHI_10BERLIN_UP}
+{$ENDIF}
+
+{$IFDEF DELPHI_10BERLIN_UP}
+  {$DEFINE DELPHI_10SEATTLE_UP}
+{$ENDIF}
 
 {$IFDEF DELPHI_10SEATTLE_UP}
   {$DEFINE DELPHI_XE8_UP}
