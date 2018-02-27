@@ -227,7 +227,9 @@ type
     function Post<T>(Entity: TObject): T;overload;
     function Post<T>(Content: string): T;overload;
     function Put<T>(Entity: TObject): T;overload;
+    function Put<T>(Content: string): T;overload;
     function Patch<T>(Entity: TObject): T;overload;
+    function Patch<T>(Content: string): T;overload;
     {$ELSE}
     function Get(AListClass, AItemClass: TClass): TObject;overload;
     function Post(Adapter: IJsonListAdapter): TObject;overload;
@@ -858,6 +860,18 @@ begin
     Result := Default(T);
 end;
 
+function TResource.Put<T>(Content: string): T;
+var
+  vResponse: string;
+begin
+  vResponse := Put(Content);
+
+  if Trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
+end;
+
 function TResource.Patch<T>(Entity: TObject): T;
 var
   vResponse: string;
@@ -871,6 +885,19 @@ begin
   else
     Result := Default(T);
 end;
+
+function TResource.Patch<T>(Content: string): T;
+var
+  vResponse: string;
+begin
+  vResponse := Patch(Content);
+
+  if Trim(vResponse) <> '' then
+    Result := TJsonUtil.UnMarshal<T>(vResponse)
+  else
+    Result := Default(T);
+end;
+
 {$ELSE}
 function TResource.Get(AListClass, AItemClass: TClass): TObject;
 var
