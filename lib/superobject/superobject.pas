@@ -142,7 +142,7 @@ type
   SOIChar = Word;
   PSOChar = PChar;
   SOString = string;
-{$ifend}
+{$ENDIF}
 
 const
   SUPER_ARRAY_LIST_DEFAULT_SIZE = 32;
@@ -992,11 +992,11 @@ var
   p: PSOChar;
 begin
   Result := FloatToStr(value);
-  if {$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ifend}DecimalSeparator <> '.' then
+  if {$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ENDIF}DecimalSeparator <> '.' then
   begin
     p := PSOChar(Result);
     while p^ <> #0 do
-      if p^ <> SOChar({$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ifend}DecimalSeparator) then
+      if p^ <> SOChar({$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ENDIF}DecimalSeparator) then
       inc(p) else
       begin
         p^ := '.';
@@ -1010,11 +1010,11 @@ var
   p: PSOChar;
 begin
   Result := CurrToStr(value);
-  if {$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ifend}DecimalSeparator <> '.' then
+  if {$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ENDIF}DecimalSeparator <> '.' then
   begin
     p := PSOChar(Result);
     while p^ <> #0 do
-      if p^ <> SOChar({$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ifend}DecimalSeparator) then
+      if p^ <> SOChar({$if defined(NEED_FORMATSETTINGS)}FormatSettings.{$ENDIF}DecimalSeparator) then
       inc(p) else
       begin
         p^ := '.';
@@ -1416,7 +1416,7 @@ begin
 {$if declared(vtUnicodeString)}
       vtUnicodeString:
           Add(TSuperObject.Create(SOString(string(TVarRec(Args[j]).VUnicodeString))));
-{$ifend}
+{$ENDIF}
     else
       assert(false);
     end;
@@ -1464,7 +1464,7 @@ begin
   {$ELSE}
     varUString:  Result := TSuperObject.Create(SOString(string(VUString)));
   {$ENDIF}
-{$ifend}
+{$ENDIF}
   else
     raise Exception.CreateFmt('Unsuported variant data type: %d', [VType]);
   end;
