@@ -122,6 +122,9 @@ type
     (* 417 Expectation Failed *)
     class function EXPECTATION_FAILED: TReponseCode;
 
+    (* 422 Unprocessable Entity *)
+    class function UNPROCESSABLE_ENTITY: TReponseCode;
+
     (* 500 Internal Server Error *)
     class function INTERNAL_SERVER_ERROR: TReponseCode;
 
@@ -384,6 +387,12 @@ class function TStatusCode.UNAUTHORIZED: TReponseCode;
 begin
   Result.StatusCode := 401;
   Result.Reason := 'Unauthorized';
+end;
+
+class function TStatusCode.UNPROCESSABLE_ENTITY: TReponseCode;
+begin
+  Result.StatusCode := 422;
+  Result.Reason := 'Unprocessable Entity';
 end;
 
 class function TStatusCode.UNSUPPORTED_MEDIA_TYPE: TReponseCode;
