@@ -694,8 +694,12 @@ end;
 function TResource.ContentRequest(Content: TStream; Method: TRequestMethod;
   AHandler: TRestResponseHandler): string;
 begin
-  Content.Position := 0;
-  FContent.CopyFrom(Content, Content.Size);
+  FContent.Clear;
+  if assigned(Content) then
+  begin
+    Content.Position := 0;
+    FContent.CopyFrom(Content, Content.Size);
+  end;
   Result := FRestClient.DoRequest(Method, Self, AHandler);
 end;
 
@@ -839,7 +843,6 @@ var
   vResponse: string;
 begin
   vResponse := Post(Content);
-
   if Trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
@@ -865,7 +868,6 @@ var
   vResponse: string;
 begin
   vResponse := Put(Content);
-
   if Trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
@@ -891,7 +893,6 @@ var
   vResponse: string;
 begin
   vResponse := Patch(Content);
-
   if Trim(vResponse) <> '' then
     Result := TJsonUtil.UnMarshal<T>(vResponse)
   else
