@@ -218,6 +218,7 @@ type
     {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
     procedure Get(AHandler: TRestResponseHandlerFunc);overload;
     procedure Post(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
+    Procedure Post(Entity: TObject; AHandler: TRestResponseHandlerFunc);overload;
     procedure Put(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     procedure Patch(Content: TStream; AHandler: TRestResponseHandlerFunc);overload;
     {$ENDIF}
@@ -633,6 +634,12 @@ end;
 procedure TResource.Get(AHandler: TRestResponseHandlerFunc);
 begin
   FRestClient.DoRequestFunc(METHOD_GET, Self, AHandler);
+end;
+
+procedure TResource.Post(Entity: TObject; AHandler: TRestResponseHandlerFunc);
+begin
+  SetContent(Entity);
+  FRestClient.DoRequestFunc(METHOD_POST, Self, AHandler);
 end;
 
 procedure TResource.Post(Content: TStream; AHandler: TRestResponseHandlerFunc);
