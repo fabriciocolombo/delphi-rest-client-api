@@ -32,7 +32,7 @@ begin
       ASize := 255;
     end;
 
-    Result:= fieldClass.Create(DataSet);    Result:= DefaultFieldClasses[FieldType].Create(DataSet);
+    Result:= fieldClass.Create(DataSet);
     Result.FieldName:= FieldName;
     if Result.FieldName = '' then
       Result.FieldName:= 'Field' + IntToStr(DataSet.FieldCount +1);
