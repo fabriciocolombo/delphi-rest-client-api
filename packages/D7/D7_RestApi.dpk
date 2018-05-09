@@ -22,14 +22,17 @@ package D7_RestApi;
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$IMPLICITBUILD OFF}
+{$IMPLICITBUILD ON}
 
 requires
   rtl,
   vcl,
   dbrtl,
   dsnap,
-  soaprtl;
+  soaprtl,
+  IndyCore70,
+  IndySystem70,
+  IndyProtocols70;
 
 contains
   RestClient in '..\..\src\RestClient.pas',
