@@ -103,6 +103,12 @@ begin
             ExtractFields(vNestedField.NestedDataSet, vArray[0]);
           end;
         end
+        else if (vIterator.val.IsType(stObject)) then
+        begin
+          vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+
+          ExtractFields(vNestedField.NestedDataSet, vIterator.val);
+        end		
         else
         begin
           TDataSetUtils.CreateField(ADataSet, SuperTypeToFieldType(vIterator.val.DataType), vIterator.key, SuperTypeToFieldSize(vIterator.val.DataType));

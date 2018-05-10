@@ -22,8 +22,17 @@ end;
 
 class function TDataSetUtils.CreateField(DataSet: TDataSet;
   FieldType: TFieldType; const FieldName: string; ASize: Integer; ADisplayWidth: Integer): TField;
+var
+  fieldClass: TFieldClass;
 begin
-    Result:= DefaultFieldClasses[FieldType].Create(DataSet);
+    fieldClass := DefaultFieldClasses[FieldType];
+    if (fieldClass = nil) then
+    begin
+      fieldClass := TStringField;
+      ASize := 255;
+    end;
+
+    Result:= fieldClass.Create(DataSet);
     Result.FieldName:= FieldName;
     if Result.FieldName = '' then
       Result.FieldName:= 'Field' + IntToStr(DataSet.FieldCount +1);
