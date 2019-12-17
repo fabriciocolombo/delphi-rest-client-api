@@ -6555,6 +6555,11 @@ function TSuperRttiContext.FromJson(TypeInfo: PTypeInfo; const obj: ISuperObject
         end;
         Result := True;
       end;
+    stNull:
+      begin
+        TValue.Make(nil, TypeInfo, Value);
+        Result := True;
+      end;
     stString:
       begin
           fmtSettings.DateSeparator := '-';
