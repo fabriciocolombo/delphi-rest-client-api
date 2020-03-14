@@ -212,7 +212,7 @@ type
     function Patch(Content: TStream; ResultClass: TClass): TObject;overload;
     function Patch(Entity: TObject; ResultClass: TClass): TObject;overload;
 
-    procedure Delete();overload;
+    function Delete: string; overload;
     procedure Delete(Entity: TObject);overload;
 
     {$IFDEF SUPPORTS_ANONYMOUS_METHODS}
@@ -738,9 +738,9 @@ begin
   FHeaders := TStringList.Create;
 end;
 
-procedure TResource.Delete();
+function TResource.Delete: string;
 begin
-  FRestClient.DoRequest(METHOD_DELETE, Self);
+  Result := FRestClient.DoRequest(METHOD_DELETE, Self);
 end;
 
 procedure TResource.Delete(Entity: TObject);

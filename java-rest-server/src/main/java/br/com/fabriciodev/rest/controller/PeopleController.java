@@ -93,6 +93,7 @@ public class PeopleController {
 	@DELETE
 	@Path("person")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public void removePerson(Person person) {
 		repository.remove(person.getId());
 

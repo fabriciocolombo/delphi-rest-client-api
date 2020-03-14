@@ -10,7 +10,6 @@ uses IdHTTP, HttpConnection, Classes, RestUtils, IdCompressorZLib, SysUtils,
 type
   TIdHTTP = class(idHTTP.TIdHTTP)
   public
-    procedure Delete(AURL: string);
     procedure Patch(AURL: string; ASource, AResponseContent: TStream);
   end;
 
@@ -144,7 +143,7 @@ var
 begin
   try
     FIdHttp.Request.Source := AContent;
-    FIdHttp.Delete(AUrl);
+    FIdHttp.Delete(AUrl, AResponse);
   except
     on E: EIdHTTPProtocolException do
     begin
@@ -424,18 +423,6 @@ end;
 procedure THttpConnectionIndy.SetVerifyCert(const Value: boolean);
 begin
   FVerifyCert := Value;
-end;
-
-{ TIdHTTP }
-
-procedure TIdHTTP.Delete(AURL: string);
-begin
-  try
-    DoRequest(Id_HTTPMethodDelete, AURL, Request.Source, nil, []);
-  except
-    on E: EIdHTTPProtocolException do
-      raise EHTTPError.Create(e.Message, e.ErrorMessage, e.ErrorCode);
-  end;
 end;
 
 procedure TIdHTTP.Patch(AURL: string; ASource, AResponseContent: TStream);
