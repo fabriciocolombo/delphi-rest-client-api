@@ -58,6 +58,7 @@ public class JsonController {
 	@DELETE
 	@Path("person")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
 	public void removePerson(Person person) {
 		assert(person != null);
 		System.out.println("DELETE " + person);
