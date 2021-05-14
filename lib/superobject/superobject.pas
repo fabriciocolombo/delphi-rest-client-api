@@ -3597,7 +3597,11 @@ redo_char:
       begin
         if (v = tok.quote_char) then
         begin
-          TokRec^.field_name := tok.pb.FBuf;
+          if (tok.pb.FBuf<>'') and
+             (not(Ord(tok.pb.FBuf[0]) in [65..90, 97..122]))then
+            TokRec^.field_name := '_' + String( tok.pb.FBuf )
+          else
+            TokRec^.field_name := tok.pb.FBuf;
           TokRec^.saved_state := tsObjectFieldEnd;
           TokRec^.state := tsEatws;
         end else
@@ -3615,7 +3619,11 @@ redo_char:
       begin
         if (SOIChar(v) < 256) and (AnsiChar(v) in [':', #0]) then
         begin
-          TokRec^.field_name := tok.pb.FBuf;
+          if (tok.pb.FBuf<>'') and
+             (not(Ord(tok.pb.FBuf[0]) in [65..90, 97..122]))then
+            TokRec^.field_name := '_' + String( tok.pb.FBuf )
+          else
+            TokRec^.field_name := tok.pb.FBuf;
           TokRec^.saved_state := tsObjectFieldEnd;
           TokRec^.state := tsEatws;
           goto redo_char;
