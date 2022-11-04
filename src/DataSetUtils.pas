@@ -33,7 +33,10 @@ begin
     end;
 
     Result:= fieldClass.Create(DataSet);
-    Result.FieldName:= FieldName;
+    if Length(FieldName) > 31 then
+      Result.FieldName:= Copy(FieldName,1,28) + Format('%3.3d',[DataSet.FieldCount + 1])
+    else
+      Result.FieldName:= FieldName;
     if Result.FieldName = '' then
       Result.FieldName:= 'Field' + IntToStr(DataSet.FieldCount +1);
     Result.FieldKind := fkData;
