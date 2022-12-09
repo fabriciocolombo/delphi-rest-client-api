@@ -8,7 +8,7 @@
 
 	<properties>
 		<jersey.version>1.12</jersey.version>
-		<spring-version>3.1.1.RELEASE</spring-version>
+		<spring-version>6.0.0</spring-version>
 	</properties>
 
 	<dependencies>
