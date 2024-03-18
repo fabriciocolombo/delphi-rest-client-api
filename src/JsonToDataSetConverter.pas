@@ -2,7 +2,7 @@ unit JsonToDataSetConverter;
 
 interface
 
-uses DB, DBClient, SuperObject;
+uses DB, DBClient, SuperObject, SysUtils;
 
 type
   TJsonToDataSetConverter = class
@@ -88,31 +88,47 @@ var
   vIterator: TSuperObjectIter;
   vNestedField: TDataSetField;
   vArray: TSuperArray;
+  bIgnoraCampo: boolean;
+  Valor: string;
 begin
   if SuperObject.ObjectFindFirst(AObject, vIterator) then
   begin
     try
       repeat
-        if (vIterator.val.IsType(stArray)) then
-        begin
-          vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+        bIgnoraCampo := False;
+        Valor := Trim(vIterator.val.AsString);
 
-          vArray := vIterator.val.AsArray;
-          if (vArray.Length > 0) then
-          begin
-            ExtractFields(vNestedField.NestedDataSet, vArray[0]);
-          end;
-        end
-        else if (vIterator.val.IsType(stObject)) then
+        if ( Copy( Valor, 1, 1 ) = '[' ) and ( Copy( Valor, 2, 1 ) <> '{' ) then
         begin
-          vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+          Valor := StringReplace( StringReplace( StringReplace( Valor, #13, '', [ rfReplaceAll ] ), #10, '', [ rfReplaceAll ] ), ' ', '', [ rfReplaceAll ] );
 
-          ExtractFields(vNestedField.NestedDataSet, vIterator.val);
-        end		
-        else
-        begin
-          TDataSetUtils.CreateField(ADataSet, SuperTypeToFieldType(vIterator.val.DataType), vIterator.key, SuperTypeToFieldSize(vIterator.val.DataType));
+          if ( Copy( Valor, 2, 1 ) <> '{' ) then
+            bIgnoraCampo := True;
         end;
+
+        if not bIgnoraCampo then
+        begin
+          if (vIterator.val.IsType(stArray)) then
+          begin
+            vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+
+            vArray := vIterator.val.AsArray;
+            if (vArray.Length > 0) then
+            begin
+              ExtractFields(vNestedField.NestedDataSet, vArray[0]);
+            end;
+          end
+          else if (vIterator.val.IsType(stObject)) then
+          begin
+            vNestedField := TDataSetUtils.CreateDataSetField(ADataSet, vIterator.key);
+
+            ExtractFields(vNestedField.NestedDataSet, vIterator.val);
+          end
+          else
+          begin
+            TDataSetUtils.CreateField(ADataSet, SuperTypeToFieldType(vIterator.val.DataType), vIterator.key, SuperTypeToFieldSize(vIterator.val.DataType));
+          end;
+        end;  
       until not SuperObject.ObjectFindNext(vIterator);
     finally
       SuperObject.ObjectFindClose(vIterator);
